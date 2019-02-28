@@ -1,0 +1,2 @@
+recursive-include truestory/static *
+recursive-include truestory/templates *

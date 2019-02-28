@@ -1,0 +1,16 @@
+runtime: python37
+entrypoint: gunicorn -b :$PORT truestory:app
+
+
+handlers:
+- url: /static
+  static_dir: truestory/static
+
+- url: /favicon\.ico
+  static_files: truestory/static/img/favicon.ico
+  upload: truestory/static/img/favicon\.ico
+
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto

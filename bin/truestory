@@ -1,0 +1,48 @@
+#! /usr/bin/env python3
+
+
+import argparse
+import logging
+
+import truestory
+
+
+def main():
+    # Main parser with common flags.
+    parser = argparse.ArgumentParser(
+        description="Get the both sides of news."
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true",
+        help="show debugging messages"
+    )
+    parser.add_argument(
+        "-p", "--pretty", action="store_true",
+        help="prettify output"
+    )
+    # TODO(cmiN): Add new commands like 'crawl'.
+    subparser = parser.add_subparsers(title="commands")
+
+    # Parse the given arguments.
+    args = parser.parse_args()
+    # (Re-)initialize the logging mechanism.
+    root = logging.getLogger()
+    for handler in root.handlers[:]:
+        root.removeHandler(handler)
+    level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        format="%(levelname)s - %(name)s - %(asctime)s - %(message)s",
+        filename=truestory.LOGFILE,
+        level=level
+    )
+    # Interpret the given arguments and execute commands.
+    try:
+        args.command(args)
+    except Exception as exc:
+        logging.exception(exc)
+    else:
+        logging.info("Operation completed successfully.")
+
+
+if __name__ == "__main__":
+    main()
