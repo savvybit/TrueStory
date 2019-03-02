@@ -23,3 +23,4 @@ PROJECT_DIR = os.path.normpath(
 
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
+

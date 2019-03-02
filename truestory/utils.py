@@ -17,3 +17,4 @@ def read(fpath):
 def get_secret_key():
     """Gets a constant secret key for sessions and cookies."""
     return hashlib.md5(base64.b64encode(settings.APP_NAME.encode())).hexdigest()
+
