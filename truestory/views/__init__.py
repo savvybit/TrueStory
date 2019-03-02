@@ -2,3 +2,10 @@
 
 
 from . import index
+from .. import app
+
+
+@app.route("/debug")
+def debug():
+    """Trigger debugger on local environment only."""
+    assert app.debug is False
