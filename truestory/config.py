@@ -10,23 +10,23 @@ class BaseConfig(object):
 
     DEBUG = False
     TESTING = False
+    PROPAGATE_EXCEPTIONS = False
 
     SECRET_KEY = utils.get_secret_key()
     SSL_DISABLE = False
 
-    PROPAGATE_EXCEPTIONS = False
-
 
 class ProductionConfig(BaseConfig):
 
-    """What is used in production and normal runs."""
+    """What is used in production (cloud deployment) runs."""
 
 
 class DevelopmentConfig(BaseConfig):
 
-    """Used while doing development & debugging."""
+    """Used while doing local development & debugging."""
 
     DEBUG = True
+    PROPAGATE_EXCEPTIONS = True
 
 
 class TestingConfig(BaseConfig):

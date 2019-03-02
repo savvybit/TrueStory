@@ -2,13 +2,14 @@
 
 
 import os
+from pathlib import Path
 
 from setuptools import find_packages, setup
 
 
 def read(fpath):
     check = os.path.isfile
-    path = os.path.join(os.path.dirname(__file__), fpath)
+    path = Path(__file__).parent / fpath
     if not check(path):
         path = fpath
         if not check(path):
@@ -44,7 +45,7 @@ setup(
     author="SavvyBit",
     author_email="irinam.bejan@gmail.com",
     packages=find_packages(exclude=["tests"]),
-    scripts=[os.path.join("bin", "truestory")],
+    scripts=["bin/truestory"],
     include_package_data=True,
     zip_safe=False,
     install_requires=get_requirements(),

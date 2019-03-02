@@ -3,14 +3,13 @@
 
 import base64
 import hashlib
-import os
 
 from truestory import settings
 
 
 def read(fpath):
     """Reads the content of a file relative to project."""
-    with open(os.path.join(settings.PROJECT_DIR, fpath)) as stream:
+    with open(settings.PROJECT_DIR / fpath) as stream:
         return stream.read()
 
 
