@@ -42,8 +42,8 @@
           </li>
         </ul>
 
-        <form class="form-inline my-2 my-md-0 mx-auto">
-          <input type="search" name="querySearch" value="{{ query_search }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
+        <form action="{{ url_for('home') }}" class="form-inline my-2 my-md-0 mx-auto">
+          <input type="search" name="querySearch" value="{{ query_search or '' }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
           <button class="btn btn-sm btn-outline-info my-2 my-sm-0" type="submit">
             <i class="material-icons">search</i>
           </button>

@@ -16,45 +16,58 @@
 
 <section id="articleList">
   {% for pair in bias_pairs %}
-  <!-- TODO(cmiN): Use a Jinja template for generating these. -->
-  <div class="card-deck py-4 justify-content-around">
-    <div class="card col-5">
-      <a href="#" class="card-link">
-        <div class="row no-gutters">
-          <div class="col-4">
-            <img src="https://image.shutterstock.com/image-vector/news-gray-vertical-word-volume-450w-371628763.jpg" class="card-img" alt="Article picture">
-          </div>
+  <!-- TODO(cmiN): Use a Jinja template function for generating these. -->
+  <div class="row py-4">
+    <div class="card-deck justify-content-around">
+      <div class=col-5>
+        <div class="card">
+          <a href="#" class="card-link text-dark">
+            <div class="row no-gutters">
+              <div class="col-4">
+                <img src="https://image.shutterstock.com/image-vector/news-gray-vertical-word-volume-450w-371628763.jpg" class="card-img" alt="Article picture">
+              </div>
 
-          <div class="col-8">
-            <div class="card-body text-dark">
-              <!-- FIXME(cmiN): Replace this with actual info from the article. -->
-              <h5 class="card-title">News title</h5>
-              <p class="card-text">This is a longer article with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-              <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+              <div class="col-8">
+                <div class="card-body">
+                  <!-- FIXME(cmiN): Replace this with actual info from the article. -->
+                  <h5 class="card-title">News title</h5>
+                  <p class="card-text">This is a longer article with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  <p class="card-text">
+                    <span class="badge badge-pill badge-dark">BBC</span>
+                    <small class="text-muted">Last updated 3 mins ago</small>
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
-      </a>
-    </div>
+      </div>
 
-    <i class="material-icons md-48 text-info my-auto">compare_arrows</i>
+      <i class="material-icons md-48 text-info my-auto">compare_arrows</i>
 
-    <div class="card col-5">
-      <a href="#" class="card-link">
-        <div class="row no-gutters">
-          <div class="col-4">
-            <img src="https://image.shutterstock.com/image-vector/news-gray-vertical-word-volume-450w-371628763.jpg" class="card-img" alt="Article picture">
-          </div>
+      <div class=col-5>
+        <div class="card">
+          <a href="#" class="card-link text-dark">
+            <div class="row no-gutters">
+              <div class="col-4">
+                <img src="https://image.shutterstock.com/image-vector/news-gray-vertical-word-volume-450w-371628763.jpg" class="card-img" alt="Article picture">
+              </div>
 
-          <div class="col-8">
-            <div class="card-body text-dark">
-              <h5 class="card-title">News title</h5>
-              <p class="card-text">This is a longer article with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-              <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+              <div class="col-8">
+                <div class="card-body">
+                  <!-- FIXME(cmiN): Replace this with actual info from the article. -->
+                  <h5 class="card-title">News title</h5>
+                  <p class="card-text">This is a longer article with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  <p class="card-text">
+                    <span class="badge badge-pill badge-dark">BBC</span>
+                    <small class="text-muted">Last updated 3 mins ago</small>
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
-      </a>
+      </div>
     </div>
   </div>
   {% endfor %}
