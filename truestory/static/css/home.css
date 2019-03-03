@@ -1,0 +1,6 @@
+/* Go to top of the page button. */
+#toTop {
+    position: fixed;
+    bottom: 0;
+    display: none;
+}

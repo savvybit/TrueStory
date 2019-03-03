@@ -16,7 +16,7 @@
 
     <!-- Bootstrap and custom JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!-- Custom TrueStory scripts -->
@@ -33,24 +33,24 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
             <a class="nav-link" href="{{ url_for('home') }}">Home <span class="sr-only">Home</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Topics <span class="sr-only">Topics</span></a>
+            <a class="nav-link" href="{{ url_for('topics') }}">Topics <span class="sr-only">Topics</span></a>
           </li>
         </ul>
 
         <form class="form-inline my-2 my-md-0 mx-auto">
-          <input type="search" name="query" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
+          <input type="search" name="querySearch" value="{{ query_search }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
           <button class="btn btn-sm btn-outline-info my-2 my-sm-0" type="submit">
-            <i class="material-icons md-18 pt-1">search</i>
+            <i class="material-icons">search</i>
           </button>
         </form>
 
         <div class="dropdown mx-auto">
-          <i class="material-icons dropdown-toggle text-primary" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">account_circle</i>
+          <i class="material-icons text-primary dropdown-toggle" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">account_circle</i>
           <div class="dropdown-menu" aria-labelledby="profileDropdown">
             <a class="dropdown-item" href="#">Preferences</a>
             <a class="dropdown-item" href="#">Settings</a>
@@ -61,7 +61,7 @@
       </div>
     </nav>
 
-    <div class="container-fluid">
+    <div class="container-fluid py-5">
       {% block container %}{% endblock container %}
     </div>
     {% endblock content %}
