@@ -11,7 +11,7 @@ function load_articles() {
         data: {"queryCursor": cursor_input.val()},
     }).done(function (data) {
         // Get articles row template first.
-        var row_tpl = $("div.card-deck").first();
+        var row_tpl = $("div.card-deck").parent().first();
         // Display the newly received articles.
         var bp = data["bias_pairs"];
         for (idx = 0; idx < bp.length; ++idx) {
