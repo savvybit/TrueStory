@@ -1,7 +1,7 @@
 function load_articles() {
     // Set an animation while loading.
     var load_btn = $("button#loadMoreReady").detach();
-    $("button#loadMoreBusy").removeClass("invisible");
+    $("button#loadMoreBusy").removeClass("d-none");
 
     // Fetch more articles through a GET request to the same page.
     var home_url = window.location.href;
@@ -21,11 +21,26 @@ function load_articles() {
         }
 
         // Set the next cursor for future retrieval.
-        cursor_input.val(data["new_cursor"]);
+        var new_cursor = data["new_cursor"];
+        new_cursor ? new_cursor : "";
+        cursor_input.val(new_cursor);
     }).always(function () {
         // Revert back to the "Load more" button.
-        $("button#loadMoreBusy").addClass("invisible");
-        $("div#loadGroup").prepend(load_btn);
+        $("button#loadMoreBusy").addClass("d-none");
+        var to_put;
+        var load_group = $("div#loadGroup");
+        if (cursor_input.val()) {
+            /* Put again the loading button, because we've got more data to
+               load next. */
+            to_put = load_btn;
+        } else {
+            /* Show "All Caught" message. */
+            to_put = $("#loadMoreEmpty").detach();
+            to_put.removeClass("d-none");
+            load_group.removeClass("col-2");
+            load_group.addClass("col-3 text-center");
+        }
+        load_group.prepend(to_put);
     });
 }
 

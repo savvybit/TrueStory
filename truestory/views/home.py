@@ -18,6 +18,9 @@ def home():
         print(cursor)
         import time; time.sleep(0.5)
         cursor += "_new"
+        # Now simulate end of data.
+        if cursor.count("new") >= 3:
+            cursor = None
         return jsonify({"bias_pairs": bias_pairs, "new_cursor": cursor})
 
     # TODO(cmiN): Use this keyword when making the cursor's query.
