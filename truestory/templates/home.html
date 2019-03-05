@@ -14,11 +14,12 @@
 <h1 class="display-3 text-center">{{ title or 'Today\'s bias' }}</h1>
 <hr>
 
-<section id="articleList">
+<section id="articleList" class="mw-98">
   {% for pair in bias_pairs %}
   <!-- TODO(cmiN): Use a Jinja template function for generating these. -->
   <div class="row py-4">
     <div class="card-deck justify-content-around">
+
       <div class=col-5>
         <div class="card">
           <a href="{{ url_for('article', article_usafe='article_usafe') }}" class="card-link text-dark">
@@ -68,6 +69,7 @@
           </a>
         </div>
       </div>
+
     </div>
   </div>
   {% endfor %}

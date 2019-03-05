@@ -22,3 +22,9 @@
     /* Seems weird, but this aligns the icons better than `middle`. */
     vertical-align: top;
 }
+
+
+/* Removes horizontal scrollbar due to border pixels. */
+.mw-98 {
+    max-width: 98%;
+}
