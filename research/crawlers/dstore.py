@@ -2,7 +2,7 @@ from google.cloud import datastore
 
 
 def add_rss_link(link):
-    key = client.key('RssTarget')
+    key = client.key('Test')
 
     rss_target = datastore.Entity(
         key, exclude_from_indexes=['link'])
@@ -19,7 +19,7 @@ def add_rss_link(link):
 
 def mark_auth_required(id):
     with client.transaction():
-        key = client.key('RssTarget', id)
+        key = client.key('Test', id)
         rss_target = client.get(key)
 
         if not rss_target:
@@ -32,12 +32,12 @@ def mark_auth_required(id):
 
 
 def delete_rss_target(id):
-    key = client.key('RssTarget', id)
+    key = client.key('Test', id)
     client.delete(key)
 
 
 def list_rss_targets():
-    query = client.query(kind='RssTarget')
+    query = client.query(kind='Test')
 
     return list(query.fetch())
 
@@ -49,4 +49,3 @@ if __name__ == "__main__":
     print(list_rss_targets())
     delete_rss_target(rid)
     print(list_rss_targets())
-
