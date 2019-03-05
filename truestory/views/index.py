@@ -1,4 +1,4 @@
-"""Handles the front page."""
+"""Handles the landing page."""
 
 
 from flask import render_template
