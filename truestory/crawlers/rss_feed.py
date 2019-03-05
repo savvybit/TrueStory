@@ -47,18 +47,20 @@ class RssCrawler(object):
         filtered_entries = []
 
         for entry in entries:
-            if entry.get('published_parsed') > date:
+            entry_date = datetime.fromtimestamp(
+                mktime(entry.get('published_parsed')))
+            if entry_date > date:
                 filtered_entries.append(entry)
 
         return filtered_entries
 
     @staticmethod
-    def recent_feed(rss_link, modified, etag):
+    def recent_feed(target):
         """Retrieves the rss feed through feedparser and updates time of the
         last retrieval to avoid getting banned or having duplicate data.
         """
         response = fd.parse(
-            rss_link, modified=modified, etag=etag)
+            target.link, modified=target.last_modified, etag=target.etag)
 
         # Some of the feeds offer one of these two tags and some none.
         modified = response.get('modified', None)
@@ -67,8 +69,8 @@ class RssCrawler(object):
         # In case rss feed doesn't support modified tag, we compute it.
         if not modified:
             modified_time = RssCrawler.last_modified_date(response.entries)
-            response.entries = \
-                RssCrawler.entries_after_date(response.entries, modified_time)
+            response.entries = RssCrawler.entries_after_date(
+                response.entries, target.last_modified)
 
             modified = datetime.fromtimestamp(mktime(modified_time))
 
@@ -142,8 +144,7 @@ class RssCrawler(object):
     @staticmethod
     def parse_target(client, target):
         """Parses the rss link given and extracts articles data."""
-        response, modified, etag = RssCrawler.recent_feed(
-            target.link, target.last_modified, target.etag)
+        response, modified, etag = RssCrawler.recent_feed(target)
 
         # Bozo is a tag which warns that the rss hasn't been parsed correctly.
         if response.bozo:
