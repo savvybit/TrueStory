@@ -3,4 +3,4 @@
 
 from .article import ArticleModel
 from .base import BaseModel, EntityMixin, StatusMixin, client, ndb
-from .rss_target import RssTargetModel
+from .rss import RssTargetModel

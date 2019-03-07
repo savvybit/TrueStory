@@ -1,5 +1,6 @@
 Flask>=1.0.2
+feedparser>=5.2.1
 google-cloud-datastore>=1.7.3
 gunicorn>=19.9.0
 ndb-orm>=0.10.0
-feedparser>=5.2.1
+newspaper3k>=0.2.8

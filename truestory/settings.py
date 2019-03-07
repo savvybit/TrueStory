@@ -21,4 +21,3 @@ WORK_DIR = Path(f"~/Work/{APP_NAME}").expanduser()
 
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
-

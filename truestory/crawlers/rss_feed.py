@@ -1,180 +1,182 @@
-import logging
-from time import mktime
-from datetime import datetime
+"""RSS feed crawler capable of extracting exposed articles."""
 
-import feedparser as fd
-from newspaper import Article
+
+import collections
+import logging
+import time
+from datetime import datetime
+from http import HTTPStatus
+
+import feedparser
+from newspaper import Article as NewsArticle
 
 from truestory.models import ArticleModel
-from truestory.crawlers.rss_target_helper import RssTargetHelper
-from truestory.crawlers.article_helper import ArticleHelper
-
-from google.cloud import datastore
-from truestory.models import ndb
-
-# Describes status codes returned by feedparser
-TEMPORARY_MOVED = 302
-PERMANENTLY_MOVED = 301
-NO_DATA = 304
-DELETED = 410
-PASSWORD_PROTECTED = 401
 
 
-class RssCrawler(object):
+class RssCrawler:
+
+    def __init__(self, rss_targets):
+        """Instantiates with a RSS targets list to crawl."""
+        self._rss_targets = rss_targets
+        self.extracted_articles = collections.defaultdict(list)
 
     @staticmethod
-    def crawl_links(client, rss_targets):
-        """Crawls the recent feed of all the rss targets given."""
-        if not rss_targets:
-            logging.info('No links provided to the crawler.')
+    def _extract_article(feed_entry, source_name):
+        """Extracts all the information needed and returns it as `ArticleModel`."""
+        # Link and title are mandatory fields in a RSS. If missing, we cannot
+        # parse the article.
+        link = feed_entry.get("link")
+        title = feed_entry.get("title")
+        if not all([link, title]):
+            return None
 
-        for target in rss_targets:
-            RssCrawler.parse_target(client, target)
+        # Get some extra info within the feed itself and using `newspaper` help.
+        # The 'description' value seems to be an alternative tag for summary.
+        summary = feed_entry.get("summary") or feed_entry.get("description")
+        news_article = NewsArticle(link)
+        news_article.download()
+        news_article.parse()
+        news_article.nlp()
+
+        # Create and return article in the DB with all the gathered data.
+        article_ent = ArticleModel(
+            source=source_name,
+            link=link,
+            title=title,
+            content=news_article.text,
+            summary=summary,
+            authors=news_article.authors,
+            published=news_article.publish_date,
+            img=news_article.top_image,
+            categories=news_article.keywords,
+        )
+        return article_ent
 
     @staticmethod
-    def last_modified_date(entries):
-        """Computes the most recent date of the crawled articles of the feed."""
-        publish_dates = [entry.get('published_parsed') for entry in entries]
+    def _manage_status(response, target):
+        """Handles some of the possible problematic statuses and updates target.
 
-        if len(publish_dates) > 0:
-            return max(publish_dates)
-
-        return None
-
-    @staticmethod
-    def entries_after_date(entries, date):
-        """Filters out from feed the ones who are older than given date."""
-        filtered_entries = []
-
-        for entry in entries:
-            entry_date = datetime.fromtimestamp(
-                mktime(entry.get('published_parsed')))
-            if entry_date > date:
-                filtered_entries.append(entry)
-
-        return filtered_entries
-
-    @staticmethod
-    def recent_feed(target):
-        """Retrieves the rss feed through feedparser and updates time of the
-        last retrieval to avoid getting banned or having duplicate data.
+        Returns:
+            bool: True if we shall crawl the target, False otherwise.
         """
-        response = fd.parse(
-            target.link, modified=target.last_modified, etag=target.etag)
-
-        # Some of the feeds offer one of these two tags and some none.
-        modified = response.get('modified', None)
-        etag = response.get('etag', None)
-
-        # In case rss feed doesn't support modified tag, we compute it.
-        if not modified:
-            modified_time = RssCrawler.last_modified_date(response.entries)
-            response.entries = RssCrawler.entries_after_date(
-                response.entries, target.last_modified)
-
-            modified = datetime.fromtimestamp(mktime(modified_time))
-
-        return response, modified, etag
-
-    @staticmethod
-    def manage_status(client, response, target):
-        """Handles some of the possible errors status and updates target.
-        Returns True if we shall crawl the target.
-        """
+        name = target.id
 
         # We shall never crawl it again.
-        if response.status == DELETED:
-            logging.info('[RSS] Deleted ' + target.link)
-            RssTargetHelper.delete_target(client, target)
+        if response.status == HTTPStatus.GONE:
+            logging.warning("RSS is dead for %r.", name)
+            target.has_gone()
             return False
 
-        # We should know that it requires auth and implement it further.
-        elif response.status == PASSWORD_PROTECTED:
-            logging.info('[RSS] Password protected ' + target.link)
-            RssTargetHelper.mark_auth_required(client, target)
+        # We should know that it requires auth and implement it in the future.
+        if response.status == HTTPStatus.UNAUTHORIZED:
+            logging.warning("RSS requires auth for %r.", name)
+            target.needs_auth()
             return False
 
-        elif response.status == NO_DATA:
-            logging.info('[RSS] No data for ' + target.link)
+        # Nothing new received from it.
+        if response.status == HTTPStatus.NOT_MODIFIED:
+            logging.info("RSS has no data for %r.", name)
             return False
 
-        # Link has permanently moved, so we have to update the ds entry
-        elif response.status == PERMANENTLY_MOVED:
-            RssTargetHelper.update_target_link(client, target, response.href)
+        # URL has permanently moved, so we have to update with the new one.
+        if response.status == HTTPStatus.MOVED_PERMANENTLY:
+            logging.info("RSS has moved for %r.", name)
+            target.moved_to(response.href)
 
         return True
 
     @staticmethod
-    def extract_article_data(feed_entry, source_name):
-        """Extracts all information needed for article model."""
+    def _time_to_date(parsed_time):
+        """Converts `parsed_time` to a datetime object."""
+        if not parsed_time:
+            return parsed_time
+        return datetime.fromtimestamp(time.mktime(parsed_time))
 
-        # Link and title are mandatory fields in a RSS. If missing, we cannot
-        # parse the article
-        if not feed_entry.get('link') or not feed_entry.get('title'):
-            return None
+    @classmethod
+    def _entries_after_date(cls, entries, date):
+        """Filters out from feed the ones which are older than the given date.
 
-        article_data = ArticleModel(
-            title=feed_entry.get('title'),
-            link=feed_entry.get('link'),
-            summary=feed_entry.get('summary'),
-            source=source_name
+        Returns:
+            tuple: list of new entries and a new date to crawl afterwards.
+        """
+        # Filter current entries based on the provided modified date.
+        new_entries = []
+        max_date = date
+
+        for entry in entries:
+            entry_date = cls._time_to_date(entry.get("published_parsed"))
+            if not max_date:
+                max_date = entry_date
+            if all([entry_date, date]) and entry_date <= date:
+                continue
+
+            new_entries.append(entry)
+            if entry_date and entry_date > max_date:
+                max_date = entry_date
+
+        return new_entries, max_date
+
+    @classmethod
+    def _get_recent_feed(cls, target):
+        """Retrieves the RSS feed through `feedparser` and updates the timestamp of
+        the last retrieval in order to avoid getting banned or having duplicate data.
+
+        Returns:
+            tuple: Article, its modified date and the e-tag.
+        """
+        response = feedparser.parse(
+            target.link, modified=target.last_modified, etag=target.etag
         )
 
-        # 'Description' seems to be an alternative tag for summary.
-        if not article_data.summary:
-            article_data.summary = feed_entry.get('description')
+        # Some of the feeds offer one of these two tags and others none of them.
+        modified = cls._time_to_date(response.get("modified_parsed"))
+        etag = response.get("etag")
 
-        # If these tags are missing, we parse the article itself to get them.
-        if not article_data.content or not article_data.img:
+        # In case RSS feed doesn't support modified tag, we compute it.
+        if not modified:
+            response.entries, modified = cls._entries_after_date(
+                response.entries, target.last_modified
+            )
 
-            article = Article(article_data.link)
-            article.download()
-            article.parse()
+        return response, modified, etag
 
-            article_data.content = article.text
-            article_data.img = article.top_image
-            article_data.authors = article.authors
-            article_data.published = article.publish_date
+    @classmethod
+    def _parse_target(cls, target):
+        """Parses the given RSS target, then extracts and returns all found articles.
+        """
+        response, modified, etag = cls._get_recent_feed(target)
 
-            article.nlp()
-            article_data.categories = article.keywords
-
-        return article_data
-
-    @staticmethod
-    def parse_target(client, target):
-        """Parses the rss link given and extracts articles data."""
-        response, modified, etag = RssCrawler.recent_feed(target)
-
-        # Bozo is a tag which warns that the rss hasn't been parsed correctly.
+        # Bozo is a tag which tells that the RSS hasn't been parsed correctly.
         if response.bozo:
-            logging.info('[RSS] Bozo error in link ' + target.link)
+            raise Exception(response.bozo)
 
-        # We need a status to parse the feed. If missing, an error has occured.
-        if 'status' in response:
+        articles = []
+        # All good, check the status first to see if we can continue with the
+        # extraction.
+        if cls._manage_status(response, target):
+            for feed_entry in response.entries:
+                # Extracts data and saves new articles in the DB with it.
+                try:
+                    article = cls._extract_article(feed_entry, target.source_name)
+                except Exception as exc:
+                    logging.error("Got %s while parsing %r.", exc, feed_entry.id)
+                else:
+                    articles.append(article)
+            target.checkpoint(modified, etag)
 
-            if RssCrawler.manage_status(client, response, target):
+        return articles
 
-                for feed_entry in response.get('entries'):
-                    # Extract all needed data to fill in the article model.
-                    data = RssCrawler.extract_article_data(
-                        feed_entry, target.source_name)
-                    if data:
-                        article = ArticleHelper.add_article_entity(client)
-                        article.update(data.to_dict())
-                        client.put(article)
+    def crawl_targets(self):
+        """Crawls the most recent feed from all the given RSS targets."""
+        if not self._rss_targets:
+            logging.warning("No links provided to the crawler.")
+            return
 
-                # As we just parsed a target, we update date metadata.
-                RssTargetHelper.update_target_date(client, target, modified, etag)
-
-
-def main():
-    client = datastore.Client(project='truestory', namespace='development')
-    ndb.enable_use_with_gcd(client.project)
-
-    rss_list = RssTargetHelper.list_rss_targets(client)
-    RssCrawler.crawl_links(client, rss_list)
-
-
-if __name__ == "__main__":
-    main()
+        for target in self._rss_targets:
+            logging.debug("Crawling target URL %r.", target.link)
+            try:
+                articles = self._parse_target(target)
+            except Exception as exc:
+                logging.error("RSS target error with %r: %s", target.id, exc)
+            else:
+                self.extracted_articles[target.id].extend(articles)

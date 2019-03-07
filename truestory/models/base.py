@@ -13,8 +13,9 @@ from truestory import settings
 # Root key values. Makes the DB strongly consistent.
 KEY_KIND = settings.APP_NAME
 KEY_ID = 1
+NAMESPACE = "development" if settings.DEBUG else "production"
 
-client = datastore.Client()
+client = datastore.Client(project=settings.PROJECT_ID, namespace=NAMESPACE)
 ndb.enable_use_with_gcd(client.project)
 
 
@@ -34,10 +35,10 @@ class BaseModel(ndb.Model):
     READ_ONLY = []
     # List of properties that shouldn't be cloned.
     CLONE_SKIP = [
-        "date",
+        "created_at",
     ]
 
-    date = ndb.DateTimeProperty(auto_now_add=True)
+    created_at = ndb.DateTimeProperty(auto_now_add=True)
     parent_key = ndb.KeyProperty()
 
     def __init__(self, *args, parent=get_root_key(), **kwargs):
@@ -58,7 +59,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def all(cls, query=None, **kwargs):
         query = query or cls.query()
-        return query.order(-cls.date).fetch(**kwargs)
+        return query.order(-cls.created_at).fetch(**kwargs)
 
     @classmethod
     def norm(cls, value):
@@ -161,7 +162,7 @@ class BaseModel(ndb.Model):
         return cls.__name__.replace("Model", "")
 
 
-class StatusMixin(BaseModel):
+class StatusMixin:
 
     """Adds statuses to entities supposed to do work (crons)."""
 
@@ -185,7 +186,7 @@ class StatusMixin(BaseModel):
         self.put(if_exists=True, change=self.__CHANGE)
 
 
-class EntityMixin(BaseModel):
+class EntityMixin:
 
     """Adds support for updating same entities when similar ones are added."""
 
@@ -201,7 +202,7 @@ class EntityMixin(BaseModel):
         # Update the old entity with the newly extracted values (from self).
         properties = self.to_dict()  # without the skips ofc
         # Make sure we put the current date.
-        properties["date"] = datetime.datetime.utcnow()
+        properties["created_at"] = datetime.datetime.utcnow()
         # Populate the original existing entity with all the non skip-able properties.
         entity.populate(**properties)
         # Save all the new incoming changes into the old entity.
