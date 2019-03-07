@@ -3,8 +3,7 @@ import sys
 from google.cloud import datastore
 
 from truestory.crawlers.rss_feed import RssCrawler
-from truestory.crawlers.rss_target_helper import RssTargetHelper
-
+from truestory.models import RssTargetModel
 
 
 client = None
@@ -60,8 +59,15 @@ def add_remove_rss():
 
 
 def rss_feed():
-    rss_list = RssTargetHelper.list_rss_targets(client)
-    RssCrawler.crawl_targets(client, rss_list)
+    rss_targets = RssTargetModel.all()
+    crawler = RssCrawler(rss_targets)
+    articles = crawler.crawl_targets()
+    print(articles)
+
+
+def test_model():
+    target = RssTargetModel(source_name="test")
+    target.put()
 
 
 def main():
@@ -75,12 +81,12 @@ def main():
     funcs = {
         "rss": add_remove_rss,
         "rss_feed": rss_feed,
+        "test_model": test_model,
     }
     funcs[sys.argv[1]]()
 
 
 if __name__ == "__main__":
     main()
-
 
 # Example: $ python dstore.py rss_feed
