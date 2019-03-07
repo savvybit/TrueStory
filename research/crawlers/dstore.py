@@ -1,12 +1,18 @@
+import logging
 import sys
 
 from google.cloud import datastore
 
 from truestory.crawlers.rss_feed import RssCrawler
-from truestory.models import RssTargetModel
+from truestory.models import ArticleModel, RssTargetModel
 
 
 client = None
+
+logging.basicConfig(
+    format="%(levelname)s - %(name)s - %(asctime)s - %(message)s",
+    level=logging.DEBUG
+)
 
 
 def add_rss_link(link):
@@ -60,14 +66,29 @@ def add_remove_rss():
 
 def rss_feed():
     rss_targets = RssTargetModel.all()
+    target = rss_targets[0]
+    print(target)
     crawler = RssCrawler(rss_targets)
-    articles = crawler.crawl_targets()
-    print(articles)
+    article_dict = crawler.crawl_targets()
+    print(article_dict)
+    articles = sum(article_dict.values(), [])
+    ArticleModel.put_multi(articles)
 
 
 def test_model():
     target = RssTargetModel(source_name="test")
-    target.put()
+    print("model name", target.model_name())
+    key = target.put()
+    print("with key", key)
+    usafe = target.usafe
+    print("usafe", usafe)
+    target = RssTargetModel.get(usafe)
+    print("target", target)
+    target.remove()
+    print("removed; remaining", RssTargetModel.all(keys_only=True))
+    # items = globals()
+    # items.update(locals())
+    # import code; code.interact(local=items)
 
 
 def main():

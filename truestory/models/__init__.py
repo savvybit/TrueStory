@@ -2,5 +2,5 @@
 
 
 from .article import ArticleModel
-from .base import BaseModel, EntityMixin, StatusMixin, client, ndb
+from .base import BaseModel, EntityMixin
 from .rss import RssTargetModel

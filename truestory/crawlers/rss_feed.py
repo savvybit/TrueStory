@@ -4,7 +4,7 @@
 import collections
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from http import HTTPStatus
 
 import feedparser
@@ -18,7 +18,7 @@ class RssCrawler:
     def __init__(self, rss_targets):
         """Instantiates with a RSS targets list to crawl."""
         self._rss_targets = rss_targets
-        self.extracted_articles = collections.defaultdict(list)
+        self._extracted_articles = collections.defaultdict(list)
 
     @staticmethod
     def _extract_article(feed_entry, source_name):
@@ -59,7 +59,7 @@ class RssCrawler:
         Returns:
             bool: True if we shall crawl the target, False otherwise.
         """
-        name = target.id
+        name = target.link
 
         # We shall never crawl it again.
         if response.status == HTTPStatus.GONE:
@@ -90,7 +90,7 @@ class RssCrawler:
         """Converts `parsed_time` to a datetime object."""
         if not parsed_time:
             return parsed_time
-        return datetime.fromtimestamp(time.mktime(parsed_time))
+        return datetime.fromtimestamp(time.mktime(parsed_time), tz=timezone.utc)
 
     @classmethod
     def _entries_after_date(cls, entries, date):
@@ -107,6 +107,7 @@ class RssCrawler:
             entry_date = cls._time_to_date(entry.get("published_parsed"))
             if not max_date:
                 max_date = entry_date
+            # import code; code.interact(local=locals())
             if all([entry_date, date]) and entry_date <= date:
                 continue
 
@@ -159,7 +160,7 @@ class RssCrawler:
                 try:
                     article = cls._extract_article(feed_entry, target.source_name)
                 except Exception as exc:
-                    logging.error("Got %s while parsing %r.", exc, feed_entry.id)
+                    logging.exception("Got %s while parsing %r.", exc, feed_entry.id)
                 else:
                     articles.append(article)
             target.checkpoint(modified, etag)
@@ -173,10 +174,13 @@ class RssCrawler:
             return
 
         for target in self._rss_targets:
-            logging.debug("Crawling target URL %r.", target.link)
+            link = target.link
+            logging.debug("Crawling target URL %r.", link)
             try:
                 articles = self._parse_target(target)
             except Exception as exc:
-                logging.error("RSS target error with %r: %s", target.id, exc)
+                logging.exception("RSS target error with %r: %s", link, exc)
             else:
-                self.extracted_articles[target.id].extend(articles)
+                self._extracted_articles[link].extend(articles)
+
+        return self._extracted_articles

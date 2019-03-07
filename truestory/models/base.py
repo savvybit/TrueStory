@@ -20,15 +20,18 @@ class BaseModel(ndb.Model):
 
     """Common model properties and functionality."""
 
-    # String used for properties with not available data.
+    # String used for properties with no available data.
     NOT_SET = "N/A"
 
     created_at = ndb.DateTimeProperty(auto_now_add=True)
 
+    def __init__(self, *args, project=settings.PROJECT_ID, namespace=NAMESPACE,
+                 **kwargs):
+        super().__init__(*args, project=project, namespace=namespace, **kwargs)
+
     @classmethod
-    def all(cls, query=None, **kwargs):
-        query = query or cls.query()
-        return query.order(-cls.created_at).fetch(**kwargs)
+    def model_name(cls):
+        return cls.__name__.replace("Model", "")
 
     @classmethod
     def norm(cls, value):
@@ -36,17 +39,29 @@ class BaseModel(ndb.Model):
             return cls.NOT_SET
         return value
 
+    @classmethod
+    def query(cls, **kwargs):
+        query = client.query(kind=cls._get_kind(), **kwargs)
+        return query
+
+    @classmethod
+    def all(cls, query=None, keys_only=False, **kwargs):
+        query = query or cls.query()
+        query.order = ["-created_at"]
+        if keys_only:
+            query.keys_only()
+        return list(query.fetch(**kwargs))
+
     @property
     def myself(self):
-        """Return the current DB version of the same object (without caching)."""
-        return self.key.get(use_cache=False, use_memcache=False)
+        """Return the current DB version of the same object."""
+        return client.get(self.key)
 
     @property
     def exists(self):
         """Checks if the entity is saved into the Datastore."""
         try:
-            return (bool(self.myself) if self.key and self.key.id()
-                    else False)
+            return bool(self.myself) if self.key and self.key.id else False
         except Exception:
             return False
 
@@ -55,26 +70,25 @@ class BaseModel(ndb.Model):
         client.put(self)
         return self.key
 
+    @staticmethod
+    def put_multi(entities):
+        client.put_multi(entities=entities)
+
     def remove(self):
-        """Removes current entity and its dependencies."""
-        self.key.delete()
+        """Removes current entity and its dependencies (if any)."""
+        client.delete(self.key)
 
     @property
     def usafe(self):
-        return self.key.urlsafe()
+        return self.key.to_legacy_urlsafe()
 
-    @staticmethod
-    def get(urlsafe):
-        item = ndb.Key(
-            urlsafe=urlsafe, project=settings.PROJECT_ID, namespace=NAMESPACE
-        ).get()
+    @classmethod
+    def get(cls, urlsafe):
+        key = ndb.Key(cls, project=settings.PROJECT_ID, namespace=NAMESPACE)
+        item = client.get(key.from_legacy_urlsafe(urlsafe))
         if not item:
             raise Exception("item doesn't exist")
         return item
-
-    @classmethod
-    def model_name(cls):
-        return cls.__name__.replace("Model", "")
 
 
 class EntityMixin:
@@ -107,9 +121,9 @@ class EntityMixin:
         """
         cls = type(self)
         prop = cls.primary_key()
-        dest = getattr(cls, prop)
         src = getattr(self, prop)
-        query = cls.query(dest == src)
+        query = cls.query()
+        query.add_filter(prop, "=", src)
         keys = self.all(query=query, keys_only=True)
         return keys
 
