@@ -3,7 +3,7 @@ import sys
 
 from google.cloud import datastore
 
-from truestory.crawlers.rss_feed import RssCrawler
+from truestory.crawlers import RssCrawler
 from truestory.models import ArticleModel, RssTargetModel
 
 

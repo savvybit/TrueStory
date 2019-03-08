@@ -91,7 +91,7 @@ class BaseModel(ndb.Model):
         return item
 
 
-class EntityMixin:
+class DuplicateMixin:
 
     """Adds support for updating same entities when similar ones are added."""
 

@@ -1,4 +1,4 @@
-"""RSS feed crawler capable of extracting exposed articles."""
+"""RSS feed crawler capable of extracting and parsing found articles."""
 
 
 import collections
@@ -10,7 +10,7 @@ from http import HTTPStatus
 import feedparser
 from newspaper import Article as NewsArticle
 
-from truestory.models import ArticleModel
+from truestory.models.article import ArticleModel
 
 
 class RssCrawler:
@@ -107,7 +107,6 @@ class RssCrawler:
             entry_date = cls._time_to_date(entry.get("published_parsed"))
             if not max_date:
                 max_date = entry_date
-            # import code; code.interact(local=locals())
             if all([entry_date, date]) and entry_date <= date:
                 continue
 
