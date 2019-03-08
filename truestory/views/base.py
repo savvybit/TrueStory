@@ -11,7 +11,7 @@ def norm_filter(value):
     return models_base.BaseModel.normalize(value)
 
 
-@app.template_filter("urlsafe")
+@app.template_filter("usafe")
 def usafe_filter(entity):
     """Returns the URL safe key string regarding an entity."""
     return entity.urlsafe
