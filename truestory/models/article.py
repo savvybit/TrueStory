@@ -16,4 +16,4 @@ class ArticleModel(BaseModel):
     authors = ndb.StringProperty(repeated=True)
     published = ndb.DateTimeProperty()
     img = ndb.StringProperty()
-    categories = ndb.StringProperty(repeated=True)
+    keywords = ndb.StringProperty(repeated=True)

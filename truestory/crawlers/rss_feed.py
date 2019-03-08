@@ -48,7 +48,7 @@ class RssCrawler:
             authors=news_article.authors,
             published=news_article.publish_date,
             img=news_article.top_image,
-            categories=news_article.keywords,
+            keywords=news_article.keywords,
         )
         return article_ent
 
