@@ -8,9 +8,10 @@ import pytest
 from truestory.models import BaseModel, ndb
 
 
+NO_CREDENTIALS = not bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+
 skip_missing_credentials = pytest.mark.skipif(
-    not bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS")),
-    reason="missing Datastore credentials"
+    NO_CREDENTIALS, reason="missing Datastore credentials"
 )
 
 
@@ -34,5 +35,6 @@ def truestory_model():
 @pytest.fixture(autouse=True, scope="session")
 def datastore_cleanup():
     yield
-    items = TrueStoryModel.all(keys_only=True)
-    TrueStoryModel.remove_multi([item.key for item in items])
+    if not NO_CREDENTIALS:
+        items = TrueStoryModel.all(keys_only=True)
+        TrueStoryModel.remove_multi([item.key for item in items])
