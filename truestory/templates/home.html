@@ -10,9 +10,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 {% endblock css %}
 
+{% block title %}
+{{ title or 'Today\'s bias' }}
+{% endblock title %}
+
 {% block container %}
-<h1 class="display-3 text-center">{{ title or 'Today\'s bias' }}</h1>
-<hr>
+{{ super() }}
 
 <section id="articleList" class="mw-98 mx-auto">
   {% for pair in bias_pairs %}
@@ -31,7 +34,7 @@
               <div class="col-8">
                 <div class="card-body">
                   <!-- FIXME(cmiN): Replace this with actual info from the article. -->
-                  <h5 class="card-title">News title</h5>
+                  <h5 class="card-title font-article-title">News title</h5>
                   <p class="card-text">This is a longer article with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
                   <p class="card-text">
                     <span class="badge badge-pill badge-dark">BBC</span>
@@ -57,7 +60,7 @@
               <div class="col-8">
                 <div class="card-body">
                   <!-- FIXME(cmiN): Replace this with actual info from the article. -->
-                  <h5 class="card-title">News title</h5>
+                  <h5 class="card-title font-article-title">News title</h5>
                   <p class="card-text">This is a longer article with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
                   <p class="card-text">
                     <span class="badge badge-pill badge-dark">BBC</span>

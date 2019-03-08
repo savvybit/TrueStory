@@ -24,7 +24,23 @@
 }
 
 
+/* Miscellaneous */
+
+/* Rounded shapes. */
+.rounded-20 {
+    border-radius: 20%;
+}
+
 /* Removes horizontal scrollbar due to border pixels. */
 .mw-98 {
     max-width: 97%;
+}
+
+
+/* Google fonts */
+.font-page-title {
+    font-family: 'Nixie One', cursive;
+}
+.font-article-title {
+    font-family: 'Patua One', cursive;
 }
