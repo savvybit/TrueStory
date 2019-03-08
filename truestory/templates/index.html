@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="display-1 text-center"><a href="{{ url_for('home' )}}">Home</a></h1>
+<div class="row py-5">
+  <a href="{{ url_for('home' )}}" class="btn btn-outline-dark mx-auto">
+    <h1 class="display-1">Home</h1>
+  </a>
+</div>
 {% endblock content %}

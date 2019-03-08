@@ -15,10 +15,14 @@ class BaseConfig(object):
     SECRET_KEY = utils.get_secret_key()
     SSL_DISABLE = False
 
+    DATASTORE_NAMESPACE = None  # Uses [default] implicitly.
+
 
 class ProductionConfig(BaseConfig):
 
     """What is used in production (cloud deployment) runs."""
+
+    DATASTORE_NAMESPACE = "production"
 
 
 class DevelopmentConfig(BaseConfig):
@@ -28,6 +32,8 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     PROPAGATE_EXCEPTIONS = True
 
+    DATASTORE_NAMESPACE = "development"
+
 
 class TestingConfig(BaseConfig):
 
@@ -35,6 +41,8 @@ class TestingConfig(BaseConfig):
 
     TESTING = True
     WTF_CSRF_ENABLED = False
+
+    DATASTORE_NAMESPACE = "testing"
 
 
 DefaultConfig = DevelopmentConfig if settings.DEBUG else ProductionConfig
