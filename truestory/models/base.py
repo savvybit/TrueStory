@@ -7,13 +7,17 @@ import logging
 import ndb_orm as ndb
 from google.cloud import datastore
 
-from truestory import settings
+from truestory import app, settings
 
 
-NAMESPACE = "development" if settings.DEBUG else "production"
+# Datastore default client settings.
+PROJECT = settings.PROJECT_ID
+NAMESPACE = app.config["DATASTORE_NAMESPACE"]
 
-client = datastore.Client(project=settings.PROJECT_ID, namespace=NAMESPACE)
-ndb.enable_use_with_gcd(client.project)
+# Module level singleton client used in all DB interactions. This is lazy inited when
+# is used only, so we don't have any issues with Datastore agnostic tests/debugging,
+# because creating a client will require valid credentials.
+client = None
 
 
 class BaseModel(ndb.Model):
@@ -25,8 +29,9 @@ class BaseModel(ndb.Model):
 
     created_at = ndb.DateTimeProperty(auto_now_add=True)
 
-    def __init__(self, *args, project=settings.PROJECT_ID, namespace=NAMESPACE,
+    def __init__(self, *args, project=PROJECT, namespace=NAMESPACE,
                  **kwargs):
+        self._get_client()  # Activates all NDB ORM required features.
         super().__init__(*args, project=project, namespace=namespace, **kwargs)
 
     @classmethod
@@ -34,14 +39,22 @@ class BaseModel(ndb.Model):
         return cls.__name__.replace("Model", "")
 
     @classmethod
-    def norm(cls, value):
+    def normalize(cls, value):
         if value is None:
             return cls.NOT_SET
         return value
 
+    @staticmethod
+    def _get_client():
+        global client
+        if not client:
+            client = datastore.Client(project=PROJECT, namespace=NAMESPACE)
+            ndb.enable_use_with_gcd(client.project)
+        return client
+
     @classmethod
     def query(cls, **kwargs):
-        query = client.query(kind=cls._get_kind(), **kwargs)
+        query = cls._get_client().query(kind=cls._get_kind(), **kwargs)
         return query
 
     @classmethod
@@ -55,7 +68,7 @@ class BaseModel(ndb.Model):
     @property
     def myself(self):
         """Return the current DB version of the same object."""
-        return client.get(self.key)
+        return self._get_client().get(self.key)
 
     @property
     def exists(self):
@@ -67,25 +80,31 @@ class BaseModel(ndb.Model):
 
     def put(self):
         """Saving the entity into the Datastore."""
-        client.put(self)
+        self._get_client().put(self)
         return self.key
 
-    @staticmethod
-    def put_multi(entities):
-        client.put_multi(entities=entities)
+    @classmethod
+    def put_multi(cls, entities):
+        """Multiple save in the DB without interfering with `cls.put` function."""
+        cls._get_client().put_multi(entities)
+        return [entity.key for entity in entities]
 
     def remove(self):
         """Removes current entity and its dependencies (if any)."""
-        client.delete(self.key)
+        self._get_client().delete(self.key)
+
+    @classmethod
+    def remove_multi(cls, keys):
+        cls._get_client().delete_multi(keys)
 
     @property
-    def usafe(self):
+    def urlsafe(self):
         return self.key.to_legacy_urlsafe()
 
     @classmethod
     def get(cls, urlsafe):
-        key = ndb.Key(cls, project=settings.PROJECT_ID, namespace=NAMESPACE)
-        item = client.get(key.from_legacy_urlsafe(urlsafe))
+        key = ndb.Key(cls, project=PROJECT, namespace=NAMESPACE)
+        item = cls._get_client().get(key.from_legacy_urlsafe(urlsafe))
         if not item:
             raise Exception("item doesn't exist")
         return item

@@ -2,5 +2,5 @@
 
 
 from .article import ArticleModel
-from .base import BaseModel, DuplicateMixin
+from .base import BaseModel, DuplicateMixin, ndb
 from .rss import RssTargetModel

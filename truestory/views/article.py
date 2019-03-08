@@ -4,6 +4,7 @@
 from flask import render_template
 
 from truestory import app
+from truestory.models.article import ArticleModel
 
 
 @app.route("/article/<article_usafe>")

@@ -8,13 +8,13 @@ from truestory.models import base as models_base
 @app.template_filter("norm")
 def norm_filter(value):
     """Normalizes the None value (check if property is empty/missing)."""
-    return models_base.BaseModel.norm(value)
+    return models_base.BaseModel.normalize(value)
 
 
-@app.template_filter("usafe")
+@app.template_filter("urlsafe")
 def usafe_filter(entity):
     """Returns the URL safe key string regarding an entity."""
-    return entity.usafe
+    return entity.urlsafe
 
 
 @app.template_filter("format_date")

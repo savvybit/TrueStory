@@ -80,8 +80,8 @@ def test_model():
     print("model name", target.model_name())
     key = target.put()
     print("with key", key)
-    usafe = target.usafe
-    print("usafe", usafe)
+    usafe = target.urlsafe
+    print("urlsafe", usafe)
     target = RssTargetModel.get(usafe)
     print("target", target)
     target.remove()
