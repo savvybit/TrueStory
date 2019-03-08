@@ -174,7 +174,10 @@ class RssCrawler:
 
         for target in self._rss_targets:
             link = target.link
-            logging.debug("Crawling target URL %r.", link)
+            logging.debug(
+                "Crawling target URL %r for articles newer than %s.",
+                link, target.last_modified
+            )
             try:
                 articles = self._parse_target(target)
             except Exception as exc:
