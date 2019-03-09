@@ -116,7 +116,7 @@ class BaseModel(ndb.Model):
 
     @property
     def urlsafe(self):
-        return self.key.to_legacy_urlsafe()
+        return self.key.to_legacy_urlsafe().decode(settings.ENCODING)
 
     @classmethod
     def get(cls, urlsafe_or_key):

@@ -36,7 +36,7 @@ class BiasPairModel(BaseModel):
         left_kwds, right_kwds = map(
             lambda key: set(self.get(key).keywords or []), [self.left, self.right]
         )
-        return list(left_kwds | right_kwds)
+        return [kwd.lower() for kwd in (left_kwds | right_kwds)]
 
     def _max_date(self):
         """The newest article establishes the date of the entire pair."""
