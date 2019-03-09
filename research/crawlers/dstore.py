@@ -1,10 +1,11 @@
 import logging
+import random
 import sys
 
 from google.cloud import datastore
 
 from truestory.crawlers import RssCrawler
-from truestory.models import ArticleModel, RssTargetModel
+from truestory.models import ArticleModel, BiasPairModel, RssTargetModel
 
 
 client = None
@@ -91,6 +92,15 @@ def test_model():
     # import code; code.interact(local=items)
 
 
+def add_bias():
+    articles = ArticleModel.all(keys_only=True)
+    for _ in range(10):
+        left, right = random.sample(articles, 2)
+        score = random.uniform(1, 10)
+        bias_pair = BiasPairModel(left=left.key, right=right.key, score=score)
+        bias_pair.put()
+
+
 def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} FUNC")
@@ -103,6 +113,7 @@ def main():
         "rss": add_remove_rss,
         "rss_feed": rss_feed,
         "test_model": test_model,
+        "add_bias": add_bias,
     }
     funcs[sys.argv[1]]()
 

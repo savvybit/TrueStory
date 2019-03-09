@@ -19,6 +19,23 @@ NAMESPACE = app.config["DATASTORE_NAMESPACE"]
 # because creating a client will require valid credentials.
 client = None
 
+# Save original `KeyProperty` class because we'll be overriding it.
+KeyProperty = ndb.KeyProperty
+
+
+class NamespacedKeyProperty(KeyProperty):
+
+    def _db_get_value(self, v):
+        """Same as original function, but adds the `namespace` too."""
+        key = super()._db_get_value(v)
+        return ndb.key_module.Key(
+            *key.flat_path, project=key.project,
+            namespace=v.key_value.partition_id.namespace_id
+        )
+
+
+ndb.KeyProperty = NamespacedKeyProperty
+
 
 class BaseModel(ndb.Model):
 
@@ -102,9 +119,11 @@ class BaseModel(ndb.Model):
         return self.key.to_legacy_urlsafe()
 
     @classmethod
-    def get(cls, urlsafe):
-        key = ndb.Key(cls, project=PROJECT, namespace=NAMESPACE)
-        item = cls._get_client().get(key.from_legacy_urlsafe(urlsafe))
+    def get(cls, urlsafe_or_key):
+        if isinstance(urlsafe_or_key, (str, bytes)):
+            key = ndb.Key(cls, project=PROJECT, namespace=NAMESPACE)
+            urlsafe_or_key = key.from_legacy_urlsafe(urlsafe_or_key)
+        item = cls._get_client().get(urlsafe_or_key)
         if not item:
             raise Exception("item doesn't exist")
         return item
@@ -143,22 +162,21 @@ class DuplicateMixin:
         src = getattr(self, prop)
         query = cls.query()
         query.add_filter(prop, "=", src)
-        keys = self.all(query=query, keys_only=True)
-        return keys
+        entities = self.all(query=query, keys_only=True)
+        return entities
 
     def put(self):
         """Check if already existing and if yes, replace the old values."""
-        # Uniqueness by an ID property constraint for every extracted entity,
-        # excluding the history ones if any (clones which are having the original
-        # entity as `parent`).
-        keys = self.get_existing()
+        # All similar entities (based on ID) containing keys only.
+        entities = self.get_existing()
 
-        if self.exists or not keys:
+        if self.exists or not entities:
             # Save the newly extracted entity or the already present one.
             return super().put()
 
         # Just update the already existing entity, without saving a new duplicate one.
         entity_id = getattr(self, self.primary_key())
         logging.debug("Updating already existing entity: %s.", entity_id)
-        entity = keys[0].get(use_cache=False)
+        # Get back the full entity.
+        entity = entities[0].myself
         return self._update(entity)

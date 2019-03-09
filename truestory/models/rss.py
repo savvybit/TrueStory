@@ -8,12 +8,12 @@ class RssTargetModel(BaseModel):
 
     """RSS feed source used by the RSS crawler."""
 
-    link = ndb.StringProperty()
-    source_name = ndb.StringProperty()
+    source_name = ndb.StringProperty(required=True)
+    link = ndb.StringProperty(required=True)
     last_modified = ndb.DateTimeProperty()
     etag = ndb.StringProperty()
-    auth_required = ndb.BooleanProperty(default=False)
     gone = ndb.BooleanProperty(default=False)
+    auth_required = ndb.BooleanProperty(default=False)
 
     def checkpoint(self, modified, etag):
         """Called after each successful crawl in order to know from where to start
