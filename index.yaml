@@ -1,4 +1,12 @@
 indexes:
+
+- kind: BiasPairModel
+  properties:
+  - name: score
+    direction: desc
+  - name: created_at
+    direction: desc
+
 - kind: BiasPairModel
   properties:
   - name: keywords
