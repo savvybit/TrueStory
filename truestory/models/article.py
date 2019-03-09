@@ -30,6 +30,14 @@ class BiasPairModel(BaseModel):
     score = ndb.FloatProperty()
     published = ndb.DateTimeProperty()  # cannot save datetime computed properties
 
+    @functools.partial(ndb.ComputedProperty, repeated=True)
+    def keywords(self):
+        """Combines all the keywords into an unique list."""
+        left_kwds, right_kwds = map(
+            lambda key: set(self.get(key).keywords or []), [self.left, self.right]
+        )
+        return list(left_kwds | right_kwds)
+
     def _max_date(self):
         """The newest article establishes the date of the entire pair."""
         dates = self.get(self.left).published, self.get(self.right).published
@@ -38,13 +46,6 @@ class BiasPairModel(BaseModel):
         return dates[0] or dates[1]
 
     def put(self):
+        # Pre-compute the `published` property before saving the entity.
         self.published = self._max_date()
         return super().put()
-
-    @functools.partial(ndb.ComputedProperty, repeated=True)
-    def keywords(self):
-        """Combines all the keywords into an unique list."""
-        left_kwds, right_kwds = map(
-            lambda key: set(self.get(key).keywords or []), [self.left, self.right]
-        )
-        return list(left_kwds | right_kwds)
