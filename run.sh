@@ -12,8 +12,8 @@ if [[ $1 == "gae" ]]; then
     --enable_console --support_datastore_emulator False
 else
     echo "[i] Installing requirements..."
-    pip install -Ur requirements-dev.txt
-    pip install -e . --no-cache-dir
+    pip3 install -Ur requirements-dev.txt
+    pip3 install -e .
     echo "[i] Starting server with Flask."
     FLASK_APP=truestory FLASK_ENV=development flask run -p 8080
 fi

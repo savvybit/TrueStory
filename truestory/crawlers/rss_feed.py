@@ -40,15 +40,15 @@ class RssCrawler:
 
         # Create and return article in the DB with all the gathered data.
         article_ent = ArticleModel(
-            source=source_name,
+            source_name=source_name,
             link=link,
             title=title,
             content=news_article.text,
             summary=summary,
             authors=news_article.authors,
             published=news_article.publish_date,
-            img=news_article.top_image,
-            categories=news_article.keywords,
+            image=news_article.top_image,
+            keywords=news_article.keywords,
         )
         return article_ent
 

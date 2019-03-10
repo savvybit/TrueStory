@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>TrueStory</title>
 
-    <!-- Bootstrap and custom CSS -->
+    <!-- Bootstrap, Google and custom CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nixie+One|Patua+One">
     <!-- Custom TrueStory styles -->
     {% block css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/truestory.css') }}">
@@ -62,7 +63,13 @@
     </nav>
 
     <div class="container-fluid py-5">
-      {% block container %}{% endblock container %}
+      {% block container %}
+      <h1 class="display-3 text-center font-page-title">
+        {% block title %}
+        {% endblock title %}
+      </h1>
+      <hr>
+      {% endblock container %}
     </div>
     {% endblock content %}
   </body>

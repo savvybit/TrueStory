@@ -7,44 +7,44 @@ from .conftest import TrueStoryModel, skip_missing_credentials
 pytestmark = skip_missing_credentials
 
 
-def test_model_no_save(truestory_model):
+def test_model_no_save(truestory_ent):
     # Check basic property data.
-    assert not truestory_model.bool_prop
-    assert truestory_model.str_prop == "str_prop"
-    assert truestory_model.txt_prop is None
-    assert truestory_model.auto_prop == 0
+    assert not truestory_ent.bool_prop
+    assert truestory_ent.str_prop == "str_prop"
+    assert truestory_ent.txt_prop is None
+    assert truestory_ent.auto_prop == 0
 
     # Check utilities.
-    assert truestory_model.model_name() == "TrueStory"
-    assert truestory_model.normalize(truestory_model.txt_prop) == "N/A"
-    assert not truestory_model.exists
+    assert truestory_ent.model_name() == "TrueStory"
+    assert truestory_ent.normalize(truestory_ent.txt_prop) == "N/A"
+    assert not truestory_ent.exists
 
 
-def test_model_save_delete(truestory_model):
+def test_model_save_delete(truestory_ent):
     # Test saving.
-    truestory_model.put()
-    assert truestory_model.exists
+    truestory_ent.put()
+    assert truestory_ent.exists
 
     # Test local vs. remote diffs.
-    truestory_model.bool_prop = True
-    assert truestory_model.bool_prop != truestory_model.myself.bool_prop
+    truestory_ent.bool_prop = True
+    assert truestory_ent.bool_prop != truestory_ent.myself.bool_prop
 
     # Test urlsafe retrieval.
-    truestory_model.bool_prop = True
-    truestory_model.put()
-    assert truestory_model.get(truestory_model.urlsafe).bool_prop
+    truestory_ent.bool_prop = True
+    truestory_ent.put()
+    assert truestory_ent.get(truestory_ent.urlsafe).bool_prop
 
     # Test removal.
-    truestory_model.remove()
-    assert not truestory_model.exists
+    truestory_ent.remove()
+    assert not truestory_ent.exists
 
 
-def test_model_query(truestory_model):
+def test_model_query(truestory_ent):
     # Save it with some data first in order to be able to query something relevant.
     nr = 4
     total = nr * (nr + 1) // 2
-    truestory_model.list_prop = list(range(nr + 1))
-    truestory_model.put()
+    truestory_ent.list_prop = list(range(nr + 1))
+    truestory_ent.put()
 
     # Check if the computed property correctly sums up the previously set numbers.
     items = TrueStoryModel.all()
@@ -58,4 +58,4 @@ def test_model_query(truestory_model):
     assert list(query.fetch())  # At least one item in the list.
 
     # Explicit cleanup (even if not required).
-    truestory_model.remove()
+    truestory_ent.remove()

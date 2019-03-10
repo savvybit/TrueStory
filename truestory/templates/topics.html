@@ -5,9 +5,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/topics.css') }}">
 {% endblock css %}
 
+{% block title %}
+Popular subjects
+{% endblock title %}
+
 {% block container %}
-<h1 class="display-3 text-center">Popular subjects</h1>
-<hr>
+{{ super() }}
 
 <section class="py-4">
   <div class="card-columns">

@@ -1,4 +1,5 @@
-- Fix Datastore capability with credentials.
 - Simple web app layout.
-- Article crawlers.
-- News parsers and classifiers.
+- Article parsers and classifiers.
+- Landing page with logo and brands.
+- Crons & tasks for running crawl and classify jobs.
+- Bias feed queried pagination and article display page.
