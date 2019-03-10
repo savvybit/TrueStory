@@ -8,7 +8,9 @@ function load_articles() {
     var cursor_input = $("input#queryCursor");
     $.get({
         url: home_url,
-        data: {"queryCursor": cursor_input.val()},
+        data: {
+            queryCursor: cursor_input.val()
+        }
     }).done(function (recv_data) {
         // Get articles row template first.
         var row_tpl = $("div.card-deck").parent().first();
@@ -77,4 +79,17 @@ function scroll_top() {
 }
 
 
-to_load.push(scroll_top);
+function check_load_more() {
+    if (! $("input#queryCursor").val()) {
+        $("button#loadMoreReady").remove();
+        var to_put = $("#loadMoreEmpty").detach();
+        to_put.removeClass("d-none");
+        var load_group = $("div#loadGroup");
+        load_group.removeClass("col-2");
+        load_group.addClass("col-3 text-center");
+        load_group.prepend(to_put);
+    }
+}
+
+
+to_load.push(scroll_top, check_load_more);
