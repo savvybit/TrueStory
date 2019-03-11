@@ -13,6 +13,7 @@ from truestory import app, settings
 # Datastore default client settings.
 PROJECT = settings.PROJECT_ID
 NAMESPACE = app.config["DATASTORE_NAMESPACE"]
+NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 
 # Module level singleton client used in all DB interactions. This is lazy inited when
 # is used only, so we don't have any issues with Datastore agnostic tests/debugging,
@@ -46,10 +47,10 @@ class BaseModel(ndb.Model):
 
     created_at = ndb.DateTimeProperty(auto_now_add=True)
 
-    def __init__(self, *args, project=PROJECT, namespace=NAMESPACE,
-                 **kwargs):
+    def __init__(self, *args, **kwargs):
         self._get_client()  # Activates all NDB ORM required features.
-        super().__init__(*args, project=project, namespace=namespace, **kwargs)
+        kwargs.update(NDB_KWARGS)
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def model_name(cls):
@@ -65,8 +66,8 @@ class BaseModel(ndb.Model):
     def _get_client():
         global client
         if not client:
-            client = datastore.Client(project=PROJECT, namespace=NAMESPACE)
-            ndb.enable_use_with_gcd(client.project)
+            client = datastore.Client(**NDB_KWARGS)
+            ndb.enable_use_with_gcd(**NDB_KWARGS)
         return client
 
     @classmethod
@@ -121,7 +122,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def get(cls, urlsafe_or_key):
         if isinstance(urlsafe_or_key, (str, bytes)):
-            key = ndb.Key(cls, project=PROJECT, namespace=NAMESPACE)
+            key = ndb.Key(cls, **NDB_KWARGS)
             urlsafe_or_key = key.from_legacy_urlsafe(urlsafe_or_key)
         item = cls._get_client().get(urlsafe_or_key)
         if not item:
