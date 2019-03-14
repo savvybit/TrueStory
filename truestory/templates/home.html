@@ -23,11 +23,11 @@
   <div class="row py-4">
     <div class="card-deck justify-content-around">
 
-      {{ render_article(pair.get(pair.left), 'left') }}
+      {{ render_article(pair.left.get(), 'left') }}
 
       <i class="material-icons md-48 text-info my-auto">compare_arrows</i>
 
-      {{ render_article(pair.get(pair.right), 'right') }}
+      {{ render_article(pair.right.get(), 'right') }}
 
     </div>
   </div>

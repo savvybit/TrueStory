@@ -16,8 +16,8 @@ def test_bias_pair_save(bias_pair_ents):
 
     # Check data directly from the DB.
     new_bias_pair = bias_pair.myself
-    assert left.get(new_bias_pair.left).title == "TrueStory 1"
-    assert right.get(new_bias_pair.right).source_name == "BBC"
+    assert new_bias_pair.left.get().title == "TrueStory 1"
+    assert new_bias_pair.right.get().source_name == "BBC"
 
     # Remove them in reverse order.
     bias_pair.remove()

@@ -13,28 +13,12 @@ from truestory import app, settings
 # Datastore default client settings.
 PROJECT = settings.PROJECT_ID
 NAMESPACE = app.config["DATASTORE_NAMESPACE"]
+NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 
 # Module level singleton client used in all DB interactions. This is lazy inited when
 # is used only, so we don't have any issues with Datastore agnostic tests/debugging,
 # because creating a client will require valid credentials.
 client = None
-
-# Save original `KeyProperty` class because we'll be overriding it.
-KeyProperty = ndb.KeyProperty
-
-
-class NamespacedKeyProperty(KeyProperty):
-
-    def _db_get_value(self, v):
-        """Same as original function, but adds the `namespace` too."""
-        key = super()._db_get_value(v)
-        return ndb.key_module.Key(
-            *key.flat_path, project=key.project,
-            namespace=v.key_value.partition_id.namespace_id
-        )
-
-
-ndb.KeyProperty = NamespacedKeyProperty
 
 
 class BaseModel(ndb.Model):
@@ -46,10 +30,10 @@ class BaseModel(ndb.Model):
 
     created_at = ndb.DateTimeProperty(auto_now_add=True)
 
-    def __init__(self, *args, project=PROJECT, namespace=NAMESPACE,
-                 **kwargs):
+    def __init__(self, *args, **kwargs):
         self._get_client()  # Activates all NDB ORM required features.
-        super().__init__(*args, project=project, namespace=namespace, **kwargs)
+        kwargs.update(NDB_KWARGS)
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def model_name(cls):
@@ -65,8 +49,8 @@ class BaseModel(ndb.Model):
     def _get_client():
         global client
         if not client:
-            client = datastore.Client(project=PROJECT, namespace=NAMESPACE)
-            ndb.enable_use_with_gcd(client.project)
+            client = datastore.Client(**NDB_KWARGS)
+            ndb.enable_use_with_gcd(client=client, **NDB_KWARGS)
         return client
 
     @classmethod
@@ -85,7 +69,7 @@ class BaseModel(ndb.Model):
     @property
     def myself(self):
         """Return the current DB version of the same object."""
-        return self._get_client().get(self.key)
+        return self.key.get()
 
     @property
     def exists(self):
@@ -108,7 +92,7 @@ class BaseModel(ndb.Model):
 
     def remove(self):
         """Removes current entity and its dependencies (if any)."""
-        self._get_client().delete(self.key)
+        self.key.delete()
 
     @classmethod
     def remove_multi(cls, keys):
@@ -121,9 +105,12 @@ class BaseModel(ndb.Model):
     @classmethod
     def get(cls, urlsafe_or_key):
         if isinstance(urlsafe_or_key, (str, bytes)):
-            key = ndb.Key(cls, project=PROJECT, namespace=NAMESPACE)
-            urlsafe_or_key = key.from_legacy_urlsafe(urlsafe_or_key)
-        item = cls._get_client().get(urlsafe_or_key)
+            key = ndb.Key(cls, **NDB_KWARGS)
+            complete_key = key.from_legacy_urlsafe(urlsafe_or_key)
+        else:
+            complete_key = urlsafe_or_key
+
+        item = complete_key.get()
         if not item:
             raise Exception("item doesn't exist")
         return item
