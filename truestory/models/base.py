@@ -37,16 +37,19 @@ class BaseModel(ndb.Model):
 
     @classmethod
     def model_name(cls):
+        """Returns the model name (without suffix)."""
         return cls.__name__.replace("Model", "")
 
     @classmethod
     def normalize(cls, value):
+        """Normalizes a property value which needs to be rendered."""
         if value is None:
             return cls.NOT_SET
         return value
 
     @staticmethod
     def _get_client():
+        """Singleton for the Datastore client."""
         global client
         if not client:
             client = datastore.Client(**NDB_KWARGS)
@@ -55,11 +58,20 @@ class BaseModel(ndb.Model):
 
     @classmethod
     def query(cls, **kwargs):
+        """Creates a Datastore query out of this model."""
         query = cls._get_client().query(kind=cls._get_kind(), **kwargs)
         return query
 
     @classmethod
     def all(cls, query=None, keys_only=False, **kwargs):
+        """Returns all the items in the DB created by this model.
+
+        Args:
+            query: Optionally you can supply a custom `query`.
+            keys_only (bool): Keep the Key properties only if this is True.
+        Returns:
+            list: Fetched items.
+        """
         query = query or cls.query()
         query.order = ["-created_at"]
         if keys_only:
@@ -68,7 +80,7 @@ class BaseModel(ndb.Model):
 
     @property
     def myself(self):
-        """Return the current DB version of the same object."""
+        """Returns the current DB version of the same object."""
         return self.key.get()
 
     @property
@@ -80,30 +92,33 @@ class BaseModel(ndb.Model):
             return False
 
     def put(self):
-        """Saving the entity into the Datastore."""
+        """Saves the entity into the Datastore."""
         self._get_client().put(self)
         return self.key
 
     @classmethod
     def put_multi(cls, entities):
-        """Multiple save in the DB without interfering with `cls.put` function."""
+        """Multiple save in the DB without interfering with the `cls.put` function."""
         cls._get_client().put_multi(entities)
         return [entity.key for entity in entities]
 
     def remove(self):
-        """Removes current entity and its dependencies (if any)."""
+        """Removes current entity and its dependencies (if covered and any)."""
         self.key.delete()
 
     @classmethod
     def remove_multi(cls, keys):
+        """Multiple removal of entities based on the given `keys`."""
         cls._get_client().delete_multi(keys)
 
     @property
     def urlsafe(self):
+        """Returns an URL safe Key string which uniquely identifies this entity."""
         return self.key.to_legacy_urlsafe().decode(settings.ENCODING)
 
     @classmethod
     def get(cls, urlsafe_or_key):
+        """Retrieves an entity object based on an URL safe Key string or Key object."""
         if isinstance(urlsafe_or_key, (str, bytes)):
             key = ndb.Key(cls, **NDB_KWARGS)
             complete_key = key.from_legacy_urlsafe(urlsafe_or_key)
@@ -122,26 +137,26 @@ class DuplicateMixin:
 
     @classmethod
     def primary_key(cls):
-        """Returns the property name holding unique values."""
+        """Returns the property name holding an unique value among the others."""
         raise NotImplementedError(
             f"{cls.model_name()} primary key not specified"
         )
 
     def _update(self, entity):
-        """Update itself without creating history."""
+        """Updates itself without creating history."""
         # Update the old entity with the newly extracted values (from self).
-        properties = self.to_dict()  # without the skips ofc
-        # Make sure we put the current date.
+        properties = self.to_dict()
+        # Make sure we put the current date as the creation one.
         properties["created_at"] = datetime.datetime.utcnow()
-        # Populate the original existing entity with all the non skip-able properties.
+        # Override existing entity with the new one's data.
         entity.populate(**properties)
-        # Save all the new incoming changes into the old entity.
+        # Commit these changes and return back the corresponding Key.
         return entity.put()
 
     def get_existing(self):
-        """Returns already existing entity keys based on the given `parent`.
+        """Returns already existing entities based on the set `self.primary_key`.
 
-        An existing entity is one that has the same primary key attribute as the
+        An existing entity is one that has the same primary key attribute value as the
         candidate's one.
         """
         cls = type(self)
@@ -161,9 +176,10 @@ class DuplicateMixin:
             # Save the newly extracted entity or the already present one.
             return super().put()
 
-        # Just update the already existing entity, without saving a new duplicate one.
+        # Just update the already existing entity, without saving a new duplicate.
         entity_id = getattr(self, self.primary_key())
         logging.debug("Updating already existing entity: %s.", entity_id)
-        # Get back the full entity.
+        # Should have only one exemplary.
+        assert len(entities) == 1, "found duplicate entity in the DB"
         entity = entities[0].myself
         return self._update(entity)
