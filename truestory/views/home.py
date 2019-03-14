@@ -4,13 +4,13 @@
 from flask import jsonify, render_template, request
 
 from truestory import app, settings
-from truestory.models.article import ArticleModel, BiasPairModel
+from truestory.models.article import BiasPairModel
 from truestory.views import base as views_base
 
 
 def _get_serializable_article(key):
     """JSON serializable article format used by the front-end ajax calls."""
-    details = ArticleModel.get(key).to_dict()
+    details = key.get().to_dict()
     details["published"] = views_base.format_date_filter(
         details["published"], time=True
     )

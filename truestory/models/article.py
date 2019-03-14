@@ -34,13 +34,13 @@ class BiasPairModel(BaseModel):
     def keywords(self):
         """Combines all the keywords into an unique list."""
         left_kwds, right_kwds = map(
-            lambda key: set(self.get(key).keywords or []), [self.left, self.right]
+            lambda key: set(key.get().keywords or []), [self.left, self.right]
         )
         return [kwd.lower() for kwd in (left_kwds | right_kwds)]
 
     def _max_date(self):
         """The newest article establishes the date of the entire pair."""
-        dates = self.get(self.left).published, self.get(self.right).published
+        dates = self.left.get().published, self.right.get().published
         if all(dates):
             return max(dates)
         return dates[0] or dates[1]

@@ -20,23 +20,6 @@ NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 # because creating a client will require valid credentials.
 client = None
 
-# Save original `KeyProperty` class because we'll be overriding it.
-KeyProperty = ndb.KeyProperty
-
-
-class NamespacedKeyProperty(KeyProperty):
-
-    def _db_get_value(self, v):
-        """Same as original function, but adds the `namespace` too."""
-        key = super()._db_get_value(v)
-        return ndb.key_module.Key(
-            *key.flat_path, project=key.project,
-            namespace=v.key_value.partition_id.namespace_id
-        )
-
-
-ndb.KeyProperty = NamespacedKeyProperty
-
 
 class BaseModel(ndb.Model):
 
@@ -67,7 +50,7 @@ class BaseModel(ndb.Model):
         global client
         if not client:
             client = datastore.Client(**NDB_KWARGS)
-            ndb.enable_use_with_gcd(**NDB_KWARGS)
+            ndb.enable_use_with_gcd(client=client, **NDB_KWARGS)
         return client
 
     @classmethod
@@ -86,7 +69,7 @@ class BaseModel(ndb.Model):
     @property
     def myself(self):
         """Return the current DB version of the same object."""
-        return self._get_client().get(self.key)
+        return self.key.get()
 
     @property
     def exists(self):
@@ -109,7 +92,7 @@ class BaseModel(ndb.Model):
 
     def remove(self):
         """Removes current entity and its dependencies (if any)."""
-        self._get_client().delete(self.key)
+        self.key.delete()
 
     @classmethod
     def remove_multi(cls, keys):
@@ -123,8 +106,11 @@ class BaseModel(ndb.Model):
     def get(cls, urlsafe_or_key):
         if isinstance(urlsafe_or_key, (str, bytes)):
             key = ndb.Key(cls, **NDB_KWARGS)
-            urlsafe_or_key = key.from_legacy_urlsafe(urlsafe_or_key)
-        item = cls._get_client().get(urlsafe_or_key)
+            complete_key = key.from_legacy_urlsafe(urlsafe_or_key)
+        else:
+            complete_key = urlsafe_or_key
+
+        item = complete_key.get()
         if not item:
             raise Exception("item doesn't exist")
         return item
