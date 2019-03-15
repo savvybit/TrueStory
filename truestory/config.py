@@ -1,7 +1,15 @@
 """Web app (Flask) configuration settings."""
 
 
-from truestory import settings, utils
+import base64
+import hashlib
+
+from truestory import settings
+
+
+def get_secret_key():
+    """Gets a constant secret key for sessions and cookies."""
+    return hashlib.md5(base64.b64encode(settings.APP_NAME.encode())).hexdigest()
 
 
 class BaseConfig(object):
@@ -12,7 +20,7 @@ class BaseConfig(object):
     TESTING = False
     PROPAGATE_EXCEPTIONS = False
 
-    SECRET_KEY = utils.get_secret_key()
+    SECRET_KEY = get_secret_key()
     SSL_DISABLE = False
 
     DATASTORE_NAMESPACE = None  # Uses [default] implicitly.

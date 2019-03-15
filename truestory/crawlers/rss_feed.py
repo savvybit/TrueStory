@@ -15,22 +15,29 @@ from truestory.models.article import ArticleModel
 
 class RssCrawler:
 
-    def __init__(self, rss_targets):
-        """Instantiates with a RSS target list to crawl."""
+    def __init__(self, rss_targets, limit=None):
+        """Instantiates with a RSS target list to crawl.
+
+        Args:
+            rss_targets (list): List of `RssTargetModel` objects.
+            limit (int): How many results to crawl within each target.
+        """
         self._rss_targets = rss_targets
-        self._extracted_articles = collections.defaultdict(list)
+        self._limit = limit
 
     @staticmethod
     def _extract_article(feed_entry, source_name):
-        """Extracts all the information needed and returns it as `ArticleModel`."""
+        """Extracts all the information needed from a `feed_entry` and returns it as
+        an `ArticleModel` object.
+        """
         # Link and title are mandatory fields in a RSS. If missing, we cannot
         # parse the article.
         link = feed_entry.get("link")
         title = feed_entry.get("title")
         if not all([link, title]):
-            return None
+            raise KeyError("link or title missing from the article")
 
-        # Get some extra info within the feed itself and using `newspaper` help.
+        # Get some extra info within the feed itself, then using `newspaper` help.
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
         news_article = NewsArticle(link)
@@ -38,7 +45,6 @@ class RssCrawler:
         news_article.parse()
         news_article.nlp()
 
-        # Create and return article in the DB with all the gathered data.
         article_ent = ArticleModel(
             source_name=source_name,
             link=link,
@@ -54,10 +60,11 @@ class RssCrawler:
 
     @staticmethod
     def _manage_status(response, target):
-        """Handles some of the possible problematic statuses and updates target.
+        """Handles some of the possible problematic feed statuses and updates `target`
+        accordingly.
 
         Returns:
-            bool: True if we shall crawl the target, False otherwise.
+            bool: True if we can crawl the target, False otherwise.
         """
         name = target.link
 
@@ -67,7 +74,7 @@ class RssCrawler:
             target.has_gone()
             return False
 
-        # We should know that it requires auth and implement it in the future.
+        # Becomes aware that it requires auth and must support it in the future.
         if response.status == HTTPStatus.UNAUTHORIZED:
             logging.warning("RSS requires auth for %r.", name)
             target.needs_auth()
@@ -78,7 +85,7 @@ class RssCrawler:
             logging.info("RSS has no data for %r.", name)
             return False
 
-        # URL has permanently moved, so we have to update with the new one.
+        # URL has permanently moved, so we have to update target with the new one.
         if response.status == HTTPStatus.MOVED_PERMANENTLY:
             logging.info("RSS has moved for %r.", name)
             target.moved_to(response.href)
@@ -94,18 +101,19 @@ class RssCrawler:
 
     @classmethod
     def _entries_after_date(cls, entries, date):
-        """Filters out from feed the ones which are older than the given date.
+        """Filters the `entries` which are older than the given `date`.
 
         Returns:
-            tuple: list of new entries and a new date to crawl afterwards.
+            tuple: A list of new entries and a new date to crawl afterwards.
         """
-        # Filter current entries based on the provided modified date.
         new_entries = []
         max_date = date
 
         for entry in entries:
             entry_date = cls._time_to_date(entry.get("published_parsed"))
             if not max_date:
+                # `max_date` could be None if target's last modified date is not
+                # initialized yet.
                 max_date = entry_date
             if all([entry_date, date]) and entry_date <= date:
                 continue
@@ -132,7 +140,7 @@ class RssCrawler:
         modified = cls._time_to_date(response.get("modified_parsed"))
         etag = response.get("etag")
 
-        # In case RSS feed doesn't support modified tag, we compute it.
+        # In case RSS feed doesn't support modified tag, we compute it artificially.
         if not modified:
             response.entries, modified = cls._entries_after_date(
                 response.entries, target.last_modified
@@ -140,37 +148,47 @@ class RssCrawler:
 
         return response, modified, etag
 
-    @classmethod
-    def _parse_target(cls, target):
+    def _extract_articles(self, target):
         """Parses the given RSS target, then extracts and returns all found articles.
         """
-        response, modified, etag = cls._get_recent_feed(target)
+        feed_response, modified, etag = self._get_recent_feed(target)
 
         # Bozo is a tag which tells that the RSS hasn't been parsed correctly.
-        if response.bozo:
-            raise Exception(response.bozo)
+        if feed_response.bozo:
+            raise Exception(feed_response.bozo)
 
         articles = []
-        # All good, check the status first to see if we can continue with the
-        # extraction.
-        if cls._manage_status(response, target):
-            for feed_entry in response.entries:
-                # Extracts data and saves new articles in the DB with it.
+        count = 0
+        if self._manage_status(feed_response, target):
+            for feed_entry in feed_response.entries:
+                if self._limit and count >= self._limit:
+                    logging.info(
+                        "Crawling limit of %d article(s) was reached for this target.",
+                        count
+                    )
+                    break
                 try:
-                    article = cls._extract_article(feed_entry, target.source_name)
+                    article = self._extract_article(feed_entry, target.source_name)
                 except Exception as exc:
                     logging.exception("Got %s while parsing %r.", exc, feed_entry.id)
                 else:
                     articles.append(article)
+                    count += 1
             target.checkpoint(modified, etag)
 
         return articles
 
     def crawl_targets(self):
-        """Crawls the most recent feed from all the given RSS targets."""
+        """Crawls the most recent feed from each of the given RSS targets.
+
+        Returns:
+            dict: A list of articles by each target URL.
+        """
+        extracted_articles = collections.defaultdict(list)
+
         if not self._rss_targets:
-            logging.warning("No links provided to the crawler.")
-            return
+            logging.warning("No targets available, check database.")
+            return extracted_articles
 
         for target in self._rss_targets:
             link = target.link
@@ -179,10 +197,10 @@ class RssCrawler:
                 link, target.last_modified
             )
             try:
-                articles = self._parse_target(target)
+                articles = self._extract_articles(target)
             except Exception as exc:
                 logging.exception("RSS target error with %r: %s", link, exc)
             else:
-                self._extracted_articles[link].extend(articles)
+                extracted_articles[link].extend(articles)
 
-        return self._extracted_articles
+        return extracted_articles

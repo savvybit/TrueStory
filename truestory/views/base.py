@@ -13,13 +13,17 @@ def norm_filter(value):
 
 @app.template_filter("usafe")
 def usafe_filter(entity):
-    """Returns the URL safe key string regarding an entity."""
+    """Returns the URL safe key string given an entity."""
     return entity.urlsafe
 
 
 @app.template_filter("format_date")
 def format_date_filter(date, time=False):
-    """Return the URL safe key string regarding an entity."""
+    """Returns a formatted date string out of a `datetime` object.
+
+    Args:
+        time (bool): Add to date the time too if this is True.
+    """
     if not date:
         return date
     template = "%d-%m-%y"

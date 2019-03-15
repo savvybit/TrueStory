@@ -16,8 +16,8 @@ NAMESPACE = app.config["DATASTORE_NAMESPACE"]
 NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 
 # Module level singleton client used in all DB interactions. This is lazy inited when
-# is used only, so we don't have any issues with Datastore agnostic tests/debugging,
-# because creating a client will require valid credentials.
+# is used only, so we don't have any issues with the Datastore agnostic tests or
+# debugging, because creating a client will require valid credentials.
 client = None
 
 
@@ -25,7 +25,7 @@ class BaseModel(ndb.Model):
 
     """Common model properties and functionality."""
 
-    # String used for properties with no available data.
+    # String used for properties with no available data (None).
     NOT_SET = "N/A"
 
     created_at = ndb.DateTimeProperty(auto_now_add=True)
@@ -143,18 +143,14 @@ class DuplicateMixin:
         )
 
     def _update(self, entity):
-        """Updates itself without creating history."""
-        # Update the old entity with the newly extracted values (from self).
+        """Updates itself without creating another entry in the database."""
         properties = self.to_dict()
-        # Make sure we put the current date as the creation one.
         properties["created_at"] = datetime.datetime.utcnow()
-        # Override existing entity with the new one's data.
         entity.populate(**properties)
-        # Commit these changes and return back the corresponding Key.
         return entity.put()
 
     def get_existing(self):
-        """Returns already existing entities based on the set `self.primary_key`.
+        """Returns already existing entities based on the chosen `self.primary_key`.
 
         An existing entity is one that has the same primary key attribute value as the
         candidate's one.
@@ -168,18 +164,20 @@ class DuplicateMixin:
         return entities
 
     def put(self):
-        """Check if already existing and if yes, replace the old values."""
-        # All similar entities (based on ID) containing keys only.
+        """Check if this is already existing and if yes, just update with the new
+        values.
+        """
+        # These are keys only entities.
         entities = self.get_existing()
 
         if self.exists or not entities:
-            # Save the newly extracted entity or the already present one.
+            # Save the newly created entity or the already present one (self update).
             return super().put()
 
         # Just update the already existing entity, without saving a new duplicate.
         entity_id = getattr(self, self.primary_key())
         logging.debug("Updating already existing entity: %s.", entity_id)
-        # Should have only one exemplary.
+        # Should have one exemplary only.
         assert len(entities) == 1, "found duplicate entity in the DB"
         entity = entities[0].myself
         return self._update(entity)

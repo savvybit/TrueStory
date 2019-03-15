@@ -2,42 +2,69 @@
 
 
 import argparse
+import json
 import logging
+from datetime import date, datetime
 
 import truestory
+from truestory.crawlers import RssCrawler
+from truestory.models import (
+    ArticleModel,
+    NAMESPACE as DATASTORE_NAMESPACE,
+    RssTargetModel,
+)
+
+
+def _json_serializer(obj):
+    """JSON serializer for objects not serializable by default `json` module."""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+
+
+def crawl_articles(args):
+    """Crawls and possibly saves articles into DB."""
+    rss_targets = RssTargetModel.all()
+    rss_crawler = RssCrawler(rss_targets, limit=args.limit)
+    articles_dict = rss_crawler.crawl_targets()
+    articles = sum(articles_dict.values(), [])
+    for article in articles:
+        print(json.dumps(article.to_dict(), indent=4, default=_json_serializer))
+    if args.save:
+        logging.info("Saving these %d shown article(s).", len(articles))
+        ArticleModel.put_multi(articles)
 
 
 def main():
     # Main parser with common flags.
-    parser = argparse.ArgumentParser(
-        description="Get the both sides of news."
-    )
+    parser = argparse.ArgumentParser(description="Get the both sides of news.")
     parser.add_argument(
         "-v", "--verbose", action="store_true",
         help="show debugging messages"
     )
-    parser.add_argument(
-        "-p", "--pretty", action="store_true",
-        help="prettify output"
-    )
-    # TODO(cmiN): Add new commands like 'crawl'.
     subparser = parser.add_subparsers(title="commands")
 
-    # Parse the given arguments.
+    # Crawling sub-parser.
+    crawl_parser = subparser.add_parser("crawl", help="crawl articles")
+    crawl_parser.add_argument(
+        "-l", "--limit", metavar="NUMBER", type=int,
+        help="how many results to return"
+    )
+    crawl_parser.add_argument(
+        "-s", "--save", action="store_true",
+        help=f"save results into Datastore ({DATASTORE_NAMESPACE})"
+    )
+    crawl_parser.set_defaults(function=crawl_articles)
+
     args = parser.parse_args()
-    # (Re-)initialize the logging mechanism.
-    root = logging.getLogger()
-    for handler in root.handlers[:]:
-        root.removeHandler(handler)
     level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(
         format="%(levelname)s - %(name)s - %(asctime)s - %(message)s",
         filename=truestory.LOGFILE,
         level=level
     )
-    # Interpret the given arguments and execute commands.
+
     try:
-        args.command(args)
+        args.function(args)
     except Exception as exc:
         logging.exception(exc)
     else:

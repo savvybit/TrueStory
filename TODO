@@ -1,5 +1,4 @@
-- Simple web app layout.
-- Article parsers and classifiers.
-- Landing page with logo and brands.
-- Crons & tasks for running crawl and classify jobs.
-- Bias feed queried pagination and article display page.
+- User-friendly article page showing main and related articles.
+- Landing page with logo, brand and intro.
+- Article classifiers for creating the biased pairs (with scores).
+- Crons & tasks for running crawlers and classifying jobs.

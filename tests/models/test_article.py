@@ -14,7 +14,7 @@ def test_bias_pair_save(bias_pair_ents):
     bias_pair.right = right.put()
     bias_pair.put()
 
-    # Check data directly from the DB.
+    # Check data directly from the DB (not using the local entity).
     new_bias_pair = bias_pair.myself
     assert new_bias_pair.left.get().title == "TrueStory 1"
     assert new_bias_pair.right.get().source_name == "BBC"

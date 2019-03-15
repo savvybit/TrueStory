@@ -41,7 +41,6 @@ function load_articles() {
 
         // Set the next cursor for future retrieval.
         var new_cursor = recv_data["new_cursor"];
-        new_cursor ? new_cursor : "";
         cursor_input.val(new_cursor);
     }).always(function () {
         // Revert back to the "Load more" button.
@@ -81,9 +80,11 @@ function scroll_top() {
 
 function check_load_more() {
     if (! $("input#queryCursor").val()) {
+        /* We've depleted all the queried articles from the beginning. */
         $("button#loadMoreReady").remove();
         var to_put = $("#loadMoreEmpty").detach();
         to_put.removeClass("d-none");
+
         var load_group = $("div#loadGroup");
         load_group.removeClass("col-2");
         load_group.addClass("col-3 text-center");
