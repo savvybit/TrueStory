@@ -1,4 +1,4 @@
-"""Gather here all type of crawlers for news extraction."""
+"""Contains all types of crawlers for news extraction."""
 
 
 from .rss_feed import RssCrawler

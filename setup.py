@@ -40,7 +40,7 @@ setup(
     version="0.1.0",
     description="Get the both sides of news.",
     long_description=read("README.md") or "",
-    url="https://github.com/IrinaMBejan/TrueStory",
+    url="https://github.com/SavvyBit/TrueStory",
     license="MIT",
     author="SavvyBit",
     author_email="irinam.bejan@gmail.com",

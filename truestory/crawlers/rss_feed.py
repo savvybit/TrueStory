@@ -16,7 +16,7 @@ from truestory.models.article import ArticleModel
 class RssCrawler:
 
     def __init__(self, rss_targets):
-        """Instantiates with a RSS targets list to crawl."""
+        """Instantiates with a RSS target list to crawl."""
         self._rss_targets = rss_targets
         self._extracted_articles = collections.defaultdict(list)
 

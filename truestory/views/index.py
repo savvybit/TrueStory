@@ -8,5 +8,5 @@ from truestory import app
 
 @app.route("/")
 def index():
-    """Main page standing for presentation of the product."""
+    """Main page standing for the presentation of the product."""
     return render_template("index.html")
