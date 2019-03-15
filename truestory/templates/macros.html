@@ -1,7 +1,7 @@
 {% macro render_article(article, pos) %}
 <div class="col-5 article-{{ pos }}">
   <div class="card">
-    <a href="{{ url_for('article', article_usafe=article.usafe) }}" class="card-link text-dark">
+    <a href="{{ url_for('article', article_usafe=article|usafe) }}" class="card-link text-dark">
       <div class="row no-gutters">
         <div class="col-4">
           <img src="{{ article.image }}" class="card-img" alt="Article picture">
