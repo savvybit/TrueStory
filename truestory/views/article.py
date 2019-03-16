@@ -17,7 +17,7 @@ def article(article_usafe):
     for side in complementary:
         query = BiasPairModel.query()
         query.add_filter(side, "=", main_article.key)
-        pairs = BiasPairModel.all(query=query)
+        pairs = list(query.fetch())
         related_articles.extend([
             getattr(pair, complementary[side]).get() for pair in pairs
         ])

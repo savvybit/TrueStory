@@ -119,6 +119,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def get(cls, urlsafe_or_key):
         """Retrieves an entity object based on an URL safe Key string or Key object."""
+        cls._get_client()
         if isinstance(urlsafe_or_key, (str, bytes)):
             key = ndb.Key(cls, **NDB_KWARGS)
             complete_key = key.from_legacy_urlsafe(urlsafe_or_key)
