@@ -1,1 +1,1 @@
-"""Tests all kind of models."""
+"""Tests all kind of Datastore models."""

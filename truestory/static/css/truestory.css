@@ -32,10 +32,9 @@
 }
 
 /* Removes horizontal scrollbar due to border pixels. */
-.mw-98 {
+.mw-97 {
     max-width: 97%;
 }
-
 
 /* Google fonts */
 .font-page-title {

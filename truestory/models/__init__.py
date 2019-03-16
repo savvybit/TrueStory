@@ -2,5 +2,5 @@
 
 
 from .article import ArticleModel, BiasPairModel
-from .base import BaseModel, DuplicateMixin, ndb
+from .base import BaseModel, DuplicateMixin, NAMESPACE, ndb
 from .rss import RssTargetModel

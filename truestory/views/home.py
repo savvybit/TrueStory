@@ -1,4 +1,4 @@
-"""Handles the home page."""
+"""Handles the '/home' page."""
 
 
 from flask import jsonify, render_template, request

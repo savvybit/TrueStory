@@ -1,4 +1,4 @@
-"""Handles individual article page."""
+"""Handles individual '/article' page."""
 
 
 from flask import render_template

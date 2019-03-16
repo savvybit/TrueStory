@@ -1,4 +1,4 @@
-"""Handles the home page."""
+"""Handles the '/topics' page."""
 
 
 from flask import render_template

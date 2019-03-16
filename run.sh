@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 
-# Working path for the app.
+# Working path for the entire data of the developed app.
 path=~/Work/TrueStory
 mkdir -p $path
 echo "[i] Saving app data under '$path'."

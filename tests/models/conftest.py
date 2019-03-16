@@ -1,4 +1,4 @@
-"""Setups and cleanups for Datastore related tests."""
+"""Setups and cleanups procedures for Datastore related tests."""
 
 
 import os
@@ -61,8 +61,8 @@ CLEANUP_MODELS = [
 def datastore_cleanup():
     yield
     if not NO_CREDENTIALS:
-        total = []
+        all_entities = []
         for Model in CLEANUP_MODELS:
-            items = Model.all(keys_only=True)
-            total.extend(items)
-        BaseModel.remove_multi([item.key for item in total])
+            entities = Model.all(keys_only=True)
+            all_entities.extend(entities)
+        BaseModel.remove_multi([entity.key for entity in all_entities])
