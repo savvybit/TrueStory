@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'macros.html' import render_article %}
+{% from 'macros.html' import render_home_article %}
 
 {% block css %}
 {{ super() }}
@@ -23,11 +23,11 @@
   <div class="row py-4">
     <div class="card-deck justify-content-around">
 
-      {{ render_article(pair.left.get(), 'left') }}
+      {{ render_home_article(pair.left.get(), 'left') }}
 
       <i class="material-icons md-48 text-dark my-auto">compare_arrows</i>
 
-      {{ render_article(pair.right.get(), 'right') }}
+      {{ render_home_article(pair.right.get(), 'right') }}
 
     </div>
   </div>
