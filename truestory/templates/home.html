@@ -25,7 +25,7 @@
 
       {{ render_article(pair.left.get(), 'left') }}
 
-      <i class="material-icons md-48 text-info my-auto">compare_arrows</i>
+      <i class="material-icons md-48 text-dark my-auto">compare_arrows</i>
 
       {{ render_article(pair.right.get(), 'right') }}
 
@@ -38,17 +38,17 @@
   <div id="loadGroup" class="col-2 mx-auto">
     <input type="hidden" id="queryCursor" value="{{ query_cursor }}">
 
-    <button type="button" id="loadMoreReady" class="btn btn-block btn-outline-primary" onclick="load_articles();">
+    <button type="button" id="loadMoreReady" class="btn btn-block btn-outline-dark" onclick="load_articles();">
       <i class="material-icons">autorenew</i>Load more
     </button>
-    <button type="button" id="loadMoreBusy" class="btn btn-block btn-primary d-none" disabled>
+    <button type="button" id="loadMoreBusy" class="btn btn-block btn-dark d-none" disabled>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...
     </button>
 
     <h3 id="loadMoreEmpty" class="font-weight-light d-none">
       <p class="strike-behind">
         <span>
-          <i class="material-icons md-48 text-info">check_circle_outline</i>
+          <i class="material-icons md-48 text-dark">check_circle_outline</i>
         </span>
       </p>
       You're All Caught Up
@@ -58,7 +58,7 @@
 
 <div class="row">
   <div class="col-1 ml-auto">
-    <a href="#" id="toTop" class="text-decoration-none pb-3">
+    <a href="#" id="toTop" class="text-decoration-none text-dark pb-3">
       <i class="material-icons">keyboard_arrow_up</i>
     </a>
   </div>
