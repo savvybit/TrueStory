@@ -1,27 +1,34 @@
 {% macro render_home_article(article, pos) %}
-<div class="col-5 article-{{ pos }}">
-  <div class="card shadow">
-    <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
-      <div class="row no-gutters">
-        <div class="col-4">
-          <img src="{{ article.image }}" class="card-img" alt="Article picture">
-        </div>
+<div class="row">
+  <div class="col-9 article-{{ pos }} offset-{{ 1 if pos == 'left' else 2 }}">
+    <div class="card shadow">
+      <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
+        <div class="row no-gutters">
+          <div class="col-4">
+            <img src="{{ article.image }}" class="card-img" alt="Article picture">
+          </div>
 
-        <div class="col-8">
-          <div class="card-body">
-            <h5 class="card-title font-article-title">{{ article.title }}</h5>
-            <p class="card-text article-summary">{{ article.summary or article.content|paragraph_split|join('\n') }}</p>
+          <div class="col-8">
+            <div class="card-body">
+              <h5 class="card-title font-article-title">{{ article.title }}</h5>
+              <p class="card-text article-summary">{{ article.summary or article.content|paragraph_split|join('\n') }}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="card-footer">
-        <p class="card-text">
-          <span class="badge badge-dark article-source">{{ article.source_name }}</span>
-          <small class="text-muted ml-2 article-published">{{ article.published|format_date(time=True) }}</small>
-        </p>
-      </div>
-    </a>
+        <div class="card-footer">
+          <p class="card-text">
+            <span class="badge badge-dark article-source">{{ article.source_name }}</span>
+            <small class="text-muted ml-2 article-published">{{ article.published|format_date(time=True) }}</small>
+
+            <span class="blockquote-footer float-right">
+              {{ article.authors|join(', ') }} on
+              <cite title="Source website" class="text-dark">{{ article.link|website }}</cite>
+            </span>
+          </p>
+        </div>
+      </a>
+    </div>
   </div>
 </div>
 {% endmacro %}

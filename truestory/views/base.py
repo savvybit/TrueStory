@@ -1,6 +1,8 @@
 """Base views, routes and utilities used by the web app's views."""
 
 
+import urllib.parse as urlparse
+
 from truestory import app, settings
 from truestory.models import base as models_base
 
@@ -43,3 +45,9 @@ def paragraph_split_filter(content, full=False):
     if len(content) > size:
         content = content[:size] + "..."
     return content.split("\n\n")
+
+
+@app.template_filter("website")
+def website_filter(link):
+    """Returns the network location of a received URL."""
+    return urlparse.urlsplit(link).netloc

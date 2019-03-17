@@ -20,16 +20,16 @@
 
 <section id="articleList" class="mw-97 mx-auto">
   {% for pair in bias_pairs %}
-  <div class="row py-4">
-    <div class="card-deck justify-content-around">
+  <div class="py-5">
+    {{ render_home_article(pair.left.get(), 'left') }}
 
-      {{ render_home_article(pair.left.get(), 'left') }}
-
-      <i class="material-icons md-48 text-dark my-auto">compare_arrows</i>
-
-      {{ render_home_article(pair.right.get(), 'right') }}
-
+    <div class="row my-1">
+      <div class="col-1 mx-auto">
+          <i class="fas fa-yin-yang fa-3x"></i>
+      </div>
     </div>
+
+    {{ render_home_article(pair.right.get(), 'right') }}
   </div>
   {% endfor %}
 </section>
