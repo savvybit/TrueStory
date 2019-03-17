@@ -1,0 +1,11 @@
+/* Makes all full article cover images same size. */
+.card-img-top {
+    width: 100%;
+    height: 20vw;
+    object-fit: cover;
+}
+
+/* Title shadow */
+.article-title-shadow {
+    text-shadow: 1px 3px 2px rgba(0,0,0,0.7);
+}

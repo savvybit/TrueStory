@@ -1,6 +1,6 @@
 {% macro render_home_article(article, pos) %}
 <div class="col-5 article-{{ pos }}">
-  <div class="card">
+  <div class="card shadow">
     <a href="{{ url_for('article', article_usafe=article|usafe) }}" class="card-link text-dark">
       <div class="row no-gutters">
         <div class="col-4">
@@ -28,30 +28,26 @@
 
 {% macro render_full_article(article) %}
 <div class="col-10">
-  <div class="card">
+  <div class="card shadow">
     <a href="{{ url_for('article', article_usafe=article|usafe) }}" class="card-link text-dark">
-      <div class="row no-gutters">
-        <div class="col-4">
-          <img src="{{ article.image }}" class="card-img" alt="Article picture">
-        </div>
-
-        <div class="col-8">
-          <div class="card-body">
-            <h5 class="card-title font-article-title">{{ article.title }}</h5>
-            <p class="card-text article-summary">{{ article.content }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <p class="card-text">
-          <span class="badge badge-pill badge-dark article-source">{{ article.source_name }}</span>
-          <small class="text-muted ml-2 article-published">{{ article.published|format_date(time=True) }}</small>
-
-          <a href="#" class="card-link text-dark float-right">Read more</a>
-        </p>
+      <img src="{{ article.image }}" class="card-img-top" alt="Article picture">
+      <div class="card-img-overlay">
+        <h5 class="card-title font-article-title text-light article-title-shadow">{{ article.title }}</h5>
       </div>
     </a>
+
+    <div class="card-body">
+      <pre class="card-text article-content">{{ article.content }}</pre>
+    </div>
+
+    <div class="card-footer">
+      <p class="card-text">
+        <span class="badge badge-pill badge-dark article-source">{{ article.source_name }}</span>
+        <small class="text-muted ml-2 article-published">{{ article.published|format_date(time=True) }}</small>
+
+        <a href="{{ article.link }}" class="card-link text-dark float-right">Read more</a>
+      </p>
+    </div>
   </div>
 </div>
 {% endmacro %}

@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% from 'macros.html' import render_full_article %}
 
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}">
+{% endblock css %}
+
 {% block title %}
 This is news
 {% endblock title %}
@@ -8,6 +13,14 @@ This is news
 {% block container %}
 {{ super() }}
 
-{{ render_full_article(main_article) }}
+<div class="row">
+  {{ render_full_article(main_article) }}
+</div>
+
+{% for article in related_articles %}
+<div class="row mt-5">
+  {{ render_full_article(article) }}
+</div>
+{% endfor %}
 
 {% endblock container %}
