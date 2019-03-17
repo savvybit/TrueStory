@@ -1,7 +1,7 @@
 """Base views, routes and utilities used by the web app's views."""
 
 
-from truestory import app
+from truestory import app, settings
 from truestory.models import base as models_base
 
 
@@ -30,3 +30,16 @@ def format_date_filter(date, time=False):
     if time:
         template += " %H:%M"
     return date.strftime(template)
+
+
+@app.template_filter("paragraph_split")
+def paragraph_split_filter(content, full=False):
+    """Truncates content to a maximum size.
+
+    Returns:
+        list: Of paragraphs.
+    """
+    size = settings.FULL_ARTICLE_MAX_SIZE if full else settings.HOME_ARTICLE_MAX_SIZE
+    if len(content) > size:
+        content = content[:size] + "..."
+    return content.split("\n\n")

@@ -8,7 +8,7 @@ from truestory.models.article import ArticleModel, BiasPairModel
 
 
 @app.route("/article/<article_usafe>")
-def article(article_usafe):
+def article_view(article_usafe):
     """Displays article details and its opposed ones."""
     main_article = ArticleModel.get(article_usafe)
     related_articles = []
@@ -18,9 +18,10 @@ def article(article_usafe):
         query = BiasPairModel.query()
         query.add_filter(side, "=", main_article.key)
         pairs = list(query.fetch())
-        related_articles.extend([
-            getattr(pair, complementary[side]).get() for pair in pairs
-        ])
+
+        for pair in pairs:
+            article = getattr(pair, complementary[side]).get()
+            related_articles.append((article, pair.score))
 
     return render_template(
         "article.html",

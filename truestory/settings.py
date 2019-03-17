@@ -21,3 +21,7 @@ WORK_DIR = Path(f"~/Work/{APP_NAME}").expanduser()
 
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
+
+# Article content display settings on home and individual page.
+HOME_ARTICLE_MAX_SIZE = 256
+FULL_ARTICLE_MAX_SIZE = 1024

@@ -28,7 +28,7 @@
   <body>
     {% block content %}
     <nav class="navbar navbar-expand-md navbar-light bg-light">
-      <a class="navbar-brand" href="{{ url_for('index') }}">TrueStory</a>
+      <a class="navbar-brand" href="{{ url_for('index_view') }}">TrueStory</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -36,14 +36,14 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('home') }}">Home <span class="sr-only">Home</span></a>
+            <a class="nav-link" href="{{ url_for('home_view') }}">Home <span class="sr-only">Home</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('topics') }}">Topics <span class="sr-only">Topics</span></a>
+            <a class="nav-link" href="{{ url_for('topics_view') }}">Topics <span class="sr-only">Topics</span></a>
           </li>
         </ul>
 
-        <form action="{{ url_for('home') }}" class="form-inline my-2 my-md-0 mx-auto">
+        <form action="{{ url_for('home_view') }}" class="form-inline my-2 my-md-0 mx-auto">
           <input type="search" name="querySearch" value="{{ query_search or '' }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
           <button class="btn btn-sm btn-outline-dark my-2 my-sm-0" type="submit">
             <i class="material-icons">search</i>
