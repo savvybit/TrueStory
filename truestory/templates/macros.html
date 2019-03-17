@@ -33,7 +33,7 @@
 </div>
 {% endmacro %}
 
-{% macro render_full_article(article, bias_score=None) %}
+{% macro render_full_article(article, meta=None) %}
 <div class="col-10">
   <div class="card shadow">
     <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
@@ -41,10 +41,18 @@
       <div class="card-img-overlay text-light">
         <h5 class="card-title font-article-title article-title">{{ article.title }}</h5>
 
-        {% if bias_score is not none %}
+        {% if meta is not none %}
         <br>
         <p class="card-text mt-5 float-right">
-          <span class="badge badge-pill badge-light">Bias score: {{ bias_score|int }}</span>
+          {% for detail in meta %}
+          {% if detail.startswith('_') %}
+            {% continue %}
+          {% endif %}
+          <span class="badge badge-pill badge-light">
+            <em>{{ detail }}:</em> <strong>{{ meta[detail] }}</strong>
+          </span>
+          <br>
+          {% endfor %}
         </p>
         {% endif %}
       </div>

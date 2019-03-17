@@ -17,9 +17,9 @@ This is news
   {{ render_full_article(main_article) }}
 </div>
 
-{% for article, bias_score in related_articles %}
+{% for article, meta in related_articles %}
 <div class="row mt-5">
-  {{ render_full_article(article, bias_score=bias_score) }}
+  {{ render_full_article(article, meta=meta) }}
 </div>
 {% endfor %}
 
