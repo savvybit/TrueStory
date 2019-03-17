@@ -34,43 +34,49 @@
 {% endmacro %}
 
 {% macro render_full_article(article, meta=None) %}
-<div class="col-10">
-  <div class="card shadow">
-    <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
-      <img src="{{ article.image }}" class="card-img-top" alt="Article picture">
-      <div class="card-img-overlay text-light">
-        <h5 class="card-title font-article-title article-title">{{ article.title }}</h5>
+<div class="row mt-5">
+  <div class="col-10">
+    <div class="card shadow">
+      <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
+        <img src="{{ article.image }}" class="card-img-top" alt="Article picture">
+        <div class="card-img-overlay text-light">
+          <h4 class="card-title font-article-title article-title">{{ article.title }}</h4>
 
-        {% if meta is not none %}
-        <br>
-        <p class="card-text mt-5 float-right">
-          {% for detail in meta %}
-          {% if detail.startswith('_') %}
-            {% continue %}
-          {% endif %}
-          <span class="badge badge-pill badge-light">
-            <em>{{ detail }}:</em> <strong>{{ meta[detail] }}</strong>
-          </span>
           <br>
+          <p class="card-text mt-5 float-right">
+            {% if meta is not none %}
+              {% for detail in meta %}
+              {% if detail.startswith('_') %}
+                {% continue %}
+              {% endif %}
+              <span class="badge badge-pill badge-light">
+                <em>{{ detail }}:</em> <strong>{{ meta[detail] }}</strong>
+              </span>
+              <br>
+              {% endfor %}
+            {% else %}
+              <span class="badge badge-pill badge-light">
+                <em>Main article</em>
+              </span>
+            {% endif %}
+          </p>
+        </div>
+      </a>
+
+      <div class="card-body relative pre-scrollable article-content">
+          {% for part in article.content|paragraph_split(full=True) %}
+          <p class="card-text">{{ part }}</p>
           {% endfor %}
-        </p>
-        {% endif %}
       </div>
-    </a>
 
-    <div class="card-body relative pre-scrollable article-content">
-        {% for part in article.content|paragraph_split(full=True) %}
-        <p class="card-text">{{ part }}</p>
-        {% endfor %}
-    </div>
+      <div class="card-footer relative">
+        <p class="card-text">
+          <span class="badge badge-dark article-source">{{ article.source_name }}</span>
+          <small class="text-muted ml-2 article-published">{{ article.published|format_date(time=True) }}</small>
 
-    <div class="card-footer relative">
-      <p class="card-text">
-        <span class="badge badge-dark article-source">{{ article.source_name }}</span>
-        <small class="text-muted ml-2 article-published">{{ article.published|format_date(time=True) }}</small>
-
-        <a href="{{ article.link }}" target="_blank" class="card-link text-dark float-right">Read more</a>
-      </p>
+          <a href="{{ article.link }}" target="_blank" class="card-link text-dark float-right">Read more</a>
+        </p>
+      </div>
     </div>
   </div>
 </div>

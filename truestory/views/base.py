@@ -28,7 +28,7 @@ def format_date_filter(date, time=False):
     """
     if not date:
         return date
-    template = "%d-%m-%y"
+    template = "%d-%b-%y"
     if time:
         template += " %H:%M"
     return date.strftime(template)

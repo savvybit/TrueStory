@@ -13,14 +13,10 @@ This is news
 {% block container %}
 {{ super() }}
 
-<div class="row">
-  {{ render_full_article(main_article) }}
-</div>
+{{ render_full_article(main_article) }}
 
 {% for article, meta in related_articles %}
-<div class="row mt-5">
-  {{ render_full_article(article, meta=meta) }}
-</div>
+{{ render_full_article(article, meta=meta) }}
 {% endfor %}
 
 {% endblock container %}

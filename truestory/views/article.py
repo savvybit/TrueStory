@@ -33,7 +33,7 @@ def article_view(article_usafe):
 
             meta = {
                 "Bias score": int(pair.score),
-                "Created at": views_base.format_date_filter(
+                "Analysed at": views_base.format_date_filter(
                     pair.created_at, time=True
                 ),
                 # These are not rendered in the HTML (starting with underscore).
