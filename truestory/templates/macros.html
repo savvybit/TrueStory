@@ -39,11 +39,10 @@
     <div class="card shadow">
       <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
         <img src="{{ article.image }}" class="card-img-top" alt="Article picture">
-        <div class="card-img-overlay text-light">
+        <div class="card-img-overlay text-light d-flex card-overlay-height">
           <h4 class="card-title font-article-title article-title">{{ article.title }}</h4>
 
-          <br>
-          <p class="card-text mt-5 float-right">
+          <p class="card-text mt-auto">
             {% if meta is not none %}
               {% for detail in meta %}
               {% if detail.startswith('_') %}
