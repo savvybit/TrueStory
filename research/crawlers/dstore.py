@@ -110,15 +110,30 @@ def copy_entities():
 
     base.NDB_KWARGS["namespace"] = "production"
     base.client = None
+    articles = {}
 
     for pair in pairs:
+        left_article = pair.left.get()
+        left_key = articles.get(left_article.urlsafe)
+        if not left_key:
+            left_key = articles[left_article.urlsafe] = ArticleModel(
+                **left_article.to_dict()
+            ).put()
+
+        right_article = pair.right.get()
+        right_key = articles.get(right_article.urlsafe)
+        if not right_key:
+            right_key = articles[right_article.urlsafe] = ArticleModel(
+                **right_article.to_dict()
+            ).put()
+
         to_save = pair.to_dict()
         del to_save["left"]
         del to_save["right"]
         del to_save["keywords"]
         new_pair = BiasPairModel(**to_save)
-        new_pair.left = ArticleModel(**pair.left.get().to_dict()).put()
-        new_pair.right = ArticleModel(**pair.right.get().to_dict()).put()
+        new_pair.left = left_key
+        new_pair.right = right_key
         key = new_pair.put()
         print(f"Saved new bias: {key}")
 
