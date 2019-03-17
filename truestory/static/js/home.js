@@ -91,6 +91,15 @@ function check_load_more() {
         var load_group = $("div#loadGroup");
         load_group.removeClass("col-2");
         load_group.addClass("col-3 text-center");
+
+        /* Maybe we've searched for something and we've got no results at all.
+        */
+        var searched = Boolean($("input#querySearch").val());
+        var results = Boolean($("section#articleList").find("div").length);
+        if (searched && !results) {
+            to_put.find("span#emptyText").text("No Articles Found");
+        }
+
         load_group.prepend(to_put);
     }
 }

@@ -27,7 +27,9 @@ def home_view():
 
     query = BiasPairModel.query()
     if search:
-        query.add_filter("keywords", "=", search)
+        tokens = search.split()
+        for token in tokens:
+            query.add_filter("keywords", "=", token)
     query.order = ["-score", "-created_at"]
     query_iter = query.fetch(start_cursor=cursor, limit=3)
     page = next(query_iter.pages)
