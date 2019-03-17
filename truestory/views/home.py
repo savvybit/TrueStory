@@ -11,9 +11,11 @@ from truestory.views import base as views_base
 def _get_serializable_article(key):
     """JSON serializable article format used by the front-end ajax calls."""
     details = key.get().to_dict()
-    details["published"] = views_base.format_date_filter(
-        details["published"], time=True
-    )
+    details.update({
+        "published": views_base.format_date_filter(details["published"], time=True),
+        "content": "\n".join(views_base.paragraph_split_filter(details["content"])),
+        "link": views_base.website_filter(details["link"]),
+    })
     return details
 
 
