@@ -5,7 +5,7 @@ import sys
 from google.cloud import datastore
 
 from truestory.crawlers import RssCrawler
-from truestory.models import ArticleModel, BiasPairModel, RssTargetModel
+from truestory.models import ArticleModel, BiasPairModel, RssTargetModel, base
 
 
 client = None
@@ -101,6 +101,28 @@ def add_bias():
         bias_pair.put()
 
 
+def copy_entities():
+    query = BiasPairModel.query()
+    query.add_filter("score", ">", 10.0)
+    pairs = list(query.fetch())
+
+    assert len(pairs) == 5
+
+    base.NDB_KWARGS["namespace"] = "production"
+    base.client = None
+
+    for pair in pairs:
+        to_save = pair.to_dict()
+        del to_save["left"]
+        del to_save["right"]
+        del to_save["keywords"]
+        new_pair = BiasPairModel(**to_save)
+        new_pair.left = ArticleModel(**pair.left.get().to_dict()).put()
+        new_pair.right = ArticleModel(**pair.right.get().to_dict()).put()
+        key = new_pair.put()
+        print(f"Saved new bias: {key}")
+
+
 def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} FUNC")
@@ -114,6 +136,7 @@ def main():
         "rss_feed": rss_feed,
         "test_model": test_model,
         "add_bias": add_bias,
+        "copy_entities": copy_entities,
     }
     funcs[sys.argv[1]]()
 
@@ -121,4 +144,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Example: $ python dstore.py rss_feed
+# Example: $ python dstore.py copy_entities

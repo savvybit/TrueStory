@@ -47,5 +47,7 @@ class BiasPairModel(BaseModel):
 
     def put(self):
         # Pre-compute the `published` property before saving the entity.
+        # A `ComputedProperty` will not work because it asks for a serialized (string)
+        # output and here we want a real datetime object.
         self.published = self._max_date()
         return super().put()

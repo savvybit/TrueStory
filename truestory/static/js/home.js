@@ -28,6 +28,7 @@ function load_articles() {
             for (var pos in update_map) {
                 var article = articles.find("div.article-" + pos);
                 var data = update_map[pos];
+                article.find("a#articleUsafe").attr("href", data["usafe"]);
                 article.find("img.card-img").attr("src", data["image"]);
                 article.find("h5.card-title").text(data["title"]);
                 var summary = (

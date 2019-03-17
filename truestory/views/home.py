@@ -1,7 +1,7 @@
 """Handles the '/home' page."""
 
 
-from flask import jsonify, render_template, request
+from flask import jsonify, render_template, request, url_for
 
 from truestory import app, settings
 from truestory.models.article import BiasPairModel
@@ -10,11 +10,13 @@ from truestory.views import base as views_base
 
 def _get_serializable_article(key):
     """JSON serializable article format used by the front-end ajax calls."""
-    details = key.get().to_dict()
+    article = key.get()
+    details = article.to_dict()
     details.update({
-        "published": views_base.format_date_filter(details["published"], time=True),
-        "content": "\n".join(views_base.paragraph_split_filter(details["content"])),
+        "usafe": url_for("article_view", article_usafe=article.urlsafe),
         "link": views_base.website_filter(details["link"]),
+        "content": "\n".join(views_base.paragraph_split_filter(details["content"])),
+        "published": views_base.format_date_filter(details["published"], time=True),
     })
     return details
 
