@@ -34,7 +34,8 @@ class BiasPairModel(BaseModel):
     def keywords(self):
         """Combines all the keywords into an unique list."""
         left_kwds, right_kwds = map(
-            lambda key: set(key.get().keywords or []), [self.left, self.right]
+            lambda key: set(filter(None, key.get().keywords or [])),
+            [self.left, self.right]
         )
         return [kwd.lower() for kwd in (left_kwds | right_kwds)]
 
