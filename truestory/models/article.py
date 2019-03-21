@@ -14,7 +14,7 @@ class ArticleModel(BaseModel):
     link = ndb.StringProperty(required=True)
     title = ndb.StringProperty(required=True)
     content = ndb.TextProperty(required=True, indexed=False)
-    summary = ndb.StringProperty()
+    summary = ndb.StringProperty(indexed=False)
     authors = ndb.StringProperty(repeated=True)
     published = ndb.DateTimeProperty()
     image = ndb.StringProperty()
