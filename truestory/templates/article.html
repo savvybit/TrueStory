@@ -15,8 +15,10 @@ This is news
 
 {{ render_full_article(main_article) }}
 
-{% for article, meta in related_articles %}
-{{ render_full_article(article, meta=meta) }}
-{% endfor %}
+<div class="articles-scroll">
+  {% for article, meta in related_articles %}
+  {{ render_full_article(article, meta=meta) }}
+  {% endfor %}
+</div>
 
 {% endblock container %}

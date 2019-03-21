@@ -19,3 +19,9 @@
 .relative {
     position: relative;
 }
+
+/* Be able to scroll multiple articles in a fixed width. */
+.articles-scroll {
+    height: 30vw;
+    overflow-y: scroll;
+}
