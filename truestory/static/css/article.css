@@ -20,8 +20,8 @@
     position: relative;
 }
 
-/* Be able to scroll multiple articles in a fixed width. */
+/* Be able to scroll multiple mini articles within a fixed width. */
 .articles-scroll {
-    height: 30vw;
+    height: 42vw;
     overflow-y: scroll;
 }
