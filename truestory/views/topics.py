@@ -7,6 +7,6 @@ from truestory import app
 
 
 @app.route("/topics")
-def topics():
+def topics_view():
     """Topics page displaying selectable favorite news subjects."""
     return render_template("topics.html")

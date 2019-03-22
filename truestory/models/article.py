@@ -14,7 +14,7 @@ class ArticleModel(BaseModel):
     link = ndb.StringProperty(required=True)
     title = ndb.StringProperty(required=True)
     content = ndb.TextProperty(required=True, indexed=False)
-    summary = ndb.StringProperty()
+    summary = ndb.StringProperty(indexed=False)
     authors = ndb.StringProperty(repeated=True)
     published = ndb.DateTimeProperty()
     image = ndb.StringProperty()
@@ -34,7 +34,8 @@ class BiasPairModel(BaseModel):
     def keywords(self):
         """Combines all the keywords into an unique list."""
         left_kwds, right_kwds = map(
-            lambda key: set(key.get().keywords or []), [self.left, self.right]
+            lambda key: set(filter(None, key.get().keywords or [])),
+            [self.left, self.right]
         )
         return [kwd.lower() for kwd in (left_kwds | right_kwds)]
 
@@ -47,5 +48,7 @@ class BiasPairModel(BaseModel):
 
     def put(self):
         # Pre-compute the `published` property before saving the entity.
+        # A `ComputedProperty` will not work because it asks for a serialized (string)
+        # output and here we want a real datetime object.
         self.published = self._max_date()
         return super().put()

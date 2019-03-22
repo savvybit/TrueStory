@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>TrueStory</title>
 
-    <!-- Bootstrap, Google and custom CSS -->
+    <!-- Bootstrap, Google, Font Awesome and custom CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nixie+One|Patua+One">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <!-- Custom TrueStory styles -->
     {% block css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/truestory.css') }}">
@@ -28,7 +29,7 @@
   <body>
     {% block content %}
     <nav class="navbar navbar-expand-md navbar-light bg-light">
-      <a class="navbar-brand" href="{{ url_for('index') }}">TrueStory</a>
+      <a class="navbar-brand" href="{{ url_for('index_view') }}">TrueStory</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -36,22 +37,22 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('home') }}">Home <span class="sr-only">Home</span></a>
+            <a class="nav-link" href="{{ url_for('home_view') }}">Home <span class="sr-only">Home</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('topics') }}">Topics <span class="sr-only">Topics</span></a>
+            <a class="nav-link" href="{{ url_for('topics_view') }}">Topics <span class="sr-only">Topics</span></a>
           </li>
         </ul>
 
-        <form action="{{ url_for('home') }}" class="form-inline my-2 my-md-0 mx-auto">
-          <input type="search" name="querySearch" value="{{ query_search or '' }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
-          <button class="btn btn-sm btn-outline-info my-2 my-sm-0" type="submit">
+        <form action="{{ url_for('home_view') }}" class="form-inline my-2 my-md-0 mx-auto">
+          <input type="search" id="querySearch" name="querySearch" value="{{ query_search or '' }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
+          <button class="btn btn-sm btn-outline-dark my-2 my-sm-0" type="submit">
             <i class="material-icons">search</i>
           </button>
         </form>
 
         <div class="dropdown mx-auto">
-          <i class="material-icons text-primary dropdown-toggle" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">account_circle</i>
+          <i class="material-icons text-dark dropdown-toggle" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">account_circle</i>
           <div class="dropdown-menu" aria-labelledby="profileDropdown">
             <a class="dropdown-item" href="#">Preferences</a>
             <a class="dropdown-item" href="#">Settings</a>

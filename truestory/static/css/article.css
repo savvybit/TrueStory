@@ -1,0 +1,27 @@
+/* Makes all full article cover images same size. */
+.card-img-top {
+    width: 100%;
+    height: 15vw;
+    object-fit: cover;
+}
+
+/* The text overlay dimensions should be the same as for the cover image. */
+.card-overlay-height {
+    height: 15vw;
+}
+
+/* Main full article title shadow. */
+.article-title {
+    text-shadow: 1px 3px 2px rgba(0,0,0,0.7);
+}
+
+/* This is because of the affected z-index by the `card-img-overlay` class. */
+.relative {
+    position: relative;
+}
+
+/* Be able to scroll multiple mini articles within a fixed width. */
+.articles-scroll {
+    height: 42vw;
+    overflow-y: scroll;
+}
