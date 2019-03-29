@@ -279,6 +279,10 @@ body {
 }
 
 a {
+  color: #64a19d;
+}
+
+a.bright-url {
   color: #00cccc;
 }
 
