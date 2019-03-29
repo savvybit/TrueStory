@@ -10,7 +10,7 @@ function loadall() {
 
 function nav_set_active() {
     // Deactivate any active tab.
-    $("nav .nav-item.active").removeClass("active");
+    $("#appNav .nav-item.active").removeClass("active");
     // Set focus on the one corresponding to the current URL.
     var url_path = window.location.pathname;
     var active_tab = $('a.nav-link[href="' + url_path + '"]').parent();
