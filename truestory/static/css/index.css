@@ -138,32 +138,27 @@
   }
 }
 
-.btn {
-  -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+.ts-button {
+  -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.2) !important;
   padding: 1.25rem 2rem;
   font-family: "Nixie One";
   font-size: 80%;
   text-transform: uppercase;
   letter-spacing: .15rem;
-  border: 0;
+  color: #64a19d;
+  border-color: #64a19d;
 }
 
-.btn-primary {
-  background-color: #64a19d;
-}
-
-.btn-primary:hover {
+.ts-button:hover, .ts-button:focus, .ts-button:active {
   background-color: #4f837f;
-}
-
-.btn-primary:focus {
-  background-color: #4f837f;
+  border-color: #4f837f;
   color: white;
 }
 
-.btn-primary:active {
-  background-color: #467370 !important;
+.ts-button:active {
+  background-color: #467370;
+  border-color: #467370;
 }
 
 .about-section {
@@ -227,6 +222,8 @@
   text-transform: uppercase;
   letter-spacing: 0.15rem;
   border: 0;
+  color: #4f837f;
+  opacity: 0.9;
 }
 
 .contact-section {
