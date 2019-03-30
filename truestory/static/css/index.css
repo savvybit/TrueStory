@@ -146,19 +146,17 @@
   font-size: 80%;
   text-transform: uppercase;
   letter-spacing: .15rem;
-  color: #64a19d;
-  border-color: #64a19d;
+  border: 0;
+  color: white !important;
+  background-color: #64a19d;
 }
 
-.ts-button:hover, .ts-button:focus, .ts-button:active {
+.ts-button:hover, .ts-button:focus {
   background-color: #4f837f;
-  border-color: #4f837f;
-  color: white;
 }
 
 .ts-button:active {
   background-color: #467370;
-  border-color: #467370;
 }
 
 .about-section {
