@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/topics.css') }}">
+{% endblock css %}
+
+{% block title %}
+Popular subjects
+{% endblock title %}
+
+{% block container %}
+{{ super() }}
+
+<section class="py-4">
+  <div class="card-columns">
+    <div class="card">
+      <img class="card-img-top" src="https://www.idea.int/sites/default/files/Initiatives/2018-Theme-Money-in-Politics.png" class="card-img-top" alt="Politics picture">
+      <div class="card-body">
+        <h5 class="card-title">Politics</h5>
+      </div>
+    </div>
+
+    <div class="card">
+      <img class="card-img-top" src="https://www.thehindu.com/opinion/op-ed/article23590028.ece/ALTERNATES/FREE_960/19thinvestments" class="card-img-top" alt="Economy picture">
+      <div class="card-body">
+        <h5 class="card-title">Economy</h5>
+      </div>
+    </div>
+
+    <div class="card">
+      <img class="card-img-top" src="https://akm-img-a-in.tosshub.com/indiatoday/images/story/201804/ladakh.jpeg?fvw3FNgnYjsSyOhhOOaMfZCdinwMGWLP" class="card-img-top" alt="War picture">
+      <div class="card-body">
+        <h5 class="card-title">War</h5>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock container %}

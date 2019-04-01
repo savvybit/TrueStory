@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from 'macros.html' import render_full_article, render_mini_article %}
+
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}">
+{% endblock css %}
+
+{% block script %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/article.js') }}" type="text/javascript"></script>
+{% endblock script %}
+
+{% block title %}
+This is news
+{% endblock title %}
+
+{% block container %}
+{{ super() }}
+
+<div class="row mt-5">
+  <div id="articlePlace" class="col-8 ml-auto">
+    <!-- Empty, because it will be automatically filled through article.js. -->
+  </div>
+  <div class="col-3 mr-auto">
+    <div class="articles-scroll">
+      <!-- Start with the new related articles first. -->
+      {% for article, meta in related_articles %}
+      <div id="relatedMiniArticle{{ loop.index }}">
+        {{ render_mini_article(article, meta=meta, index=loop.index) }}
+      </div>
+      {% endfor %}
+      <!-- And end with the original/main one. -->
+      <div id="mainMiniArticle">
+        {{ render_mini_article(main_article) }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="d-none">
+  {% for article, meta in related_articles %}
+  <div id="relatedArticle{{ loop.index }}">
+    {{ render_full_article(article, meta=meta) }}
+  </div>
+  <div id="mainArticle">
+    {{ render_full_article(main_article) }}
+  </div>
+  {% endfor %}
+</div>
+{% endblock container %}

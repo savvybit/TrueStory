@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock css %}
+
+{% block script %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/index.js') }}" type="text/javascript"></script>
+{% endblock script %}
+
+{% block content %}
+<div id="pageTop">
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <a href="#pageTop" class="navbar-brand js-scroll-trigger">TrueStory</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a href="#about" class="nav-link js-scroll-trigger">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="#extension" class="nav-link js-scroll-trigger">Extension</a>
+          </li>
+          <li class="nav-item">
+            <a href="#signup" class="nav-link js-scroll-trigger">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="masthead">
+    <div class="container d-flex h-100 align-items-center">
+      <div class="mx-auto text-center">
+        <img id="prismImage" src="{{ url_for('static', filename='img/prism.png') }}" class="img-fluid" alt="Bias Prism">
+        <h1 class="mx-auto py-2">TrueStory</h1>
+        <h2 class="text-white-80 mx-auto mt-2 mb-5 text-uppercase">
+          See both sides of the same story
+        </h2>
+        <a href="#about" class="btn ts-button js-scroll-trigger mt-5">Discover more</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- About Section -->
+  <section id="about" class="about-section text-center">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2 class="text-white mb-4">Average out the bias, seek the truth.</h2>
+          <p class="text-white-80">
+            We feel compelled to avoid the <em>bias</em> and seek idealistic objective news,
+            even though we all know this doesn't exist. But what if these conflicting passions
+            bring stories to life? Or represent the foundation for investigative journalism and
+            the first step to right a wrong?
+            <br><br>
+            We believe that being open-minded is the key. If you are genuinely willing to be informed,
+            don't miss our <a href="#extension" class="js-scroll-trigger bright-url">browser extension</a>.
+          </p>
+        </div>
+      </div>
+      <img src="{{ url_for('static', filename='img/ipad.png') }}" class="img-fluid" alt="Online News">
+    </div>
+  </section>
+
+  <!-- Extension Section -->
+  <section id="extension" class="extension-section bg-light">
+    <div class="container">
+
+      <!-- Featured Project Row -->
+      <div class="row align-items-center no-gutters mb-4 mb-lg-5">
+        <div class="col-xl-8 col-lg-7">
+          <img src="{{ url_for('static', filename='img/extension.png') }}" class="img-fluid mb-3 mb-lg-0" alt="Chrome Extension">
+        </div>
+        <div class="col-xl-4 col-lg-5">
+          <div class="featured-text text-center text-lg-left">
+            <h4>Chrome Extension</h4>
+            <p class="text-black-50 mb-0">
+              Get multiple perspectives over the subject you're currently reading, while still surfing
+              your favorite publishers.
+            </p>
+            <p>
+              <a href="#signup" class="js-scroll-trigger">Want it? Reserve a spot now.</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Signup Section -->
+  <section id="signup" class="signup-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 col-lg-8 mx-auto text-center">
+          <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
+          <h2 class="text-white mb-5">Subscribe now for early access!</h2>
+
+          <form class="form-inline d-flex">
+            <input type="email" class="form-control flex-fill font-weight-bold mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputEmail" placeholder="Enter email address...">
+            <button type="submit" class="btn ts-button mx-auto">Stay tuned</button>
+          </form>
+
+          <br>
+          <p class="text-white-50">
+            <em>
+              <small class="font-weight-lighter">
+                No spam or marketing messages, just letting you know when our product is ready for you.
+              </small>
+            </em>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section bg-black">
+    <div class="container">
+      <div class="social d-flex justify-content-center">
+        <a href="#" target="_blank" class="mx-2">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="#" target="_blank" class="mx-2">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="#" target="_blank" class="mx-2">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="mailto:hello@truestory.one?subject=Hello" target="_blank" rel="noopener noreferrer" class="mx-2">
+          <i class="fas fa-envelope"></i>
+        </a>
+        <a href="https://github.com/savvybit" target="_blank" class="mx-2">
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-black small text-center text-white-50">
+    <div class="container">
+      <p>
+        Crafted with <i class="fas fa-heart text-danger"></i> by SavvyBit |
+        Copyright &copy; 2019 <strong>TrueStory</strong>
+      </p>
+    </div>
+
+    <a href="#pageTop" class="js-scroll-trigger float-right mr-5">
+      <i class="fas fa-angle-up fa-lg"></i>
+    </a>
+  </footer>
+
+</div>
+{% endblock content %}

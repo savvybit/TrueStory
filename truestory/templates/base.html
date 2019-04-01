@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags and title -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Get the both sides of news.">
+    <meta name="author" content="SavvyBit">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>TrueStory</title>
+
+    <!-- Bootstrap, Google (icons & fonts) and Font Awesome CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nixie+One|Patua+One">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <!-- Custom TrueStory styles -->
+    {% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    {% endblock css %}
+
+    <!-- jQuery first, then Popper, Bootstrap and Easing JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- Custom TrueStory scripts -->
+    {% block script %}
+    <script src="{{ url_for('static', filename='js/base.js') }}" type="text/javascript"></script>
+    {% endblock script %}
+  </head>
+  <body>
+    {% block content %}
+    <nav id="appNav" class="navbar navbar-expand-md navbar-light bg-light">
+      <a class="navbar-brand" href="{{ url_for('index_view') }}">TrueStory</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('home_view') }}">Home <span class="sr-only">Home</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('topics_view') }}">Topics <span class="sr-only">Topics</span></a>
+          </li>
+        </ul>
+
+        <form action="{{ url_for('home_view') }}" class="form-inline my-2 my-md-0 mx-auto">
+          <input type="search" id="querySearch" name="querySearch" value="{{ query_search or '' }}" class="form-control mr-sm-2" placeholder="Search articles" aria-label="Search">
+          <button class="btn btn-sm btn-outline-dark my-2 my-sm-0" type="submit">
+            <i class="material-icons">search</i>
+          </button>
+        </form>
+
+        <div class="dropdown mx-auto">
+          <i class="material-icons text-dark dropdown-toggle" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">account_circle</i>
+          <div class="dropdown-menu" aria-labelledby="profileDropdown">
+            <a class="dropdown-item" href="#">Preferences</a>
+            <a class="dropdown-item" href="#">Settings</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid py-5">
+      {% block container %}
+      <h1 class="display-3 text-center font-page-title">
+        {% block title %}
+        {% endblock title %}
+      </h1>
+      <hr>
+      {% endblock container %}
+    </div>
+    {% endblock content %}
+  </body>
+</html>
