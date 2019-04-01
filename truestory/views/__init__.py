@@ -15,3 +15,4 @@ def favicon():
 def debug():
     """Triggers debugger on local environment only."""
     assert app.debug is False
+    return "Running in production."
