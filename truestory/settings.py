@@ -17,6 +17,6 @@ ENCODING = "utf-8"
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
 
-# Article content display settings on home and individual page.
+# Article content display settings on home and individual pages.
 HOME_ARTICLE_MAX_SIZE = 256
 FULL_ARTICLE_MAX_SIZE = 1024

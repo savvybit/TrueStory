@@ -1,9 +1,12 @@
 """Base views, routes and utilities used by the web app's views."""
 
 
+import functools
 import urllib.parse as urlparse
 
-from truestory import app, settings
+from flask import abort, redirect, session, url_for
+
+from truestory import app, auth, settings
 from truestory.models import base as models_base
 
 
@@ -51,3 +54,21 @@ def paragraph_split_filter(content, full=False):
 def website_filter(link):
     """Returns the network location of a received URL."""
     return urlparse.urlsplit(link).netloc
+
+
+def require_auth(function):
+    """Decorates endpoints which require authorization."""
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        token = session.get("token")
+        if token:
+            if not auth.authorize_with_token(token):
+                del session["token"]
+                return abort(401, "invalid token")
+        else:
+            return redirect(url_for("login_view"))
+
+        return function(*args, **kwargs)
+
+    return wrapper
