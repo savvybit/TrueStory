@@ -13,7 +13,7 @@ from truestory.models.mail import MailModel
 def index_view():
     """Main page standing for the presentation of the product."""
     if request.method == "POST":
-        mail = request.form.get("mail", "").strip()
+        mail = request.form.get("mail", "").strip().lower()
         captcha_response = request.form.get("captchaResponse")
         if not all([mail, captcha_response]):
             return abort(400, "Captcha or e-mail not supplied.")
