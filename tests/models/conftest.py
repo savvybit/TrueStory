@@ -59,6 +59,7 @@ def mail_ent():
 CLEANUP_MODELS = [
     ArticleModel,
     BiasPairModel,
+    MailModel,
     TrueStoryModel,
 ]
 
