@@ -17,7 +17,6 @@ ENCODING = "utf-8"
 
 # Paths.
 PROJECT_DIR = Path(__file__).parent.parent
-WORK_DIR = Path(f"~/Work/{APP_NAME}").expanduser()
 
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
