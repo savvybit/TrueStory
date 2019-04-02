@@ -13,6 +13,7 @@ PROJECT_ID = APP_NAME.lower()
 # Miscellaneous.
 TIMEOUT = 10  # seconds
 ENCODING = "utf-8"
+DEFAULT_MAIL = "hello@truestory.one"
 
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"

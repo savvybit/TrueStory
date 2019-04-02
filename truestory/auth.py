@@ -1,4 +1,4 @@
-"""Tackles authentication and authorization."""
+"""Tackles secrets, authentication and authorization."""
 
 
 import hmac
