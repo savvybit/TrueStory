@@ -65,7 +65,7 @@ def require_auth(function):
         if token:
             if not auth.authorize_with_token(token):
                 del session["token"]
-                return abort(401, "invalid token")
+                return abort(401, "Invalid token.")
         else:
             return redirect(url_for("login_view"))
 
