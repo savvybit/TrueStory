@@ -2,7 +2,6 @@
 
 
 import os
-from pathlib import Path
 
 
 # Server environment and application settings.
@@ -14,9 +13,6 @@ PROJECT_ID = APP_NAME.lower()
 # Miscellaneous.
 TIMEOUT = 10  # seconds
 ENCODING = "utf-8"
-
-# Paths.
-PROJECT_DIR = Path(__file__).parent.parent
 
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
