@@ -34,8 +34,10 @@ def index_view():
             logging.warning("%r already subscribed.", mail)
             return jsonify({"status": False})
 
-        mail_key = MailModel(mail=mail).put()
+        mail_ent = MailModel(mail=mail)
+        mail_key = mail_ent.put()
         logging.info("New subscriber %r saved with key %r.", mail, mail_key)
+        mail_ent.send_greetings()
         return jsonify({"status": True})
 
     return render_template("index.html")

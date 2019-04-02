@@ -20,9 +20,17 @@ def send_mail(to_mails, subject, text_content, html_content=None,
         plain_text_content=text_content,
         html_content=html_content,
     )
-    client = SendGridAPIClient(auth.get_secret("sendgrid_key"))
-    response = client.send(message)
-    code = response.status_code
-    logging.info("Email %s -> %s: %s (%d)", from_mail, to_mails, subject, code)
-    if code // 100 != 2:
-        raise Exception("Couldn't send e-mail: {} {}".format(code, response.body))
+
+    if settings.DEBUG:
+        code = 200
+    else:
+        client = SendGridAPIClient(auth.get_secret("sendgrid_key"))
+        response = client.send(message)
+        code = response.status_code
+        if code // 100 not in (2, 3):
+            raise Exception("Couldn't send e-mail: {} {}".format(code, response.body))
+
+    logging.info(
+        "E-mail sent %s -> %s: %r (%d - %s)", from_mail, to_mails, subject, code,
+        "dry run" if settings.DEBUG else "for real"
+    )
