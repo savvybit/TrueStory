@@ -7,6 +7,7 @@
 
 {% block script %}
 {{ super() }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script src="{{ url_for('static', filename='js/index.js') }}" type="text/javascript"></script>
 {% endblock script %}
 
@@ -106,10 +107,26 @@
           <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
           <h2 class="text-white mb-5">Subscribe now for early access!</h2>
 
-          <form class="form-inline d-flex">
-            <input type="email" class="form-control flex-fill font-weight-bold mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputEmail" placeholder="Enter email address...">
+          <form id="saveMail" method="POST" class="form-inline d-flex" onsubmit="return captcha_form(event);">
+            <input id="mail" type="email" class="form-control flex-fill font-weight-bold mr-0 mr-sm-2 mb-3 mb-sm-0" name="mail" placeholder="Enter e-mail address..." required>
             <button type="submit" class="btn ts-button mx-auto">Stay tuned</button>
+            <div id="antiRobot" class="g-recaptcha mx-auto d-none" data-theme="dark" data-callback="captcha_submit" data-sitekey="6Levi5sUAAAAAEjemtZFJEgtEH5M4iNJIcy_Sw-z"></div>
           </form>
+
+          <div class="text-white mx-auto">
+            <div id="successText" class="d-none">
+              <i class="fas fa-thumbs-up fa-2x"></i>
+              Subscribed successfully! Now check your e-mail for details.
+            </div>
+            <div id="duplicateText" class="d-none">
+              <i class="fas fa-grin-hearts fa-2x"></i>
+              Already subscribed. We know you love us, but one time is enough.
+            </div>
+            <div id="failText" class="d-none">
+              <i class="fas fa-surprise fa-2x"></i>
+              Oh snap! Something wrong happened, please try again.
+            </div>
+          </div>
 
           <br>
           <p class="text-white-50">
