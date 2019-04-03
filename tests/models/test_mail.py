@@ -12,3 +12,4 @@ def test_subscriber_save_get(subscriber_ent):
     hash1 = mail_key.get().hashsum
     hash2 = subscriber_ent.myself.hashsum
     assert hash1 == hash2
+    assert subscriber_ent.subscribed is True
