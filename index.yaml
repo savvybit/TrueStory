@@ -15,7 +15,7 @@ indexes:
   - name: created_at
     direction: desc
 
-- kind: MailModel
+- kind: SubscriberModel
   properties:
   - name: mail
   - name: created_at

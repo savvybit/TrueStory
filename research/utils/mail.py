@@ -1,7 +1,7 @@
 import sys
 
 from truestory import mail
-from truestory.models import MailModel
+from truestory.models import SubscriberModel
 
 
 def send_mail():
@@ -10,8 +10,8 @@ def send_mail():
 
 
 def send_greetings():
-    mail_ent = MailModel(mail="cmin764@gmail.com", hashsum="1234")
-    mail_ent.send_greetings()
+    subscriber = SubscriberModel(mail="cmin764@gmail.com")
+    subscriber.send_greetings()
 
 
 def main():

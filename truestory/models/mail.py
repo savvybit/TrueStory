@@ -13,12 +13,13 @@ def render_template(path, **kwargs):
     return template.render(**kwargs)
 
 
-class MailModel(BaseModel):
+class SubscriberModel(BaseModel):
 
     """Subscriber e-mail got from the landing page."""
 
     mail = ndb.StringProperty(required=True)
     hashsum = ndb.StringProperty(required=True)
+    subscribed = ndb.BooleanProperty(default=True)
 
     def put(self):
         date = datetime.datetime.utcnow()

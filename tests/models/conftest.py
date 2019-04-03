@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from truestory.models import ArticleModel, BaseModel, BiasPairModel, MailModel, ndb
+from truestory.models import ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb
 
 
 NO_CREDENTIALS = not bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
@@ -51,15 +51,15 @@ def bias_pair_ents():
 
 
 @pytest.fixture
-def mail_ent():
+def subscriber_ent():
     """Returns a mail object with a default mail string."""
-    return MailModel(mail="test@example.com")
+    return SubscriberModel(mail="test@example.com")
 
 
 CLEANUP_MODELS = [
     ArticleModel,
     BiasPairModel,
-    MailModel,
+    SubscriberModel,
     TrueStoryModel,
 ]
 

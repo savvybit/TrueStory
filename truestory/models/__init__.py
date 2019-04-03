@@ -3,5 +3,5 @@
 
 from .article import ArticleModel, BiasPairModel
 from .base import BaseModel, DuplicateMixin, NAMESPACE, ndb
-from .mail import MailModel
+from .mail import SubscriberModel
 from .rss import RssTargetModel

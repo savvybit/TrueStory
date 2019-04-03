@@ -6,8 +6,7 @@ import logging
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from truestory import settings
-from truestory import auth
+from truestory import auth, settings
 
 
 def send_mail(to_mails, subject, text_content, html_content=None,
