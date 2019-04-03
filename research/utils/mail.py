@@ -11,7 +11,7 @@ def send_mail():
 
 def send_greetings():
     subscriber = SubscriberModel(mail="cmin764@gmail.com")
-    subscriber.send_greetings()
+    subscriber.send_greetings("http://localhost:8080")
 
 
 def main():

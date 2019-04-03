@@ -5,7 +5,9 @@ import os
 
 import pytest
 
-from truestory.models import ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb
+from truestory.models import (
+    ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb,
+)
 
 
 NO_CREDENTIALS = not bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))

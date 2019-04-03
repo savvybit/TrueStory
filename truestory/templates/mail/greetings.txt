@@ -1,3 +1,5 @@
 Hi there,
 
-You've successfully subscribed to our exclusive list of people that will be among the first to receive exciting news about our future biased news browser extension.
+You've successfully subscribed to our exclusive list. You will be among the first to receive exciting news about our incoming biased news browser extension.
+
+You can unsubscribe anytime using this link: {{ unsubscribe_url }}.

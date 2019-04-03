@@ -1,7 +1,7 @@
 """All views and routes exposed by the web app."""
 
 
-from . import article, base, home, index, login, topics
+from . import article, base, home, index, login, subscribe, topics
 from .. import app
 
 

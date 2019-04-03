@@ -107,7 +107,7 @@
           <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
           <h2 class="text-white mb-5">Subscribe now for early access!</h2>
 
-          <form id="saveMail" method="POST" class="form-inline d-flex" onsubmit="return captcha_form(event);">
+          <form id="saveMail" action="{{ url_for('subscribe_view') }}" method="POST" class="form-inline d-flex" onsubmit="return captcha_form(event);">
             <input id="mail" type="email" class="form-control flex-fill font-weight-bold mr-0 mr-sm-2 mb-3 mb-sm-0" name="mail" placeholder="Enter e-mail address..." required>
             <button type="submit" class="btn ts-button mx-auto">Stay tuned</button>
             <div id="antiRobot" class="g-recaptcha mx-auto d-none" data-theme="dark" data-callback="captcha_submit" data-sitekey="6Levi5sUAAAAAEjemtZFJEgtEH5M4iNJIcy_Sw-z"></div>
