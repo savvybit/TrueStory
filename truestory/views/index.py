@@ -9,7 +9,13 @@ from truestory import app, auth
 from truestory.models.mail import SubscriberModel
 
 
-def _save_mail(mail):
+def _subscribe_mail(mail):
+    """Adds a new subscriber to our platform.
+
+    Returns:
+        SubscriberModel: The newly added subscriber, currently updated one or None if
+        the provided `mail` is already subscribed.
+    """
     query = SubscriberModel.query()
     query.add_filter("mail", "=", mail)
     subscribers = SubscriberModel.all(query=query)
@@ -19,19 +25,17 @@ def _save_mail(mail):
         subscriber = subscribers[0]
         if subscriber.subscribed:
             logging.warning("%r already subscribed.", mail)
-            return False
+            return None
 
         subscriber.subscribed = True
         subscriber.put()
         logging.info("%r re-subscribed.", mail)
-        subscriber.send_greetings()
-        return True
+        return subscriber
 
     subscriber = SubscriberModel(mail=mail)
     mail_key = subscriber.put()
     logging.info("New subscriber %r saved with key %r.", mail, mail_key)
-    subscriber.send_greetings()
-    return True
+    return subscriber
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -52,7 +56,9 @@ def index_view():
             logging.warning("Wrong captcha response.")
             return abort(403, "Bad captcha response.")
 
-        status = _save_mail(mail)
-        return jsonify({"status": status})
+        subscriber = _subscribe_mail(mail)
+        if subscriber:
+            subscriber.send_greetings()
+        return jsonify({"status": bool(subscriber)})
 
     return render_template("index.html")
