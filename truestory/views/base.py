@@ -56,6 +56,12 @@ def website_filter(link):
     return urlparse.urlsplit(link).netloc
 
 
+@app.template_filter("ujoin")
+def ujoin_filter(base, relative):
+    """Joins two URLs together."""
+    return urlparse.urljoin(base, relative)
+
+
 def require_auth(function):
     """Decorates endpoints which require authorization."""
 

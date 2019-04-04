@@ -33,8 +33,8 @@ def _subscribe_mail(mail):
         return subscriber
 
     subscriber = SubscriberModel(mail=mail)
-    mail_key = subscriber.put()
-    logging.info("New subscriber %r saved with key %r.", mail, mail_key)
+    subscriber_key = subscriber.put()
+    logging.info("New subscriber %r saved with key %r.", mail, subscriber_key)
     return subscriber
 
 

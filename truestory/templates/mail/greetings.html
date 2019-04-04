@@ -353,8 +353,7 @@
                         <p>
                           Thank you!
                         </p>
-
-                        <img class="image" alt="Party Popper" src="{% include 'mail/party.data' %}">
+                        <img class="image" alt="Party Popper" src="{{ site|ujoin(party_url) }}" />
                       </td>
                     </tr>
                   </table>
@@ -370,7 +369,7 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    Don't like these e-mails? <a href="{{ unsubscribe_url }}">Unsubscribe</a>.
+                    Don't like these e-mails? <a href="{{ site|ujoin(unsubscribe_url) }}">Unsubscribe</a>.
                   </td>
                 </tr>
                 <tr>
