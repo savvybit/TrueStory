@@ -1,5 +1,3 @@
-// Hotjar Tracking Code for https://truestory.one
-
 (function(h,o,t,j,a,r){
     h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
     h._hjSettings={hjid:1268618,hjsv:6};
