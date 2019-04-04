@@ -1,3 +1,3 @@
 # TrueStory
 
-Get the both sides of news.
+Get both sides of news.

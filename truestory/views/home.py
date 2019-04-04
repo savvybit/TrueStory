@@ -22,6 +22,7 @@ def _get_serializable_article(key):
 
 
 @app.route("/home")
+@views_base.require_auth
 def home_view():
     """Home page displaying news and available app components."""
     search = request.args.get("querySearch", "").strip().lower()
