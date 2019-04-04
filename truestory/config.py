@@ -9,7 +9,9 @@ from truestory import settings
 
 def get_secret_key():
     """Gets a constant secret key for sessions and cookies."""
-    return hashlib.md5(base64.b64encode(settings.APP_NAME.encode())).hexdigest()
+    return hashlib.md5(
+        base64.b64encode(settings.APP_NAME.encode(settings.ENCODING))
+    ).digest()
 
 
 class BaseConfig(object):

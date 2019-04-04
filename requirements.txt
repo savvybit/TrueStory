@@ -3,5 +3,7 @@ feedparser>=5.2.1
 google-cloud-datastore>=1.7.3
 gunicorn>=19.9.0
 newspaper3k>=0.2.8
+requests>=2.21.0
+sendgrid>=6.0.2
 
 -e git://github.com/savvybit/ndb-orm.git@develop#egg=ndb-orm

@@ -7,6 +7,7 @@ import logging
 from datetime import date, datetime
 
 import truestory
+from truestory import auth
 from truestory.crawlers import RssCrawler
 from truestory.models import (
     ArticleModel,
@@ -34,9 +35,17 @@ def crawl_articles(args):
         ArticleModel.put_multi(articles)
 
 
+def compute_token(args):
+    """Returns a 128bit token string used for authorization."""
+    token = auth.compute_token(args.mail)
+    print(f"Token: {token}")
+    status = auth.authorize_with_token(token)
+    print(f"Authorized: {status}")
+
+
 def main():
     # Main parser with common flags.
-    parser = argparse.ArgumentParser(description="Get the both sides of news.")
+    parser = argparse.ArgumentParser(description="Get both sides of news.")
     parser.add_argument(
         "-v", "--verbose", action="store_true",
         help="show debugging messages"
@@ -55,8 +64,17 @@ def main():
     )
     crawl_parser.set_defaults(function=crawl_articles)
 
+    # Computes token by e-mail.
+    token_parser = subparser.add_parser("token", help="compute token")
+    token_parser.add_argument(
+        "mail", metavar="E-MAIL",
+        help="e-mail address for which you want to provide access"
+    )
+    token_parser.set_defaults(function=compute_token)
+
     args = parser.parse_args()
     level = logging.DEBUG if args.verbose else logging.INFO
+    logging.root.handlers.clear()
     logging.basicConfig(
         format="%(levelname)s - %(name)s - %(asctime)s - %(message)s",
         filename=truestory.LOGFILE,

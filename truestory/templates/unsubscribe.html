@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-center font-page-title my-5">
+  <span>
+    {% if status %}
+    <i class="fas fa-check"></i>
+    {% else %}
+    <i class="fas fa-times"></i>
+    {% endif %}
+  </span>
+  {{ message }}
+</h1>
+{% endblock content %}
