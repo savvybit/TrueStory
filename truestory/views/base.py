@@ -4,10 +4,18 @@
 import functools
 import urllib.parse as urlparse
 
-from flask import abort, redirect, session, url_for
+from flask import abort, redirect, request, session, url_for
 
 from truestory import app, auth, settings
 from truestory.models import base as models_base
+
+
+@app.context_processor
+def _inject_common():
+    """Objects available for each template."""
+    return {
+        "site": request.url_root,
+    }
 
 
 @app.template_filter("norm")

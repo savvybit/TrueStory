@@ -43,3 +43,7 @@
 .font-article-title {
     font-family: "Patua One", cursive;
 }
+
+img#logo {
+    height: 2rem;
+}
