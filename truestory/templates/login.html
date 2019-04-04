@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+Can I trust you?
+{% endblock title %}
+
+{% block container %}
+{{ super() }}
+
+<div class="row py-5">
+  <div class="col-4 mx-auto">
+    <form>
+      <div class="form-group">
+        <label for="token">Token</label>
+        <input type="password" class="form-control" id="token" name="token" placeholder="Insert private token..." required>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock container %}

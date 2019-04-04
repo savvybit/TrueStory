@@ -1,7 +1,7 @@
 """All views and routes exposed by the web app."""
 
 
-from . import article, base, home, index, topics
+from . import article, base, home, index, login, subscribe, topics
 from .. import app
 
 
@@ -15,3 +15,4 @@ def favicon():
 def debug():
     """Triggers debugger on local environment only."""
     assert app.debug is False
+    return "Running in production."

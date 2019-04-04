@@ -9,6 +9,7 @@ from truestory.views import base as views_base
 
 
 @app.route("/article/<article_usafe>")
+@views_base.require_auth
 def article_view(article_usafe):
     """Displays article details and its opposed ones."""
     main_article = ArticleModel.get(article_usafe)
