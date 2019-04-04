@@ -26,7 +26,8 @@ def send_mail(to_mails, subject, text_content, html_content=None,
         client = SendGridAPIClient(auth.get_secret("sendgrid_key"))
         response = client.send(message)
         code = response.status_code
-        if code // 100 not in (2, 3):
+        was_successful = lambda ret_code: ret_code // 100 in (2, 3)
+        if not was_successful(code):
             raise Exception("Couldn't send e-mail: {} {}".format(code, response.body))
 
     logging.info(

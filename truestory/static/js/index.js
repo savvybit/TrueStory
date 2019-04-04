@@ -65,7 +65,6 @@ function captcha_submit(captcha_response) {
             $("div#duplicateText").removeClass("d-none");
         }
     }).fail(function (recv_data) {
-        console.log(recv_data);
         $("div#failText").removeClass("d-none");
     }).always(function () {
         $("div#antiRobot").addClass("d-none");
