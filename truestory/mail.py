@@ -12,7 +12,6 @@ from truestory import auth, settings
 def send_mail(to_mails, subject, text_content, html_content=None,
               from_mail=settings.DEFAULT_MAIL):
     html_content = html_content or text_content
-    print(html_content) ####
     message = Mail(
         from_email=from_mail,
         to_emails=to_mails,
