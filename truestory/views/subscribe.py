@@ -44,6 +44,7 @@ def subscribe_view():
     mail = request.form.get("mail", "").strip().lower()
     captcha_response = request.form.get("captchaResponse")
     if not all([mail, captcha_response]):
+        logging.warning("Didn't receive the e-mail or captcha.")
         return abort(400, "Captcha or e-mail not supplied.")
 
     try:
