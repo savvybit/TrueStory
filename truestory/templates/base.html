@@ -7,6 +7,14 @@
     <meta name="description" content="Get both sides of news.">
     <meta name="author" content="SavvyBit">
 
+    <!-- Open Graph protocol -->
+    <meta property="og:title" content="TrueStory">
+    <meta property="og:description" content="See both sides of the same story.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TrueStory">
+    <meta property="og:url" content="{{ site }}">
+    <meta property="og:image" content="{{ site|ujoin(url_for('static', filename='img/og-screen.png')) }}">
+
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>TrueStory</title>
@@ -34,7 +42,9 @@
   <body>
     {% block content %}
     <nav id="appNav" class="navbar navbar-expand-md navbar-light bg-light">
-      <a class="navbar-brand" href="{{ url_for('index_view') }}">TrueStory</a>
+      <a class="navbar-brand" href="{{ url_for('index_view') }}">
+        <img id="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="TrueStory Logo">
+      </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
