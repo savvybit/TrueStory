@@ -53,7 +53,7 @@ function captcha_submit(captcha_response) {
     // Submits mail and displays storing status.
     var form = $("form#saveMail");
     $.post({
-        url: window.location.href + form.attr("action").substring(1),
+        url: window.location.origin + form.attr("action"),
         data: {
             captchaResponse: captcha_response,
             mail: form.find("input#mail").val()
