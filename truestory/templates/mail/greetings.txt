@@ -1,4 +1,6 @@
 Hi there,
 
 You've successfully subscribed to our early-access list. You will be among the first to receive exciting news about our incoming browser extension.
-You can unsubscribe anytime using this link: {{ site|ujoin(unsubscribe_url) }}.
+
+Thank you!
+You can unsubscribe anytime using this link: {{ site|ujoin(unsubscribe_url) }}
