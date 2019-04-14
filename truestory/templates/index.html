@@ -51,7 +51,7 @@
         <img id="prism" src="{{ url_for('static', filename='img/prism.png') }}" class="img-fluid" alt="Bias Prism">
         <h1 class="mx-auto py-2">TrueStory</h1>
         <h2 class="text-white-80 mx-auto mt-2 mb-5 text-uppercase font-weight-bolder">
-          See both sides of the same story
+          Be your own journalist
         </h2>
         <a href="#about" class="btn ts-button js-scroll-trigger mt-5">Discover more</a>
       </div>
@@ -63,7 +63,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto">
-          <h2 class="text-white mb-4">Average out the bias, seek the truth.</h2>
+          <h2 class="text-white mb-4">Average out the bias, seek the truth</h2>
           <p class="text-white-80">
             We feel compelled to avoid the <em>bias</em> and seek idealistic objective news,
             even though we all know this is rare nowadays. But what if these conflicting passions
@@ -135,12 +135,17 @@
           </div>
 
           <br>
-          <p class="text-white-50">
+          <p class="text-white-80">
             <em>
               <small class="font-weight-lighter">
                 No spam or marketing messages, just letting you know when our product is ready for you.
               </small>
             </em>
+          </p>
+
+          <br>
+          <p>
+            {% include "_typeform.html" %}
           </p>
         </div>
       </div>
@@ -151,7 +156,7 @@
   <section class="contact-section bg-black">
     <div class="container">
       <div class="social d-flex justify-content-center">
-        <a href="https://twitter.com/one_truestory" target="_blank" class="mx-2">
+        <a href="https://twitter.com/truestoryone" target="_blank" class="mx-2">
           <i class="fab fa-twitter"></i>
         </a>
         <a href="https://www.facebook.com/truestory.one" target="_blank" class="mx-2">
