@@ -45,7 +45,7 @@ def compute_token(args):
 
 def main():
     # Main parser with common flags.
-    parser = argparse.ArgumentParser(description="Get both sides of news.")
+    parser = argparse.ArgumentParser(description="Be your own journalist.")
     parser.add_argument(
         "-v", "--verbose", action="store_true",
         help="show debugging messages"

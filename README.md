@@ -1,3 +1,3 @@
 # TrueStory
 
-Get both sides of news.
+Be your own journalist.
