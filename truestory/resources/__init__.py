@@ -7,6 +7,7 @@ from .. import api
 
 resources = [
     article.CounterArticleResource,
+    article.DataArticleResource,
 ]
 
 
@@ -14,5 +15,5 @@ for resource in resources:
     api.add_resource(
         resource,
         resource.get_route(),
-        endpoint=resource.ENDPOINT
+        endpoint=resource.get_endpoint()
     )

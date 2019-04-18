@@ -35,3 +35,8 @@ class BaseResource(Resource):
     def get_route(cls):
         """Returns the string route for the current resource."""
         return f"{cls.URL_PREFIX}/{cls.ENDPOINT}"
+
+    @classmethod
+    def get_endpoint(cls):
+        """Returns the endpoint name for the current resource."""
+        return f"{cls.URL_PREFIX}_{cls.ENDPOINT}".strip("/")

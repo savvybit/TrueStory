@@ -33,11 +33,15 @@ class BiasPairModel(BaseModel):
     @functools.partial(ndb.ComputedProperty, repeated=True)
     def keywords(self):
         """Combines all the keywords into an unique list."""
-        left_kwds, right_kwds = map(
-            lambda key: set(filter(None, key.get().keywords or [])),
-            [self.left, self.right]
-        )
-        return [kwd.lower() for kwd in (left_kwds | right_kwds)]
+        all_keywords = set()
+
+        article_keys = [self.left, self.right]
+        for article_key in article_keys:
+            keywords = article_key.get().keywords or []
+            for keyword in keywords:
+                all_keywords.add(keyword.strip().lower())
+
+        return list(filter(None, all_keywords))
 
     def _max_date(self):
         """The newest article establishes the date of the entire pair."""
