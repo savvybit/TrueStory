@@ -19,7 +19,7 @@ def _authenticate(func):
         auth_parts = request.headers.get("Authorization", "").strip().split()
         if len(auth_parts) == 2 and check_auth(*auth_parts):
             return func(*args, **kwargs)
-        return abort(401, error="Invalid or missing token.")
+        abort(401, error="Invalid or missing token.")
 
     return wrapper
 
@@ -30,6 +30,15 @@ class BaseResource(Resource):
 
     URL_PREFIX = ENDPOINT = ""
     method_decorators = [_authenticate]
+
+    @staticmethod
+    def _get_schemas():
+        raise NotImplementedError("required schemas not provided")
+
+    @classmethod
+    def _serialize(cls, which, obj):
+        schema = cls._get_schemas()[which]
+        return schema.jsonify(obj)
 
     @classmethod
     def get_route(cls):

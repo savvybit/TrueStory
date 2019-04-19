@@ -102,8 +102,7 @@ def add_bias():
 
 
 def copy_entities():
-    query = BiasPairModel.query()
-    query.add_filter("score", ">", 10.0)
+    query = BiasPairModel.query(("score", ">", 10.0))
     pairs = list(query.fetch())
 
     assert len(pairs) == 5

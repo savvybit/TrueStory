@@ -1,7 +1,9 @@
 """API exposing article related data."""
 
 
-from truestory.models import ArticleModel, BiasPairModel
+from flask_restful import abort, request
+
+from truestory.models import ArticleModel
 from truestory.resources import base
 
 
@@ -12,14 +14,16 @@ class BaseArticleResource(base.BaseResource):
     URL_PREFIX = "/article"
 
     @staticmethod
-    def _get_schemas(which):
+    def _get_schemas():
         # Required due to circular import.
-        from truestory.schemas.article import article_schema, articles_schema
+        from truestory.schemas.article import (
+            article_schema, articles_schema
+        )
         schemas = {
             "article": article_schema,
             "articles": articles_schema,
         }
-        return schemas[which]
+        return schemas
 
 
 class CounterArticleResource(BaseArticleResource):
@@ -30,9 +34,19 @@ class CounterArticleResource(BaseArticleResource):
 
     def get(self):
         """Returns a list of opposite articles for the provided one."""
-        articles = ArticleModel.all(limit=3)
-        articles_schema = self._get_schemas("articles")
-        return articles_schema.jsonify(articles)
+        link = request.args.get("link", "").strip()
+        if not link:
+            abort(400, error="Article 'link' not supplied.")
+
+        article_query = ArticleModel.query(("link", "=", link))
+        main_articles = ArticleModel.all(query=article_query, keys_only=True, limit=1)
+        if not main_articles:
+            abort(404, error="Article not found in the database.")
+
+        main_article = main_articles[0]
+        related_articles = ArticleModel.get_related_articles(main_article.key)
+        articles = [article for article, _ in related_articles]
+        return self._serialize("articles", articles)
 
 
 class DataArticleResource(BaseArticleResource):
@@ -48,5 +62,4 @@ class DataArticleResource(BaseArticleResource):
     def get(self, article_usafe):
         """Returns contents of an article."""
         article = ArticleModel.get(article_usafe)
-        article_schema = self._get_schemas("article")
-        return article_schema.jsonify(article)
+        return self._serialize("article", article)
