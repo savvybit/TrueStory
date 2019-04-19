@@ -5,11 +5,17 @@ from . import article
 from .. import api
 
 
+ERRORS = {
+    "DecodeError": {
+        "status": 400,
+        "message": "Invalid entity ID.",
+    },
+}
+
 resources = [
     article.CounterArticleResource,
     article.DataArticleResource,
 ]
-
 
 for resource in resources:
     api.add_resource(

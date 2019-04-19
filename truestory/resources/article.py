@@ -36,12 +36,12 @@ class CounterArticleResource(BaseArticleResource):
         """Returns a list of opposite articles for the provided one."""
         link = request.args.get("link", "").strip()
         if not link:
-            abort(400, error="Article 'link' not supplied.")
+            abort(400, message="Article 'link' not supplied.")
 
         article_query = ArticleModel.query(("link", "=", link))
         main_articles = ArticleModel.all(query=article_query, keys_only=True, limit=1)
         if not main_articles:
-            abort(404, error="Article not found in the database.")
+            abort(404, message="Article not found in the database.")
 
         main_article = main_articles[0]
         related_articles = ArticleModel.get_related_articles(main_article.key)

@@ -28,4 +28,8 @@ app.register_blueprint(api_bp, url_prefix="/api")
 ma = Marshmallow(app)
 
 
+# Due to circular imports and for routing to take effect.
 from . import resources, views
+
+
+api.errors = resources.ERRORS

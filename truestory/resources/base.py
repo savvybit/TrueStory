@@ -19,7 +19,7 @@ def _authenticate(func):
         auth_parts = request.headers.get("Authorization", "").strip().split()
         if len(auth_parts) == 2 and check_auth(*auth_parts):
             return func(*args, **kwargs)
-        abort(401, error="Invalid or missing token.")
+        abort(401, message="Invalid or missing token.")
 
     return wrapper
 
