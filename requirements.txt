@@ -8,4 +8,4 @@ newspaper3k>=0.2.8
 requests>=2.21.0
 sendgrid>=6.0.2
 
--e git://github.com/savvybit/ndb-orm.git@develop#egg=ndb-orm
+-e git://github.com/savvybit/ndb-orm.git@develop#egg=ndb_orm
