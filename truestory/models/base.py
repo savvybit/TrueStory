@@ -57,9 +57,11 @@ class BaseModel(ndb.Model):
         return client
 
     @classmethod
-    def query(cls, **kwargs):
+    def query(cls, *args, **kwargs):
         """Creates a Datastore query out of this model."""
         query = cls._get_client().query(kind=cls._get_kind(), **kwargs)
+        for arg in args:
+            query.add_filter(*arg)
         return query
 
     @classmethod
@@ -159,8 +161,7 @@ class DuplicateMixin:
         cls = type(self)
         prop = cls.primary_key()
         src = getattr(self, prop)
-        query = cls.query()
-        query.add_filter(prop, "=", src)
+        query = cls.query((prop, "=", src))
         entities = self.all(query=query, keys_only=True)
         return entities
 
