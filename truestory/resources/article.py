@@ -61,5 +61,8 @@ class DataArticleResource(BaseArticleResource):
 
     def get(self, article_usafe):
         """Returns contents of an article."""
-        article = ArticleModel.get(article_usafe)
+        try:
+            article = ArticleModel.get(article_usafe)
+        except Exception as exc:
+            abort(404, message=str(exc))
         return self._serialize("article", article)
