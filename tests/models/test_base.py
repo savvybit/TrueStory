@@ -55,3 +55,9 @@ def test_model_query(truestory_ent):
 
     # Explicit cleanup (even if is not required).
     truestory_ent.remove()
+
+
+def test_model_key(truestory_ent):
+    truestory_ent.put()
+    assert truestory_ent.myself.myself
+    truestory_ent.remove()
