@@ -16,8 +16,7 @@ def _subscribe_mail(mail):
         SubscriberModel: The newly added subscriber, currently updated one or None if
         the provided `mail` is already subscribed.
     """
-    query = SubscriberModel.query()
-    query.add_filter("mail", "=", mail)
+    query = SubscriberModel.query(("mail", "=", mail))
     subscribers = SubscriberModel.all(query=query)
 
     if subscribers:
@@ -45,16 +44,16 @@ def subscribe_view():
     captcha_response = request.form.get("captchaResponse")
     if not all([mail, captcha_response]):
         logging.warning("Didn't receive the e-mail or captcha.")
-        return abort(400, "Captcha or e-mail not supplied.")
+        abort(400, "Captcha or e-mail not supplied.")
 
     try:
         valid = auth.validate_captcha(captcha_response)
     except Exception as exc:
         logging.exception("Captcha validation failed with %r.", exc)
-        return abort(404, "Invalid captcha request/response.")
+        abort(404, "Invalid captcha request/response.")
     if not valid:
         logging.warning("Wrong captcha response.")
-        return abort(403, "Bad captcha response.")
+        abort(403, "Bad captcha response.")
 
     subscriber = _subscribe_mail(mail)
     if subscriber:
@@ -65,8 +64,7 @@ def subscribe_view():
 @app.route("/unsubscribe/<hashsum>")
 def unsubscribe_view(hashsum):
     """Un-subscribes a fan through the URL provided by mail."""
-    query = SubscriberModel.query()
-    query.add_filter("hashsum", "=", hashsum)
+    query = SubscriberModel.query(("hashsum", "=", hashsum))
     subscribers = list(query.fetch())
     assert len(subscribers) in (0, 1), "duplicate subscriber mail"
 
