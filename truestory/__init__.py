@@ -4,6 +4,7 @@
 import logging
 
 from flask import Blueprint, Flask
+from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_restful import Api
 
@@ -18,6 +19,7 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
+CORS(app)
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.config.from_object(config.config[settings.CONFIG])
 
