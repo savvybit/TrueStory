@@ -6,12 +6,11 @@ from flask import redirect, render_template, request, session, url_for
 from truestory import app
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login_view():
     """Asks user for a token key."""
-    token = request.args.get("token")
-    if token:
-        session["token"] = token
+    if request.method == "POST":
+        session["token"] = request.form.get("token")
         return redirect(url_for("home_view"))
 
     return render_template("login.html")
