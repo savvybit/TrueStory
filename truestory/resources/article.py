@@ -46,7 +46,10 @@ class CounterArticleResource(BaseArticleResource):
         main_article = main_articles[0]
         related_articles = ArticleModel.get_related_articles(main_article.key)
         articles = [article for article, _ in related_articles]
-        return self._serialize("articles", articles)
+        main_article_url = self._make_response(
+            "articles", [main_article]
+        ).json["articles"][0]
+        return self._make_response("articles", articles, main=main_article_url)
 
 
 class DataArticleResource(BaseArticleResource):
@@ -65,4 +68,5 @@ class DataArticleResource(BaseArticleResource):
             article = ArticleModel.get(article_usafe)
         except Exception as exc:
             abort(404, message=str(exc))
-        return self._serialize("article", article)
+
+        return self._make_response("article", article)
