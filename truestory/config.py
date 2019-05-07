@@ -25,6 +25,8 @@ def init_datastore_emulator():
         return
 
     logging.info("Datastore emulator detected, initializing environment.")
+    if not os.path.isfile(path):
+        raise Exception("Datastore emulator was never ran")
     with open(path) as stream:
         env_dict = yaml.load(stream)
     os.environ.update(env_dict)

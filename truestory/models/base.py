@@ -4,6 +4,7 @@
 import datetime
 import functools
 import logging
+import os
 
 import ndb_orm as ndb
 from google.auth.credentials import Credentials
@@ -83,10 +84,13 @@ class BaseModel(ndb.Model):
         global client
         if not client:
             Client = functools.partial(datastore.Client, **NDB_KWARGS)
-            if settings.DATASTORE_ENV:
+            if settings.DATASTORE_ENV or os.getenv("GAE_ENV") == "localdev":
                 # Even if the emulator is on, the client will still ask for
                 # credentials, therefore we mock them (because they aren't really
                 # used).
+                logging.warning(
+                    "Connecting to the Datastore emulator with mocked credentials."
+                )
                 client = Client(credentials=EmulatorCredentials())
             else:
                 client = Client()
