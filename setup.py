@@ -48,7 +48,7 @@ def get_requirements(path="requirements.txt"):
 
 setup(
     name="truestory",
-    version="0.4.5",
+    version="0.4.6",
     description="Be your own journalist.",
     long_description=read("README.md"),
     url="https://github.com/SavvyBit/TrueStory",
