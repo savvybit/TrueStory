@@ -28,7 +28,7 @@ def init_datastore_emulator():
     if not os.path.isfile(path):
         raise Exception("Datastore emulator was never ran")
     with open(path) as stream:
-        env_dict = yaml.load(stream)
+        env_dict = yaml.load(stream, Loader=yaml.Loader)
     os.environ.update(env_dict)
 
     try:
