@@ -3,9 +3,10 @@
 
 from truestory import api, ma
 from truestory.resources.article import DataArticleResource
+from truestory.schemas import base
 
 
-class ArticleSchema(ma.Schema):
+class ArticleSchema(base.Schema):
 
     class Meta:
         fields = ("source_name", "link", "title", "image", "url")
