@@ -45,7 +45,7 @@ class CounterArticleResource(BaseArticleResource):
 
         main_article = main_articles[0]
         related_articles = ArticleModel.get_related_articles(main_article.key)
-        articles = [article for article, _ in related_articles]
+        articles = [article["article"] for article in related_articles]
         main_article_url = self._make_response(
             "articles", [main_article]
         ).json["articles"][0]

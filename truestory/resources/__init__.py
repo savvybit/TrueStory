@@ -16,7 +16,6 @@ resources = [
     article.CounterArticleResource,
     article.DataArticleResource,
 ]
-
 for resource in resources:
     api.add_resource(
         resource,

@@ -2,9 +2,11 @@
 
 
 import datetime
+import functools
 import logging
 
 import ndb_orm as ndb
+from google.auth.credentials import Credentials
 from google.cloud import datastore
 
 from truestory import app, settings
@@ -19,6 +21,34 @@ NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 # is used only, so we don't have any issues with the Datastore agnostic tests or
 # debugging, because creating a client will require valid credentials.
 client = None
+
+
+def key_to_urlsafe(key):
+    """Returns entity `key` as a string."""
+    return key.to_legacy_urlsafe().decode(settings.ENCODING)
+
+
+# NOTE(cmiN): This is copied from ndb-orm library's tests.
+class EmulatorCredentials(Credentials):
+
+    def __init__(self):
+        """A mock credentials object.
+
+        Used to avoid unnecessary token refreshing or reliance on the network while an
+        emulator is running.
+        """
+        super().__init__()
+        self.token = b"seekrit"
+        self.expiry = None
+
+    @property
+    def valid(self):
+        """Would-be validity check of the credentials. Always is True."""
+        return True
+
+    def refresh(self, _unused_request):
+        """Off-limits implementation for abstract method."""
+        raise RuntimeError("Should never be refreshed.")
 
 
 class BaseModel(ndb.Model):
@@ -52,7 +82,14 @@ class BaseModel(ndb.Model):
         """Singleton for the Datastore client."""
         global client
         if not client:
-            client = datastore.Client(**NDB_KWARGS)
+            Client = functools.partial(datastore.Client, **NDB_KWARGS)
+            if settings.DATASTORE_ENV:
+                # Even if the emulator is on, the client will still ask for
+                # credentials, therefore we mock them (because they aren't really
+                # used).
+                client = Client(credentials=EmulatorCredentials())
+            else:
+                client = Client()
             ndb.enable_use_with_gcd(client=client, **NDB_KWARGS)
         return client
 
@@ -116,7 +153,7 @@ class BaseModel(ndb.Model):
     @property
     def urlsafe(self):
         """Returns an URL safe Key string which uniquely identifies this entity."""
-        return self.key.to_legacy_urlsafe().decode(settings.ENCODING)
+        return key_to_urlsafe(self.key)
 
     @classmethod
     def get(cls, urlsafe_or_key):

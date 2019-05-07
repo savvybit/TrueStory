@@ -1,10 +1,10 @@
 """Tests base utilities used in Datastore interactions."""
 
 
-from .conftest import TrueStoryModel, skip_missing_credentials
+from .conftest import TrueStoryModel, skip_no_datastore
 
 
-pytestmark = skip_missing_credentials
+pytestmark = skip_no_datastore
 
 
 def test_model_no_save(truestory_ent):

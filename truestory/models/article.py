@@ -3,7 +3,7 @@
 
 import functools
 
-from truestory.models.base import BaseModel, ndb
+from truestory.models.base import BaseModel, key_to_urlsafe, ndb
 
 
 class ArticleModel(BaseModel):
@@ -30,10 +30,10 @@ class ArticleModel(BaseModel):
             meta_func (callable): If this is provided, then `meta_return` will be the
                 return value of calling `meta_func` over each related pair of articles.
         Returns:
-            list: Tuples of (article, meta_return).
+            dict_values: Of dictionaries containing the article, meta_return and other
+                info.
         """
-        related_articles = []
-        seen_articles = {}
+        related_articles = {}
 
         complementary = {"left": "right", "right": "left"}
         for side in complementary:
@@ -41,20 +41,29 @@ class ArticleModel(BaseModel):
             pairs = list(query.fetch())
 
             for pair in pairs:
-                article = getattr(pair, complementary[side]).get()
-
                 # Keep unique related articles only (choose the newest one if
                 # duplicates are found).
-                usafe = article.urlsafe
-                seen_date = seen_articles.get(usafe)
+                article_key = getattr(pair, complementary[side])
+                usafe = key_to_urlsafe(article_key)
+                seen_date = related_articles.get(usafe, {}).get("created_at")
                 if seen_date and pair.created_at <= seen_date:
                     continue
 
                 meta = meta_func(pair) if meta_func else None
-                related_articles.append((article, meta))
-                seen_articles[usafe] = pair.created_at
+                if seen_date:
+                    related_articles[usafe].update({
+                        "created_at": pair.created_at,
+                        "meta": meta,
+                    })
+                else:
+                    article = article_key.get()
+                    related_articles[usafe] = {
+                        "article": article,
+                        "created_at": pair.created_at,
+                        "meta": meta,
+                    }
 
-        return related_articles
+        return related_articles.values()
 
 
 class BiasPairModel(BaseModel):

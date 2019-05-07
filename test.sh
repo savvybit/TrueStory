@@ -1,4 +1,3 @@
 #! /usr/bin/env bash
 
-
-pytest -r tests --disable-warnings
+DATASTORE_ENV_YAML=~/Work/TrueStory/env.yaml pytest -r tests --disable-warnings
