@@ -36,9 +36,9 @@ class BaseResource(Resource):
         raise NotImplementedError("required schemas not provided")
 
     @classmethod
-    def _serialize(cls, which, obj):
+    def _make_response(cls, which, obj, **kwargs):
         schema = cls._get_schemas()[which]
-        return schema.jsonify(obj)
+        return schema.jsonify(obj, _name=which, **kwargs)
 
     @classmethod
     def get_route(cls):
