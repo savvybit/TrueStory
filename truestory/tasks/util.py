@@ -10,10 +10,16 @@ from flask_json import as_json
 from google.cloud import tasks_v2
 
 from truestory import app, settings
+from truestory.views import base as views_base
 
+
+TASK_HEADER = "X-AppEngine-TaskName"
 
 app_client = app.test_client()
 tasks_client = tasks_v2.CloudTasksClient()
+require_headers = views_base.require_headers(
+    TASK_HEADER, error_message="External requests are not allowed."
+)
 
 
 class create_task:
@@ -38,26 +44,28 @@ class create_task:
         args_dict = json.loads(serialized)
         return args_dict["args"], args_dict["kwargs"]
 
-    def _create_handler(self, func):
+    def _create_handler(self, function):
         @app.route(self.route, methods=["POST"])
+        @require_headers
         @as_json
-        @functools.wraps(func)
+        @functools.wraps(function)
         def task_handler():
             """Generic task handler called by a successfully submitted task."""
             payload = request.get_data(as_text=True)
             if payload:
                 args, kwargs = self._deserialize_args(payload)
-                result = func(*args, **kwargs)
+                result = function(*args, **kwargs)
             else:
-                result = func()
+                result = function()
             return {"result": result}
 
     @classmethod
-    def _debug_task(cls, func, args, kwargs):
-        endpoint = func.__name__
+    def _debug_task(cls, function, args, kwargs):
+        endpoint = function.__name__
         url = url_for(endpoint)
         data = cls._serialize_args(args, kwargs)
-        response = app_client.post(url, data=data)
+        headers = {TASK_HEADER: "test_task"}
+        response = app_client.post(url, headers=headers, data=data)
         logging.debug("%s: %s", endpoint, response.json)
 
     def _create_task(self, args, kwargs):
@@ -74,12 +82,12 @@ class create_task:
         response = tasks_client.create_task(parent, task)
         logging.debug("Created task %s.", response.name)
 
-    def __call__(self, func):
-        self._create_handler(func)
+    def __call__(self, function):
+        self._create_handler(function)
 
         def wrapper(*args, **kwargs):
             if settings.DEBUG:
-                self._debug_task(func, args, kwargs)
+                self._debug_task(function, args, kwargs)
             else:
                 self._create_task(args, kwargs)
 

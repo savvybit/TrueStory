@@ -86,3 +86,24 @@ def require_auth(function):
         return function(*args, **kwargs)
 
     return wrapper
+
+
+class require_headers:
+
+    """Basic check for headers presence."""
+
+    def __init__(self, headers, error_message="Invalid headers."):
+        if not isinstance(headers, (list, tuple)):
+            headers = (headers,)
+        self._headers = headers
+        self._error_message = error_message
+
+    def __call__(self, function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            good = all(header in request.headers for header in self._headers)
+            if not good:
+                abort(403, self._error_message)
+            return function(*args, **kwargs)
+
+        return wrapper
