@@ -16,7 +16,7 @@ from truestory.views import base as views_base
 TASK_HEADER = "X-AppEngine-TaskName"
 
 app_client = app.test_client()
-tasks_client = tasks_v2.CloudTasksClient()
+tasks_client = None  # Lazily initialized due to Datastore emulator testing issues.
 require_headers = views_base.require_headers(
     TASK_HEADER, error_message="External requests are not allowed."
 )
@@ -34,6 +34,13 @@ class create_task:
     @property
     def route(self):
         return f"/task/{self._queue}"
+
+    @property
+    def tasks_client(self):
+        global tasks_client
+        if not tasks_client:
+            tasks_client = tasks_v2.CloudTasksClient()
+        return tasks_client
 
     @classmethod
     def _serialize_args(cls, args, kwargs):
@@ -69,7 +76,7 @@ class create_task:
         logging.debug("%s: %s", endpoint, response.json)
 
     def _create_task(self, args, kwargs):
-        parent = tasks_client.queue_path(
+        parent = self.tasks_client.queue_path(
             settings.PROJECT_ID, settings.LOCATION, self._queue
         )
         task = {
@@ -79,7 +86,7 @@ class create_task:
                 "body": self._serialize_args(args, kwargs),
             }
         }
-        response = tasks_client.create_task(parent, task)
+        response = self.tasks_client.create_task(parent, task)
         logging.debug("Created task %s.", response.name)
 
     def __call__(self, function):

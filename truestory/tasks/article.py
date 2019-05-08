@@ -35,6 +35,7 @@ def crawl_articles():
     return {"targets": count}
 
 
+@create_task("clean-queue")
 def clean_articles():
     """Cleans all outdated articles."""
     delta = datetime.timedelta(days=ARTICLES_MAX_AGE)
