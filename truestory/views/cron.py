@@ -4,7 +4,7 @@
 from flask_json import as_json
 
 from truestory import app
-from truestory.tasks import crawl_articles
+from truestory.tasks import clean_articles, crawl_articles
 from truestory.views import base
 
 
@@ -18,8 +18,7 @@ require_headers = base.require_headers(
 @as_json
 def cron_crawl_view():
     """Spawns a new crawler for each individual target."""
-    count = crawl_articles()
-    return {"targets": count}
+    return {"crawled": crawl_articles()}
 
 
 @app.route("/cron/bias")
@@ -27,7 +26,7 @@ def cron_crawl_view():
 @as_json
 def cron_bias_view():
     """Creates relevant bias pairs out of recent articles."""
-    return {"test": 1}
+    return {"paired": "not implemented"}
 
 
 @app.route("/cron/clean")
@@ -35,4 +34,4 @@ def cron_bias_view():
 @as_json
 def cron_clean_view():
     """Clean-ups every outdated article or bias pair."""
-    return {"test": 1}
+    return {"cleaned": clean_articles()}

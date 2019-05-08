@@ -106,7 +106,7 @@ class BaseModel(ndb.Model):
         return query
 
     @classmethod
-    def all(cls, query=None, keys_only=False, **kwargs):
+    def all(cls, query=None, keys_only=False, order=True, **kwargs):
         """Returns all the items in the DB created by this model.
 
         Args:
@@ -116,7 +116,8 @@ class BaseModel(ndb.Model):
             list: Fetched items.
         """
         query = query or cls.query()
-        query.order = ["-created_at"]
+        if order:
+            query.order = ["-created_at"]
         if keys_only:
             query.keys_only()
         return list(query.fetch(**kwargs))
