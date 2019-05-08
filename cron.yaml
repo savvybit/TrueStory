@@ -1,0 +1,12 @@
+cron:
+- description: "crawl new articles"
+  url: /cron/crawl
+  schedule: every 1 hours
+
+- description: "make bias pairs"
+  url: /cron/bias
+  schedule: every 3 hours
+
+- description: "clean outdated articles"
+  url: /cron/clean
+  schedule: every 24 hours

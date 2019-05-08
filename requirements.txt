@@ -1,10 +1,12 @@
 Flask>=1.0.2
 Flask-Cors>=3.0.7
+Flask-JSON>=0.3.3
 Flask-RESTful>=0.3.7
 PyYAML>=5.1
 feedparser>=5.2.1
 flask-marshmallow>=0.10.0
 google-cloud-datastore>=1.7.3
+google-cloud-tasks>=1.0.0
 gunicorn>=19.9.0
 newspaper3k>=0.2.8
 requests>=2.21.0
