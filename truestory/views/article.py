@@ -25,8 +25,10 @@ def article_view(article_usafe):
     related_articles = ArticleModel.get_related_articles(
         main_article.key, meta_func=meta_func
     )
-    related_articles.sort(
-        key=lambda item: (item[1]["_score"], item[1]["_created_at"]), reverse=True
+    related_articles = sorted(
+        related_articles,
+        key=lambda item: (item["meta"]["_score"], item["meta"]["_created_at"]),
+        reverse=True
     )
     return render_template(
         "article.html",

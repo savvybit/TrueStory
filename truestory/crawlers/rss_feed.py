@@ -52,7 +52,7 @@ class RssCrawler:
             content=news_article.text,
             summary=summary,
             authors=news_article.authors,
-            published=news_article.publish_date,
+            published=news_article.publish_date or None,
             image=news_article.top_image,
             keywords=news_article.keywords,
         )

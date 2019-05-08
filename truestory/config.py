@@ -3,6 +3,11 @@
 
 import base64
 import hashlib
+import logging
+import os
+import requests
+
+import yaml
 
 from truestory import settings
 
@@ -12,6 +17,24 @@ def get_secret_key():
     return hashlib.md5(
         base64.b64encode(settings.APP_NAME.encode(settings.ENCODING))
     ).digest()
+
+
+def init_datastore_emulator():
+    path = settings.DATASTORE_ENV
+    if not path:
+        return
+
+    logging.info("Datastore emulator detected, initializing environment.")
+    if not os.path.isfile(path):
+        raise Exception("Datastore emulator was never ran")
+    with open(path) as stream:
+        env_dict = yaml.load(stream, Loader=yaml.Loader)
+    os.environ.update(env_dict)
+
+    try:
+        requests.get(os.getenv("DATASTORE_HOST")).raise_for_status()
+    except requests.exceptions.ConnectionError:
+        raise Exception("Datastore emulator is not started")
 
 
 class BaseConfig(object):
@@ -56,8 +79,6 @@ class TestingConfig(BaseConfig):
 
 
 DefaultConfig = DevelopmentConfig if settings.DEBUG else ProductionConfig
-
-
 config = {
     "production": ProductionConfig,
     "development": DevelopmentConfig,
