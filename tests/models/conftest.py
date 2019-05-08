@@ -5,6 +5,7 @@ import os
 
 import pytest
 
+from truestory import settings
 from truestory.models import (
     ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb,
 )
@@ -12,8 +13,9 @@ from truestory.models import (
 
 NO_CREDENTIALS = not bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
 
-skip_missing_credentials = pytest.mark.skipif(
-    NO_CREDENTIALS, reason="missing Datastore credentials"
+skip_no_datastore = pytest.mark.skipif(
+    not settings.DATASTORE_ENV and NO_CREDENTIALS,
+    reason="can't connect to local or remote Datastore"
 )
 
 

@@ -25,9 +25,9 @@ This is news
   <div class="col-3 mr-auto">
     <div class="articles-scroll">
       <!-- Start with the new related articles first. -->
-      {% for article, meta in related_articles %}
+      {% for article_dict in related_articles %}
       <div id="relatedMiniArticle{{ loop.index }}">
-        {{ render_mini_article(article, meta=meta, index=loop.index) }}
+        {{ render_mini_article(article_dict["article"], meta=article_dict["meta"], index=loop.index) }}
       </div>
       {% endfor %}
       <!-- And end with the original/main one. -->
@@ -39,9 +39,9 @@ This is news
 </div>
 
 <div class="d-none">
-  {% for article, meta in related_articles %}
+  {% for article_dict in related_articles %}
   <div id="relatedArticle{{ loop.index }}">
-    {{ render_full_article(article, meta=meta) }}
+    {{ render_full_article(article_dict["article"], meta=article_dict["meta"]) }}
   </div>
   <div id="mainArticle">
     {{ render_full_article(main_article) }}

@@ -1,10 +1,10 @@
 """Tests mail saving and retrieval from the Datastore."""
 
 
-from .conftest import skip_missing_credentials
+from .conftest import skip_no_datastore
 
 
-pytestmark = skip_missing_credentials
+pytestmark = skip_no_datastore
 
 
 def test_subscriber_save_get(subscriber_ent):

@@ -7,8 +7,10 @@ import os
 # Server environment and application settings.
 DEBUG = not os.getenv("GAE_ENV", "").startswith("standard")
 CONFIG = os.getenv("FLASK_CONFIG", "default")
+DATASTORE_ENV = os.getenv("DATASTORE_ENV_YAML")
 APP_NAME = "TrueStory"
 PROJECT_ID = APP_NAME.lower()
+LOCATION = "europe-west1"
 
 # Miscellaneous.
 TIMEOUT = 10  # seconds

@@ -1,3 +1,4 @@
+import datetime
 import logging
 import random
 import sys
@@ -137,6 +138,19 @@ def copy_entities():
         print(f"Saved new bias: {key}")
 
 
+def bump_article_dates():
+    base.NDB_KWARGS["namespace"] = "production"
+    base.client = None
+    delta = datetime.timedelta(days=365)
+
+    articles = ArticleModel.all()
+    print(f"Bumping dates for {len(articles)} articles.")
+    for article in articles:
+        article.published += delta
+        # print(article.published)
+    ArticleModel.put_multi(articles)
+
+
 def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} FUNC")
@@ -151,6 +165,7 @@ def main():
         "test_model": test_model,
         "add_bias": add_bias,
         "copy_entities": copy_entities,
+        "bump_article_dates": bump_article_dates,
     }
     funcs[sys.argv[1]]()
 
@@ -158,4 +173,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Example: $ python dstore.py copy_entities
+# Example: $ python dstore.py bump_article_dates
