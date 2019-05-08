@@ -9,7 +9,8 @@ echo "[i] Saving app data under '$path'."
 if [[ $1 == "gae" ]]; then
     echo "[i] Starting server with GAE."
     dev_appserver.py . -A truestory --log_level debug --storage_path $path \
-    --enable_console --support_datastore_emulator False
+        --enable_console --support_datastore_emulator True \
+        --datastore_emulator_port 8081 --env_var DATASTORE_EMULATOR_HOST=localhost:8081
 else
     echo "[i] Installing requirements..."
     pip3 install -Ur requirements-dev.txt
