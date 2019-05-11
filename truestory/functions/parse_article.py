@@ -36,9 +36,7 @@ def get_article(link):
 @as_json
 def parse_article(request):
     """Parses a given article `link` and returns its JSON details."""
-    gae_ip = request.headers.get(
-        "X-Appengine-User-Ip", ""
-    ).startswith("2600:1900:2001")
+    gae_ip = request.headers.get("X-Appengine-User-Ip", "").startswith("2600:1900")
     internal_country = request.headers.get("X-Appengine-Country") == "ZZ"
     if not any([gae_ip, internal_country]):
         abort(403)
