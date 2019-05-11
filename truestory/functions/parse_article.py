@@ -1,12 +1,13 @@
 """Handles news article parsing."""
 
 
+import logging
 import os
 
 import nltk
 from flask import abort, current_app
 from flask_json import FlaskJSON, as_json
-from newspaper import Article as NewsArticle
+from newspaper import Article as NewsArticle, ArticleException
 
 
 NLP_ENABLED = bool(int(os.getenv("NLP_ENABLED", "1")))
@@ -40,7 +41,12 @@ def parse_article(request):
     if not link:
         abort(400)
 
-    article = get_article(link)
+    try:
+        article = get_article(link)
+    except ArticleException as exc:
+        logging.exception(exc)
+        abort(404)
+
     details = {
         "news_article": {
             "text": article.text,
