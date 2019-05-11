@@ -9,7 +9,7 @@ from http import HTTPStatus
 
 import feedparser
 
-from truestory.functions import parse_article
+from truestory import functions
 from truestory.models.article import ArticleModel
 
 
@@ -39,7 +39,7 @@ class RssCrawler:
 
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
-        news_article = parse_article.get_article(link)
+        news_article = functions.get_article(link)
 
         article_ent = ArticleModel(
             source_name=source_name,
@@ -166,7 +166,7 @@ class RssCrawler:
                 try:
                     article = self._extract_article(feed_entry, target.source_name)
                 except Exception as exc:
-                    logging.exception("Got %s while parsing %r.", exc, feed_entry.id)
+                    logging.exception("Got %r while parsing %r.", exc, feed_entry.id)
                 else:
                     articles.append(article)
                     count += 1

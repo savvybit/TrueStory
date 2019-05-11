@@ -11,7 +11,8 @@ from newspaper import Article as NewsArticle
 
 NLP_ENABLED = bool(int(os.getenv("NLP_ENABLED", "1")))
 
-app_json = FlaskJSON(current_app)
+if current_app:
+    app_json = FlaskJSON(current_app)
 if NLP_ENABLED:
     nltk.download("punkt")
 

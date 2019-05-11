@@ -12,14 +12,16 @@ import requests
 
 RE_CLASS_NAME = re.compile(r"[A-Z][a-z\d]*")
 
+cattr.register_structure_hook(
+    datetime.datetime, lambda string, _: (
+        datetime.datetime.fromisoformat(string) if string else None
+    )
+)
+
 
 class BaseAttr:
 
     FUNCTION_ENDPOINT = None
-
-    @classmethod
-    def unpack(cls, data):
-        return cattr.structure(data, cls)
 
     @classmethod
     def name(cls):
@@ -30,7 +32,11 @@ class BaseAttr:
             if len(part) > 1:
                 part = f"_{part}"
             parts[idx] = part
-        return "".join(parts)
+        return "".join(parts).strip("_")
+
+    @classmethod
+    def unpack(cls, data):
+        return cattr.structure(data, cls)
 
     @classmethod
     def get_remote(cls, **params):
@@ -58,4 +64,4 @@ class NewsArticleAttr(BaseAttr):
 
 
 def get_remote_article(link):
-    NewsArticleAttr.get_remote(link=link)
+    return NewsArticleAttr.get_remote(link=link)
