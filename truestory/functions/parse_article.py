@@ -21,7 +21,7 @@ if NLP_ENABLED:
 def get_article(link):
     GAE_PRODUCTION = os.getenv("GAE_ENV", "").startswith("standard")
     if GAE_PRODUCTION:
-        # This will not run in Cloud Functions (App Engine only).
+        # This will not run under Cloud Functions (it is App Engine only).
         from truestory.functions.remote import get_remote_article
         return get_remote_article(link)
 
