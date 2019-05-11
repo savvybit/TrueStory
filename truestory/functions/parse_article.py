@@ -4,17 +4,17 @@
 import logging
 import os
 
-import nltk
 from flask import abort, current_app
 from flask_json import FlaskJSON, as_json
 from newspaper import Article as NewsArticle, ArticleException
 
 
-NLP_ENABLED = bool(int(os.getenv("NLP_ENABLED", "1")))
+NLP_ENABLED = bool(int(os.getenv("NLP_ENABLED", "0")))
 
 if current_app:
     app_json = FlaskJSON(current_app)
 if NLP_ENABLED:
+    import nltk
     nltk.download("punkt")
 
 
@@ -36,6 +36,8 @@ def get_article(link):
 @as_json
 def parse_article(request):
     """Parses a given article `link` and returns its JSON details."""
+    if not request.headers.get("X-Appengine-User-Ip", "").startswith("2600:1900:2001"):
+        abort(403)
     data = request.get_json() or request.args
     link = data.get("link")
     if not link:
@@ -47,7 +49,7 @@ def parse_article(request):
         logging.exception(exc)
         abort(404)
 
-    details = {
+    response = {
         "news_article": {
             "text": article.text,
             "authors": article.authors,
@@ -56,4 +58,4 @@ def parse_article(request):
             "keywords": article.keywords,
         }
     }
-    return details
+    return response
