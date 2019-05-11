@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 
 import feedparser
-from newspaper import Article as NewsArticle
 
+from truestory.functions import parse_article
 from truestory.models.article import ArticleModel
 
 
@@ -37,13 +37,9 @@ class RssCrawler:
         if not all([link, title]):
             raise KeyError("link or title missing from the article")
 
-        # Get some extra info within the feed itself, then using `newspaper` help.
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
-        news_article = NewsArticle(link)
-        news_article.download()
-        news_article.parse()
-        news_article.nlp()
+        news_article = parse_article.get_article(link)
 
         article_ent = ArticleModel(
             source_name=source_name,
