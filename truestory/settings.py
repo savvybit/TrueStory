@@ -20,6 +20,7 @@ DEFAULT_MAIL = "hello@truestory.one"
 # Persistent logging (used while running outside Google Cloud).
 LOGFILE = "truestory.log"
 
-# Article content display settings on home and individual pages.
+# Article content display/retrieval settings on home, individual pages and API.
 HOME_ARTICLE_MAX_SIZE = 256
 FULL_ARTICLE_MAX_SIZE = 1024
+API_MAX_RELATED_ARTICLES = 3
