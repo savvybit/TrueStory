@@ -40,6 +40,8 @@ class RssCrawler:
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
         news_article = functions.get_article(link)
+        # Correct potential dates from the future.
+        normalize_date = lambda date: min(date, datetime.utcnow()) if date else None
 
         article_ent = ArticleModel(
             source_name=source_name,
@@ -48,7 +50,7 @@ class RssCrawler:
             content=news_article.text,
             summary=summary,
             authors=news_article.authors,
-            published=news_article.publish_date or None,
+            published=normalize_date(news_article.publish_date),
             image=news_article.top_image,
             keywords=news_article.keywords,
         )
