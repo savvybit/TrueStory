@@ -41,7 +41,11 @@ class RssCrawler:
         summary = feed_entry.get("summary") or feed_entry.get("description")
         news_article = functions.get_article(link)
         # Correct potential dates from the future.
-        normalize_date = lambda date: min(date, datetime.utcnow()) if date else None
+        normalize_date = (
+            lambda date: min(
+                date, datetime.utcnow().replace(tzinfo=timezone.utc)
+            ) if date else None
+        )
 
         article_ent = ArticleModel(
             source_name=source_name,
