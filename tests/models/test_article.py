@@ -2,6 +2,8 @@
 
 
 from truestory.models import ArticleModel, BiasPairModel
+from truestory.tasks.article import _clean_articles
+
 from .conftest import skip_no_datastore
 
 
@@ -9,11 +11,7 @@ pytestmark = skip_no_datastore
 
 
 def test_bias_pair_save(bias_pair_ents):
-    # Save the entities into DB.
     left, right, bias_pair = bias_pair_ents
-    bias_pair.left = left.put()
-    bias_pair.right = right.put()
-    bias_pair.put()
 
     # Check data directly from the DB (not using the local entity).
     new_bias_pair = bias_pair.myself
@@ -28,9 +26,6 @@ def test_bias_pair_save(bias_pair_ents):
 
 def test_related_articles(bias_pair_ents):
     left, right, bias_pair = bias_pair_ents
-    bias_pair.left = left.put()
-    bias_pair.right = right.put()
-    bias_pair.put()
 
     rev_bias_pair = BiasPairModel(left=bias_pair.right, right=bias_pair.left)
     rev_bias_pair.put()
@@ -45,3 +40,9 @@ def test_related_articles(bias_pair_ents):
 
     for entity in (rev_bias_pair, bias_pair, left, right):
         entity.remove()
+
+
+def test_cleanup(bias_pair_ents):
+    _clean_articles()
+    any_alive = any(ent.exists for ent in bias_pair_ents)
+    assert not any_alive, "entities aren't cleaned up"

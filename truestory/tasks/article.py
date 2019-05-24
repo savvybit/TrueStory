@@ -35,9 +35,7 @@ def crawl_articles():
     return {"targets": count}
 
 
-@create_task("clean-queue")
-def clean_articles():
-    """Cleans all outdated articles."""
+def _clean_articles():
     delta = datetime.timedelta(days=ARTICLES_MAX_AGE)
     min_date = datetime.datetime.utcnow() - delta
     qfilters_list = [
@@ -65,3 +63,9 @@ def clean_articles():
     logging.info("Removing %d articles.", articles_count)
     ArticleModel.remove_multi(article_keys)
     return {"bias_pairs": bias_pairs_count, "articles": articles_count}
+
+
+@create_task("clean-queue")
+def clean_articles():
+    """Cleans all outdated articles."""
+    return _clean_articles()

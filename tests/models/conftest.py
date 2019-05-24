@@ -1,10 +1,10 @@
 """Setups and cleanups procedures for Datastore related tests."""
 
 
+import datetime
 import os
 
 import pytest
-
 from truestory import settings
 from truestory.models import (
     ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb,
@@ -39,19 +39,25 @@ def truestory_ent():
 @pytest.fixture
 def bias_pair_ents():
     """Returns a pair of two biased articles."""
+    # Expired articles.
+    published = datetime.datetime.utcnow() - datetime.timedelta(days=3)
     left = ArticleModel(
         source_name="BBC",
         link="http://truestory.one/article1",
         title="TrueStory 1",
         content="True Story 1",
+        published=published,
     )
     right = ArticleModel(
         source_name="BBC",
         link="http://truestory.one/article2",
         title="TrueStory 2",
         content="True Story 2",
+        published=published,
     )
-    return left, right, BiasPairModel(left=left.key, right=right.key)
+    bias_pair = BiasPairModel(left=left.put(), right=right.put())
+    bias_pair.put()
+    return left, right, bias_pair
 
 
 @pytest.fixture
