@@ -36,8 +36,10 @@ def key_to_urlsafe(key):
 
 def batch_process(function, iterable, size=MAX_BATCH_SIZE):
     batch_returns = []
-    for iter_batch in itertools.tee(iterable, math.ceil(len(iterable) / size)):
-        batch_returns.append(function(iter_batch))
+    iterable = list(iterable)
+    for idx in range(0, len(iterable), size):
+        subiter = iterable[idx:idx + size]
+        batch_returns.append(function(subiter))
     return tuple(batch_returns)
 
 
