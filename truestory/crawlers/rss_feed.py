@@ -8,9 +8,15 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 
 import feedparser
+from bs4 import BeautifulSoup
 
 from truestory import functions
 from truestory.models.article import ArticleModel
+
+
+def _strip_html(html):
+    soup = BeautifulSoup(html, "html5lib")
+    return soup.text.strip()
 
 
 class RssCrawler:
@@ -56,7 +62,7 @@ class RssCrawler:
             link=link,
             title=title,
             content=news_article.text,
-            summary=summary,
+            summary=_strip_html(summary),
             authors=news_article.authors,
             published=cls._normalize_date(news_article.publish_date),
             image=news_article.top_image,
