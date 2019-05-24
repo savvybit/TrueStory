@@ -3,9 +3,7 @@
 
 import datetime
 import functools
-import itertools
 import logging
-import math
 import os
 
 import ndb_orm as ndb

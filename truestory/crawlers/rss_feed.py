@@ -176,7 +176,15 @@ class RssCrawler:
                 try:
                     article = self._extract_article(feed_entry, target.source_name)
                 except Exception as exc:
-                    logging.exception("Got %r while parsing %r.", exc, feed_entry.id)
+                    # NOTE(cmiN): On Stackdriver Error Reporting we don't want to catch
+                    # (with `logging.exception`) "Not Found" errors, because they are
+                    # pretty frequent and usual, therefore ignore-able.
+                    log_function = (
+                        logging.error if hasattr(exc, "response") and
+                                         exc.response.status_code == 404 else
+                        logging.exception
+                    )
+                    log_function("Got %s while parsing %r.", exc, feed_entry.id)
                 else:
                     articles.append(article)
                     count += 1

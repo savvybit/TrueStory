@@ -5,6 +5,7 @@ import sys
 
 from google.cloud import datastore
 
+from truestory import functions
 from truestory.crawlers import RssCrawler
 from truestory.models import ArticleModel, BiasPairModel, RssTargetModel, base
 from truestory.tasks.article import _clean_articles
@@ -160,6 +161,16 @@ def cleanup():
     print(ret)
 
 
+def article_function():
+    try:
+        article = functions.get_article("https://www.cnn.com/collections/tillerson-meeting/")
+    except Exception as exc:
+        # import code; code.interact(local={**globals(), **locals()})
+        logging.exception(exc)
+    else:
+        print(article)
+
+
 def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} FUNC")
@@ -176,6 +187,7 @@ def main():
         "copy_entities": copy_entities,
         "bump_article_dates": bump_article_dates,
         "cleanup": cleanup,
+        "article_function": article_function,
     }
     funcs[sys.argv[1]]()
 
@@ -183,4 +195,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Example: $ python dstore.py cleanup
+# Example: $ python dstore.py article_function
