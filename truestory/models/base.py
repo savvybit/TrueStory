@@ -3,7 +3,9 @@
 
 import datetime
 import functools
+import itertools
 import logging
+import math
 import os
 
 import ndb_orm as ndb
@@ -18,6 +20,9 @@ PROJECT = settings.PROJECT_ID
 NAMESPACE = app.config["DATASTORE_NAMESPACE"]
 NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 
+# Number of entities to be put/removed at once.
+MAX_BATCH_SIZE = 500
+
 # Module level singleton client used in all DB interactions. This is lazy inited when
 # is used only, so we don't have any issues with the Datastore agnostic tests or
 # debugging, because creating a client will require valid credentials.
@@ -27,6 +32,13 @@ client = None
 def key_to_urlsafe(key):
     """Returns entity `key` as a string."""
     return key.to_legacy_urlsafe().decode(settings.ENCODING)
+
+
+def batch_process(function, iterable, size=MAX_BATCH_SIZE):
+    batch_returns = []
+    for iter_batch in itertools.tee(iterable, math.ceil(len(iterable) / size)):
+        batch_returns.append(function(iter_batch))
+    return tuple(batch_returns)
 
 
 # NOTE(cmiN): This is copied from ndb-orm library's tests.
@@ -143,7 +155,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def put_multi(cls, entities):
         """Multiple save in the DB without interfering with the `cls.put` function."""
-        cls._get_client().put_multi(entities)
+        batch_process(cls._get_client().put_multi, entities)
         return [entity.key for entity in entities]
 
     def remove(self):
@@ -153,7 +165,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def remove_multi(cls, keys):
         """Multiple removal of entities based on the given `keys`."""
-        cls._get_client().delete_multi(keys)
+        batch_process(cls._get_client().delete_multi, keys)
 
     @property
     def urlsafe(self):

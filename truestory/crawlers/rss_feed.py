@@ -26,7 +26,17 @@ class RssCrawler:
         self._limit = limit
 
     @staticmethod
-    def _extract_article(feed_entry, source_name):
+    def _normalize_date(date):
+        """Corrects dates potentially from the future."""
+        if not date:
+            return None
+
+        if date.tzinfo:
+            date = date.replace(tzinfo=None) - date.tzinfo.utcoffset(date)
+        return min(date, datetime.utcnow())
+
+    @classmethod
+    def _extract_article(cls, feed_entry, source_name):
         """Extracts all the information needed from a `feed_entry` and returns it as
         an `ArticleModel` object.
         """
@@ -40,12 +50,6 @@ class RssCrawler:
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
         news_article = functions.get_article(link)
-        # Correct potential dates from the future.
-        normalize_date = (
-            lambda date: min(
-                date, datetime.utcnow().replace(tzinfo=timezone.utc)
-            ) if date else None
-        )
 
         article_ent = ArticleModel(
             source_name=source_name,
@@ -54,7 +58,7 @@ class RssCrawler:
             content=news_article.text,
             summary=summary,
             authors=news_article.authors,
-            published=normalize_date(news_article.publish_date),
+            published=cls._normalize_date(news_article.publish_date),
             image=news_article.top_image,
             keywords=news_article.keywords,
         )
