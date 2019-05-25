@@ -216,7 +216,7 @@ class DuplicateMixin:
         prop = cls.primary_key()
         src = getattr(self, prop)
         query = cls.query((prop, "=", src))
-        entities = self.all(query=query, keys_only=True)
+        entities = self.all(query=query, keys_only=True, order=False)
         return entities
 
     def put(self):

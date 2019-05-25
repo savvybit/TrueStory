@@ -3,10 +3,10 @@
 
 import functools
 
-from truestory.models.base import BaseModel, key_to_urlsafe, ndb
+from truestory.models.base import BaseModel, DuplicateMixin, key_to_urlsafe, ndb
 
 
-class ArticleModel(BaseModel):
+class ArticleModel(DuplicateMixin, BaseModel):
 
     """Extracted and processed article."""
 
@@ -64,6 +64,10 @@ class ArticleModel(BaseModel):
                     }
 
         return related_articles.values()
+
+    @classmethod
+    def primary_key(cls):
+        return "link"
 
 
 class BiasPairModel(BaseModel):

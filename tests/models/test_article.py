@@ -4,7 +4,7 @@
 from truestory.models import ArticleModel, BiasPairModel
 from truestory.tasks.article import _clean_articles
 
-from .conftest import skip_no_datastore
+from .conftest import skip_no_datastore, wait_exists
 
 
 pytestmark = skip_no_datastore
@@ -15,7 +15,7 @@ def test_bias_pair_save(bias_pair_ents):
 
     # Check data directly from the DB (not using the local entity).
     new_bias_pair = bias_pair.myself
-    assert new_bias_pair.left.get().title == "TrueStory 1"
+    assert new_bias_pair.left.get().title.startswith("TrueStory")
     assert new_bias_pair.right.get().source_name == "BBC"
 
     # Remove them in reverse order.
@@ -46,3 +46,13 @@ def test_cleanup(bias_pair_ents):
     _clean_articles()
     any_alive = any(ent.exists for ent in bias_pair_ents)
     assert not any_alive, "entities aren't cleaned up"
+
+
+def test_duplicate(left_article_ent, right_article_ent):
+    left_article_ent.put()
+    wait_exists(left_article_ent)
+
+    right_article_ent.link = left_article_ent.link
+    right_article_ent.put()
+    assert left_article_ent.myself.title == right_article_ent.title, "original not updated"
+    assert not right_article_ent.exists, "saved duplicate"
