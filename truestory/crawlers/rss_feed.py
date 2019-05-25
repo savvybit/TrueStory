@@ -15,6 +15,9 @@ from truestory.models.article import ArticleModel
 
 
 def _strip_html(html):
+    if not html:
+        return html
+
     soup = BeautifulSoup(html, "html5lib")
     return soup.text.strip()
 
