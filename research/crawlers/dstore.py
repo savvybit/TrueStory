@@ -8,7 +8,7 @@ from google.cloud import datastore
 from truestory import functions
 from truestory.crawlers import RssCrawler
 from truestory.models import ArticleModel, BiasPairModel, RssTargetModel, base
-from truestory.tasks.article import _clean_articles
+from truestory.tasks import clean_articles
 
 
 client = None
@@ -157,7 +157,7 @@ def cleanup():
     base.NDB_KWARGS["namespace"] = "production"
     base.client = None
 
-    ret = _clean_articles()
+    ret = clean_articles()
     print(ret)
 
 
