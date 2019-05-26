@@ -65,8 +65,8 @@ class ArticleModel(DuplicateMixin, BaseModel):
 
         return related_articles.values()
 
-    @classmethod
-    def primary_key(cls):
+    @property
+    def primary_key(self):
         return "link"
 
 

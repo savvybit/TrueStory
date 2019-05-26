@@ -15,7 +15,7 @@ def test_model_no_save(truestory_ent):
     assert truestory_ent.auto_prop == 0
 
     # Check base model utilities.
-    assert truestory_ent.model_name() == "TrueStory"
+    assert truestory_ent.get_model_name() == "TrueStory"
     assert truestory_ent.normalize(truestory_ent.txt_prop) == "N/A"
     assert not truestory_ent.exists
 
@@ -54,11 +54,7 @@ def test_model_query(truestory_ent):
     query = TrueStoryModel.query(("auto_prop", "=", total))
     assert list(query.fetch())  # At least one item in the list.
 
-    # Explicit cleanup (even if is not required).
-    truestory_ent.remove()
-
 
 def test_model_key(truestory_ent):
     truestory_ent.put()
     assert truestory_ent.myself.myself
-    truestory_ent.remove()

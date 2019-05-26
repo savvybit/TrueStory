@@ -85,7 +85,7 @@ CLEANUP_MODELS = [
 ]
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True)
 def datastore_cleanup():
     yield
     if not skip_no_datastore.args[0]:

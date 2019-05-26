@@ -81,7 +81,7 @@ def rss_feed():
 
 def test_model():
     target = RssTargetModel(source_name="test")
-    print("model name", target.model_name())
+    print("model name", target.get_model_name())
     key = target.put()
     print("with key", key)
     usafe = target.urlsafe

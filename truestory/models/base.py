@@ -5,6 +5,7 @@ import datetime
 import functools
 import logging
 import os
+from collections import OrderedDict
 
 import ndb_orm as ndb
 from google.auth.credentials import Credentials
@@ -79,7 +80,7 @@ class BaseModel(ndb.Model):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def model_name(cls):
+    def get_model_name(cls):
         """Returns the model name (without suffix)."""
         return cls.__name__.replace("Model", "")
 
@@ -192,19 +193,16 @@ class DuplicateMixin:
 
     """Adds support for updating same entities when similar ones are added."""
 
-    @classmethod
-    def primary_key(cls):
+    @property
+    def primary_key(self):
         """Returns the property name holding an unique value among the others."""
         raise NotImplementedError(
-            f"{cls.model_name()} primary key not specified"
+            f"{self.get_model_name()} primary key not specified"
         )
 
-    def _update(self, entity):
-        """Updates itself without creating another entry in the database."""
-        properties = self.to_dict()
-        properties["created_at"] = datetime.datetime.utcnow()
-        entity.populate(**properties)
-        return entity.put()
+    @property
+    def primary_value(self):
+        return getattr(self, self.primary_key)
 
     def get_existing(self):
         """Returns already existing entities based on the chosen `self.primary_key`.
@@ -212,28 +210,45 @@ class DuplicateMixin:
         An existing entity is one that has the same primary key attribute value as the
         candidate's one.
         """
-        cls = type(self)
-        prop = cls.primary_key()
-        src = getattr(self, prop)
-        query = cls.query((prop, "=", src))
+        query = self.query((self.primary_key, "=", self.primary_value))
         entities = self.all(query=query, keys_only=True, order=False)
         return entities
+
+    def update(self, duplicates):
+        """Updates itself without creating another entry in the database."""
+        logging.debug("Updating already existing entity: %s.", self.primary_value)
+        assert len(duplicates) == 1, "found duplicate entity in the DB"
+        entity = duplicates[0].myself
+        properties = self.to_dict()
+        properties["created_at"] = datetime.datetime.utcnow()
+        entity.populate(**properties)
+        return entity
 
     def put(self):
         """Check if this is already existing and if yes, just update with the new
         values.
         """
         # These are keys only entities.
-        entities = self.get_existing()
+        duplicates = self.get_existing()
 
-        if self.exists or not entities:
+        if self.exists or not duplicates:
             # Save the newly created entity or the already present one (self update).
             return super().put()
 
-        # Just update the already existing entity, without saving a new duplicate.
-        entity_id = getattr(self, self.primary_key())
-        logging.debug("Updating already existing entity: %s.", entity_id)
-        # Should have one exemplary only.
-        assert len(entities) == 1, "found duplicate entity in the DB"
-        entity = entities[0].myself
-        return self._update(entity)
+        return self.update(duplicates).put()
+
+    @classmethod
+    def put_multi(cls, entities):
+        unique_entities = OrderedDict()
+        for entity in entities:
+            unique_entities[entity.primary_value] = entity
+
+        for primary_value, entity in unique_entities.items():
+            if entity.exists:
+                continue
+
+            duplicates = entity.get_existing()
+            if duplicates:
+                unique_entities[primary_value] = entity.update(duplicates)
+
+        return super().put_multi(unique_entities.values())
