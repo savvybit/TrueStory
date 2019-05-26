@@ -1,7 +1,7 @@
 """Tests base utilities used in Datastore interactions."""
 
 
-from .conftest import TrueStoryModel, skip_no_datastore
+from .conftest import TrueStoryModel, skip_no_datastore, wait_exists
 
 
 pytestmark = skip_no_datastore
@@ -15,7 +15,7 @@ def test_model_no_save(truestory_ent):
     assert truestory_ent.auto_prop == 0
 
     # Check base model utilities.
-    assert truestory_ent.model_name() == "TrueStory"
+    assert truestory_ent.get_model_name() == "TrueStory"
     assert truestory_ent.normalize(truestory_ent.txt_prop) == "N/A"
     assert not truestory_ent.exists
 
@@ -43,6 +43,7 @@ def test_model_query(truestory_ent):
     total = nr * (nr + 1) // 2
     truestory_ent.list_prop = list(range(nr + 1))
     truestory_ent.put()
+    wait_exists(truestory_ent)
 
     # Checking each of them for the edge case when the DB is dirty (parallel tests).
     entities = TrueStoryModel.all()
@@ -53,11 +54,7 @@ def test_model_query(truestory_ent):
     query = TrueStoryModel.query(("auto_prop", "=", total))
     assert list(query.fetch())  # At least one item in the list.
 
-    # Explicit cleanup (even if is not required).
-    truestory_ent.remove()
-
 
 def test_model_key(truestory_ent):
     truestory_ent.put()
     assert truestory_ent.myself.myself
-    truestory_ent.remove()

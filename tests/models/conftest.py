@@ -1,10 +1,12 @@
 """Setups and cleanups procedures for Datastore related tests."""
 
 
+import datetime
 import os
+import random
+import time
 
 import pytest
-
 from truestory import settings
 from truestory.models import (
     ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb,
@@ -36,22 +38,38 @@ def truestory_ent():
     return TrueStoryModel()
 
 
+def _article_ent(label, keywords=None):
+    # Expired article.
+    published = datetime.datetime.utcnow() - datetime.timedelta(days=3)
+    article = ArticleModel(
+        source_name=f"BBC {label}",
+        link=f"https://truestory.one/article{label}",
+        title=f"TrueStory {label}",
+        content=f"True Story {label}",
+        published=published,
+        keywords=keywords,
+    )
+    return article
+
+
 @pytest.fixture
-def bias_pair_ents():
+def left_article_ent():
+    return _article_ent(random.randint(1, 100), keywords=["trump", "money"])
+
+
+@pytest.fixture
+def right_article_ent():
+    return _article_ent(random.randint(101, 200), keywords=["trump", "money", "mad"])
+
+
+@pytest.fixture
+def bias_pair_ents(left_article_ent, right_article_ent):
     """Returns a pair of two biased articles."""
-    left = ArticleModel(
-        source_name="BBC",
-        link="http://truestory.one/article1",
-        title="TrueStory 1",
-        content="True Story 1",
+    bias_pair = BiasPairModel(
+        left=left_article_ent.put(), right=right_article_ent.put()
     )
-    right = ArticleModel(
-        source_name="BBC",
-        link="http://truestory.one/article2",
-        title="TrueStory 2",
-        content="True Story 2",
-    )
-    return left, right, BiasPairModel(left=left.key, right=right.key)
+    bias_pair.put()
+    return left_article_ent, right_article_ent, bias_pair
 
 
 @pytest.fixture
@@ -68,12 +86,17 @@ CLEANUP_MODELS = [
 ]
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True)
 def datastore_cleanup():
     yield
-    if not NO_CREDENTIALS:
+    if not skip_no_datastore.args[0]:
         all_entities = []
         for Model in CLEANUP_MODELS:
             entities = Model.all(keys_only=True)
             all_entities.extend(entities)
         BaseModel.remove_multi([entity.key for entity in all_entities])
+
+
+def wait_exists(entity):
+    while not entity.exists:
+        time.sleep(0.1)

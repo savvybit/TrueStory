@@ -30,6 +30,6 @@
 /* Makes all home article cover images same size. */
 .card-img {
     width: 100%;
-    height: 15vw;
+    height: 100%;
     object-fit: cover;
 }
