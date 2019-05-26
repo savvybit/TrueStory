@@ -42,7 +42,7 @@ def _article_ent(label, keywords=None):
     # Expired article.
     published = datetime.datetime.utcnow() - datetime.timedelta(days=3)
     article = ArticleModel(
-        source_name="BBC",
+        source_name=f"BBC {label}",
         link=f"https://truestory.one/article{label}",
         title=f"TrueStory {label}",
         content=f"True Story {label}",

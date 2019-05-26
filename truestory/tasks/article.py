@@ -89,11 +89,12 @@ def pair_article(article_usafe):
     related_articles = {}
     for keyword in main_article.keywords:
         article_query = ArticleModel.query(("keywords", "=", keyword))
-        articles = ArticleModel.all(article_query)
+        articles = ArticleModel.all(article_query, order=False)
         for article in articles:
-            related_articles[article.link] = article
+            if article.source_name != main_article.source_name:
+                related_articles[article.link] = article
 
-    del related_articles[main_article.link]
+    related_articles.pop(main_article.link, None)
     count = 0
     for article in related_articles.values():
         score = _get_bias_score(main_article, article)
