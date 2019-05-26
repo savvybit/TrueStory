@@ -2,7 +2,7 @@
 <div class="row">
   <div class="col-9 article-{{ pos }} offset-{{ 1 if pos == 'left' else 2 }}">
     <div class="card shadow">
-      <a id="articleUsafe" href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark">
+      <a href="{{ url_for('article_view', article_usafe=article|usafe) }}" class="card-link text-dark article-usafe">
         <div class="row no-gutters">
           <div class="col-4">
             <img src="{{ article.image }}" class="card-img" alt="Article picture">
