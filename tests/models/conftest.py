@@ -38,7 +38,7 @@ def truestory_ent():
     return TrueStoryModel()
 
 
-def _article_ent(label):
+def _article_ent(label, keywords=None):
     # Expired article.
     published = datetime.datetime.utcnow() - datetime.timedelta(days=3)
     article = ArticleModel(
@@ -47,18 +47,19 @@ def _article_ent(label):
         title=f"TrueStory {label}",
         content=f"True Story {label}",
         published=published,
+        keywords=keywords,
     )
     return article
 
 
 @pytest.fixture
 def left_article_ent():
-    return _article_ent(random.randint(1, 100))
+    return _article_ent(random.randint(1, 100), keywords=["trump", "money"])
 
 
 @pytest.fixture
 def right_article_ent():
-    return _article_ent(random.randint(101, 200))
+    return _article_ent(random.randint(101, 200), keywords=["trump", "money", "mad"])
 
 
 @pytest.fixture

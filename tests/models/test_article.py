@@ -2,7 +2,7 @@
 
 
 from truestory.models import ArticleModel, BiasPairModel
-from truestory.tasks.article import _clean_articles
+from truestory.tasks.article import clean_articles, pair_article
 
 from .conftest import skip_no_datastore, wait_exists
 
@@ -35,7 +35,7 @@ def test_related_articles(bias_pair_ents):
 
 
 def test_cleanup(bias_pair_ents):
-    _clean_articles()
+    clean_articles()
     any_alive = any(ent.exists for ent in bias_pair_ents)
     assert not any_alive, "entities aren't cleaned up"
 
@@ -62,3 +62,26 @@ def test_duplicate_multi(left_article_ent, right_article_ent):
     assert left_article_ent.myself.title == \
            right_article_ent.title, "original not updated"
     assert len(ArticleModel.all()) == 1, "saved duplicate"
+
+
+def test_pair_article(left_article_ent, right_article_ent):
+    left_article_ent.put()
+    wait_exists(left_article_ent)
+
+    assert len(ArticleModel.get_related_articles(left_article_ent.key)) == 0, (
+        "dirty datastore (with bias pairs)"
+    )
+
+    right_article_ent.put()
+    wait_exists(right_article_ent)
+    # NOTE(cmiN): A previous pair is created automatically when the second article is
+    # put. Still, the following line solves duplicates by itself.
+    pair_article(left_article_ent.urlsafe)
+
+    related_articles = ArticleModel.get_related_articles(left_article_ent.key)
+    assert len(related_articles) == 1, (
+        "duplicate or no bias pairs created when it should"
+    )
+    assert list(related_articles)[0]["article"].key == right_article_ent.key, (
+        "wrong bias pair created"
+    )
