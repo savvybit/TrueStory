@@ -111,10 +111,11 @@ def pair_article(article_usafe):
                 query=bias_pair_query, keys_only=True, order=False
             )
             bias_pair_keys |= {bias_pair.key for bias_pair in bias_pairs}
-        logging.info("Removing %d duplicate bias pairs first.", len(bias_pair_keys))
-        BiasPairModel.remove_multi(bias_pair_keys)
+        if bias_pair_keys:
+            logging.info("Removing %d duplicate bias pairs first.", len(bias_pair_keys))
+            BiasPairModel.remove_multi(bias_pair_keys)
 
-        logging.info("Adding new bias pair")
+        logging.info("Adding new bias pair with score %f.", score)
         BiasPairModel(left=main_article.key, right=article.key, score=score).put()
         count += 1
 
