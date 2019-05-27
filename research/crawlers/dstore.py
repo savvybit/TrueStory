@@ -5,8 +5,10 @@ import sys
 
 from google.cloud import datastore
 
+from truestory import functions
 from truestory.crawlers import RssCrawler
 from truestory.models import ArticleModel, BiasPairModel, RssTargetModel, base
+from truestory.tasks import clean_articles
 
 
 client = None
@@ -79,7 +81,7 @@ def rss_feed():
 
 def test_model():
     target = RssTargetModel(source_name="test")
-    print("model name", target.model_name())
+    print("model name", target.get_model_name())
     key = target.put()
     print("with key", key)
     usafe = target.urlsafe
@@ -151,6 +153,24 @@ def bump_article_dates():
     ArticleModel.put_multi(articles)
 
 
+def cleanup():
+    base.NDB_KWARGS["namespace"] = "production"
+    base.client = None
+
+    ret = clean_articles()
+    print(ret)
+
+
+def article_function():
+    try:
+        article = functions.get_article("https://www.cnn.com/collections/tillerson-meeting/")
+    except Exception as exc:
+        # import code; code.interact(local={**globals(), **locals()})
+        logging.exception(exc)
+    else:
+        print(article)
+
+
 def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} FUNC")
@@ -166,6 +186,8 @@ def main():
         "add_bias": add_bias,
         "copy_entities": copy_entities,
         "bump_article_dates": bump_article_dates,
+        "cleanup": cleanup,
+        "article_function": article_function,
     }
     funcs[sys.argv[1]]()
 
@@ -173,4 +195,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Example: $ python dstore.py bump_article_dates
+# Example: $ python dstore.py article_function

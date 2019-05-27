@@ -5,7 +5,7 @@ import functools
 import json
 import logging
 
-from flask import request, url_for
+from flask import current_app, request, url_for
 from flask_json import as_json
 from google.cloud import tasks_v2
 
@@ -69,11 +69,17 @@ class create_task:
     @classmethod
     def _debug_task(cls, function, args, kwargs):
         endpoint = function.__name__
-        url = url_for(endpoint)
-        data = cls._serialize_args(args, kwargs)
-        headers = {TASK_HEADER: "test_task"}
-        response = app_client.post(url, headers=headers, data=data)
-        logging.debug("%s: %s", endpoint, response.json)
+
+        if current_app:
+            url = url_for(endpoint)
+            headers = {TASK_HEADER: "test_task"}
+            data = cls._serialize_args(args, kwargs)
+            response = app_client.post(url, headers=headers, data=data)
+            output = response.json
+        else:
+            output = function(*args, **kwargs)
+
+        logging.debug("%s: %s", endpoint, output)
 
     def _create_task(self, args, kwargs):
         parent = self.tasks_client.queue_path(

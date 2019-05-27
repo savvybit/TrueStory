@@ -3,10 +3,21 @@
 
 import functools
 
-from truestory.models.base import BaseModel, key_to_urlsafe, ndb
+from truestory.models.base import BaseModel, DuplicateMixin, key_to_urlsafe, ndb
 
 
-class ArticleModel(BaseModel):
+pair_article = None
+
+
+def _pair_article(*args, **kwargs):
+    # NOTE(cmiN): Lazy load & call due to circular import.
+    global pair_article
+    if not pair_article:
+        from truestory.tasks import pair_article
+    return pair_article(*args, **kwargs)
+
+
+class ArticleModel(DuplicateMixin, BaseModel):
 
     """Extracted and processed article."""
 
@@ -64,6 +75,22 @@ class ArticleModel(BaseModel):
                     }
 
         return related_articles.values()
+
+    @property
+    def primary_key(self):
+        return "link"
+
+    def put(self):
+        key = super().put()
+        _pair_article(key_to_urlsafe(key))
+        return key
+
+    @classmethod
+    def put_multi(cls, entities):
+        keys = super().put_multi(entities)
+        for key in keys:
+            _pair_article(key_to_urlsafe(key))
+        return keys
 
 
 class BiasPairModel(BaseModel):
