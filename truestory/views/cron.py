@@ -21,14 +21,6 @@ def cron_crawl_view():
     return {"crawled": crawl_articles()}
 
 
-@app.route("/cron/bias")
-@require_headers
-@as_json
-def cron_bias_view():
-    """Creates relevant bias pairs out of recent articles."""
-    return {"paired": "not implemented"}
-
-
 @app.route("/cron/clean")
 @require_headers
 @as_json

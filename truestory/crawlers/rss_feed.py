@@ -3,14 +3,24 @@
 
 import collections
 import logging
+import requests
 import time
 from datetime import datetime, timezone
 from http import HTTPStatus
 
 import feedparser
-from newspaper import Article as NewsArticle
+from bs4 import BeautifulSoup
 
+from truestory import functions
 from truestory.models.article import ArticleModel
+
+
+def _strip_html(html):
+    if not html:
+        return html
+
+    soup = BeautifulSoup(html, "html5lib")
+    return soup.text.strip()
 
 
 class RssCrawler:
@@ -26,7 +36,17 @@ class RssCrawler:
         self._limit = limit
 
     @staticmethod
-    def _extract_article(feed_entry, source_name):
+    def _normalize_date(date):
+        """Corrects dates potentially from the future."""
+        if not date:
+            return None
+
+        if date.tzinfo:
+            date = date.replace(tzinfo=None) - date.tzinfo.utcoffset(date)
+        return min(date, datetime.utcnow())
+
+    @classmethod
+    def _extract_article(cls, feed_entry, source_name):
         """Extracts all the information needed from a `feed_entry` and returns it as
         an `ArticleModel` object.
         """
@@ -35,26 +55,27 @@ class RssCrawler:
         link = feed_entry.get("link")
         title = feed_entry.get("title")
         if not all([link, title]):
-            raise KeyError("link or title missing from the article")
+            raise KeyError("link or title missing from the feed article")
 
-        # Get some extra info within the feed itself, then using `newspaper` help.
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
-        news_article = NewsArticle(link)
-        news_article.download()
-        news_article.parse()
-        news_article.nlp()
+        news_article = functions.get_article(link)
+        to_lower = lambda strings: list(
+            filter(None, [string.lower().strip() for string in strings])
+        )
 
         article_ent = ArticleModel(
             source_name=source_name,
-            link=link,
+            # NOTE(cmiN): Use the final URL (after redirects), because based on this
+            # we uniquely identify articles (primary key is `link`).
+            link=requests.get(link).url,
             title=title,
             content=news_article.text,
-            summary=summary,
+            summary=_strip_html(summary),
             authors=news_article.authors,
-            published=news_article.publish_date or None,
+            published=cls._normalize_date(news_article.publish_date),
             image=news_article.top_image,
-            keywords=news_article.keywords,
+            keywords=to_lower(news_article.keywords or []),
         )
         return article_ent
 
@@ -170,7 +191,15 @@ class RssCrawler:
                 try:
                     article = self._extract_article(feed_entry, target.source_name)
                 except Exception as exc:
-                    logging.exception("Got %s while parsing %r.", exc, feed_entry.id)
+                    # NOTE(cmiN): On Stackdriver Error Reporting we don't want to catch
+                    # (with `logging.exception`) "Not Found" errors, because they are
+                    # pretty frequent and usual, therefore ignore-able.
+                    log_function = (
+                        logging.error if hasattr(exc, "response") and
+                                         exc.response.status_code == 404 else
+                        logging.exception
+                    )
+                    log_function("Got %s while parsing %r.", exc, feed_entry.id)
                 else:
                     articles.append(article)
                     count += 1

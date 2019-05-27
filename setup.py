@@ -48,13 +48,13 @@ def get_requirements(path="requirements.txt"):
 
 setup(
     name="truestory",
-    version="0.5.0",
+    version="0.6.0",
     description="Be your own journalist.",
     long_description=read("README.md"),
     url="https://github.com/SavvyBit/TrueStory",
     license="MIT",
     author="SavvyBit",
-    author_email="irinam.bejan@gmail.com",
+    author_email="hello@truestory.one",
     packages=find_packages(exclude=["tests"]),
     scripts=["bin/truestory"],
     include_package_data=True,
