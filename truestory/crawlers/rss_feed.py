@@ -3,6 +3,7 @@
 
 import collections
 import logging
+import requests
 import time
 from datetime import datetime, timezone
 from http import HTTPStatus
@@ -54,7 +55,7 @@ class RssCrawler:
         link = feed_entry.get("link")
         title = feed_entry.get("title")
         if not all([link, title]):
-            raise KeyError("link or title missing from the article")
+            raise KeyError("link or title missing from the feed article")
 
         # The 'description' value seems to be an alternative tag for summary.
         summary = feed_entry.get("summary") or feed_entry.get("description")
@@ -65,7 +66,9 @@ class RssCrawler:
 
         article_ent = ArticleModel(
             source_name=source_name,
-            link=link,
+            # NOTE(cmiN): Use the final URL (after redirects), because based on this
+            # we uniquely identify articles (primary key is `link`).
+            link=requests.get(link).url,
             title=title,
             content=news_article.text,
             summary=_strip_html(summary),
