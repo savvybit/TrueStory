@@ -1,7 +1,7 @@
 """Handles individual '/article' page."""
 
 
-from flask import render_template
+from flask import abort, render_template
 
 from truestory import app
 from truestory.models.article import ArticleModel
@@ -12,7 +12,11 @@ from truestory.views import base as views_base
 @views_base.require_auth
 def article_view(article_usafe):
     """Displays article details and its opposed ones."""
-    main_article = ArticleModel.get(article_usafe)
+    try:
+        main_article = ArticleModel.get(article_usafe)
+    except Exception:
+        abort(404)
+
     meta_func = lambda bias_pair: {
         "Bias score": int(bias_pair.score * 10),
         "Analysed at": views_base.format_date_filter(
