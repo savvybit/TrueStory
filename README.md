@@ -45,8 +45,8 @@ $ pyenv virtualenv -p python3.7 truestory  # creates a 3.7 venv named 'truestory
 $ pyenv local truestory  # sets it as default venv for this project
 ```
 
-Now don't forget to configure the above virtual environment in your favorite IDE too (
-as default interpreter).
+Now don't forget to configure the above virtual environment in your favorite IDE too
+(as default interpreter).
 
 Finally, run the Flask app:
 
@@ -61,7 +61,7 @@ Before running them, make sure you have all the requirements installed and a Dat
 emulator open (if you want to run DB related tests too, otherwise they'll be skipped).
 
 ```bash
-$ pyenv shell system  # emulator can't be open under venv (gcloud requires system's Python 2)
+$ pyenv shell system  # emulator can't be opened under venv (gcloud requires system's Python 2)
 $ ./research/ops/datastore-emulator.sh  # opens an emulator in detached state
 ```
 
@@ -107,6 +107,12 @@ GAE).
 - Local server will automatically have DEBUG mode activated and use the **development**
   Flask config, settings and Datastore namespace (so look for entities there if you're
   exploring the remote online Datastore console).  
+- If you're asked for any credentials (using remote Datastore, development or
+  production), don't forget to make them available like this:
+  ```bash
+  $ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials/TrueStory-83153701f337.json"
+  ```
+  *Ask Cosmin for the JSON file and keep it private.*
 
 ----
 
