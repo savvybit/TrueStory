@@ -4,14 +4,15 @@
 import datetime
 import logging
 
+from truestory import algo
 from truestory.crawlers import RssCrawler
 from truestory.models import ArticleModel, BiasPairModel, RssTargetModel
+from truestory.models.base import key_to_urlsafe
 from truestory.tasks.util import create_task
 
 
 ARTICLES_PER_TARGET = 10
-ARTICLES_MAX_AGE = 2  # in days
-BIAS_MIN_SCORE = 0.5  # as float percentage
+ARTICLES_MAX_AGE = 2  # as days
 
 
 @create_task("crawl-queue")
@@ -22,7 +23,9 @@ def _crawl_articles(rss_target_usafe):
     articles = sum(articles_dict.values(), [])
     count = len(articles)
     logging.info("Saving %d articles into DB.", count)
-    ArticleModel.put_multi(articles)
+    article_keys = ArticleModel.put_multi(articles)
+    for article_key in article_keys:
+        pair_article(key_to_urlsafe(article_key))
     return {"articles": count}
 
 
@@ -68,37 +71,25 @@ def clean_articles():
     return {"bias_pairs": bias_pairs_count, "articles": articles_count}
 
 
-def _get_bias_score(main, candidate):
-    """Returns a score between 0 and 1 describing how contradictory they are."""
-    main_kw, candidate_kw = set(main.keywords), set(candidate.keywords)
-    min_count, max_count = map(
-        lambda func: func(len(main_kw), len(candidate_kw)),
-        (min, max)
-    )
-    miss_weight = 1 / max_count / 2
-    match_weight = (1 - miss_weight * (max_count - min_count)) / min_count
-    common_count = len(main_kw & candidate_kw)
-    score = common_count * match_weight
-    return score
-
-
 @create_task("bias-queue")
 def pair_article(article_usafe):
     """Creates bias pairs for an article (if any found)."""
+    shorten_source = lambda src_name: src_name.split("-")[0].strip()
     main_article = ArticleModel.get(article_usafe)
+    main_source_name = shorten_source(main_article.source_name)
     related_articles = {}
     for keyword in main_article.keywords:
         article_query = ArticleModel.query(("keywords", "=", keyword))
         articles = ArticleModel.all(article_query, order=False)
         for article in articles:
-            if article.source_name != main_article.source_name:
+            if shorten_source(article.source_name) != main_source_name:
                 related_articles[article.link] = article
 
     related_articles.pop(main_article.link, None)
     count = 0
     for article in related_articles.values():
-        score = _get_bias_score(main_article, article)
-        if score < BIAS_MIN_SCORE:
+        must_save, score = algo.get_bias_score(main_article, article)
+        if not must_save:
             continue
 
         qfilters_list = [

@@ -125,6 +125,7 @@ class BaseModel(ndb.Model):
         Args:
             query: Optionally you can supply a custom `query`.
             keys_only (bool): Keep the Key properties only if this is True.
+            order (bool): Implicit by the time it was created in descending order.
         Returns:
             list: Fetched items.
         """
@@ -252,3 +253,32 @@ class DuplicateMixin:
                 unique_entities[primary_value] = entity.update(duplicates)
 
         return super().put_multi(unique_entities.values())
+
+
+class SideMixin:
+
+    """Adds side info to a model."""
+
+    LEFT = -2
+    LEAN_LEFT = -1
+    CENTER = 0
+    LEAN_RIGHT = 1
+    RIGHT = 2
+    _SIDES = [
+        LEFT,
+        LEAN_LEFT,
+        CENTER,
+        LEAN_RIGHT,
+        RIGHT
+    ]
+
+    side = ndb.IntegerProperty(required=True, choices=_SIDES)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.side is None:
+            self.side = self._get_side(self.link)
+
+    @classmethod
+    def _get_side(cls, link):
+        return cls.RIGHT

@@ -6,14 +6,19 @@ import json
 import logging
 from datetime import date, datetime
 
+import addict
+
 import truestory
-from truestory import auth
+from truestory import auth, datautil
 from truestory.crawlers import RssCrawler
 from truestory.models import (
     ArticleModel,
     NAMESPACE as DATASTORE_NAMESPACE,
     RssTargetModel,
 )
+
+
+RSS_TARGETS_PATH = "data/rss_targets.json"
 
 
 def _json_serializer(obj):
@@ -43,6 +48,39 @@ def compute_token(args):
     print(f"Authorized: {status}")
 
 
+def update_rss_targets(args):
+    """Updates into the database the loaded list of RSS targets."""
+    targets = json.load(args.targets_stream)
+    for target in targets:
+        target = addict.Dict(target)
+        old_rss_targets = RssTargetModel.all(
+            RssTargetModel.query(("link", "=", target.link)), order=False
+        )
+        if old_rss_targets:
+            assert len(old_rss_targets) == 1, (
+                "duplicate RSS targets found in the database"
+            )
+            old_rss_target = old_rss_targets[0]
+            if not args.all:
+                logging.debug(
+                    "Skipping already existing target %r.", old_rss_target.source_name
+                )
+                continue
+
+            logging.warning(
+                "Removing old target %r from the DB.", old_rss_target.source_name
+            )
+            old_rss_target.remove()
+
+        rss_target = RssTargetModel(
+            source_name=target.source_name,
+            link=target.link,
+            enabled=target.enabled if target.enabled is not None else True
+        )
+        logging.info("Adding new target into the DB: %s", rss_target.source_name)
+        rss_target.put()
+
+
 def main():
     # Main parser with common flags.
     parser = argparse.ArgumentParser(description="Be your own journalist.")
@@ -50,13 +88,13 @@ def main():
         "-v", "--verbose", action="store_true",
         help="show debugging messages"
     )
-    subparser = parser.add_subparsers(title="commands")
+    subparser = parser.add_subparsers(dest="command", title="commands", required=True)
 
-    # Crawling sub-parser.
+    # Articles crawling & saving.
     crawl_parser = subparser.add_parser("crawl", help="crawl articles")
     crawl_parser.add_argument(
         "-l", "--limit", metavar="NUMBER", type=int,
-        help="how many results to return"
+        help="how many results to return for each source"
     )
     crawl_parser.add_argument(
         "-s", "--save", action="store_true",
@@ -64,7 +102,26 @@ def main():
     )
     crawl_parser.set_defaults(function=crawl_articles)
 
-    # Computes token by e-mail.
+    # RSS targets management.
+    rss_parser = subparser.add_parser("rss", help="manage RSS targets")
+    rss_subparser = rss_parser.add_subparsers(
+        dest="command", title="commands", required=True
+    )
+    update_parser = rss_subparser.add_parser(
+        "update", help="load a list of RSS targets into the database"
+    )
+    update_parser.add_argument(
+        "-a", "--all", action="store_true",
+        help="replace existing targets too (instead of just adding the new ones only)"
+    )
+    update_parser.add_argument(
+        "targets_stream", metavar="TARGETS_FILE", type=argparse.FileType("r"),
+        default=datautil.get_stream(RSS_TARGETS_PATH), nargs="?",
+        help=f"JSON file containing a list of RSS targets ({RSS_TARGETS_PATH})"
+    )
+    update_parser.set_defaults(function=update_rss_targets)
+
+    # Token generation (by e-mail) and check.
     token_parser = subparser.add_parser("token", help="compute token")
     token_parser.add_argument(
         "mail", metavar="E-MAIL",

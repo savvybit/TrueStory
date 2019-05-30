@@ -8,9 +8,8 @@ import time
 
 import pytest
 from truestory import settings
-from truestory.models import (
-    ArticleModel, BaseModel, BiasPairModel, SubscriberModel, ndb,
-)
+from truestory.models import ArticleModel, BiasPairModel, SubscriberModel
+from truestory.models.base import BaseModel, SideMixin, ndb
 
 
 NO_CREDENTIALS = not bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
@@ -30,6 +29,11 @@ class TrueStoryModel(BaseModel):
     txt_prop = ndb.TextProperty(indexed=False)
     list_prop = ndb.IntegerProperty(repeated=True)
     auto_prop = ndb.ComputedProperty(lambda self: sum(self.list_prop))
+
+
+class SideStoryModel(SideMixin, TrueStoryModel):
+
+    pass
 
 
 @pytest.fixture
