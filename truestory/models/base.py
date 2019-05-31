@@ -5,6 +5,7 @@ import datetime
 import functools
 import logging
 import os
+import urllib.parse as urlparse
 from collections import OrderedDict
 
 import ndb_orm as ndb
@@ -18,7 +19,6 @@ from truestory import app, settings
 PROJECT = settings.PROJECT_ID
 NAMESPACE = app.config["DATASTORE_NAMESPACE"]
 NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
-
 # Number of entities to be put/removed at once.
 MAX_BATCH_SIZE = 500
 
@@ -26,6 +26,8 @@ MAX_BATCH_SIZE = 500
 # is used only, so we don't have any issues with the Datastore agnostic tests or
 # debugging, because creating a client will require valid credentials.
 client = None
+# Lazily loaded due to circular import (under SideMixin).
+PreferencesModel = None
 
 
 def key_to_urlsafe(key):
@@ -264,21 +266,48 @@ class SideMixin:
     CENTER = 0
     LEAN_RIGHT = 1
     RIGHT = 2
-    _SIDES = [
-        LEFT,
-        LEAN_LEFT,
-        CENTER,
-        LEAN_RIGHT,
-        RIGHT
-    ]
+    SIDE_MAPPING = {
+        "Left": LEFT,
+        "Lean Left": LEAN_LEFT,
+        "Center": CENTER,
+        "Lean Right": LEAN_RIGHT,
+        "Right": RIGHT
+    }
+    SITE_REPLACE = ["www.", "rss.", "feeds."]
+    _prefs = None
 
-    side = ndb.IntegerProperty(required=True, choices=_SIDES)
+    side = ndb.IntegerProperty(required=True, choices=list(SIDE_MAPPING.values()))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.side is None:
-            self.side = self._get_side(self.link)
+            self.side = self.get_side(self.link)
 
     @classmethod
-    def _get_side(cls, link):
-        return cls.RIGHT
+    def normalize_site(cls, site):
+        for repl in cls.SITE_REPLACE:
+            site = site.replace(repl, "", 1)
+        return site
+
+    @classmethod
+    def _get_prefs(cls):
+        if not cls._prefs:
+            global PreferencesModel
+            if not PreferencesModel:
+                from truestory.models.preferences import PreferencesModel
+            cls._prefs = PreferencesModel.instance()
+        return cls._prefs
+
+    @classmethod
+    def get_side(cls, link):
+        if not link:
+            logging.warning("Tried to get a side from missing `link`.")
+            return None
+
+        prefs = cls._get_prefs()
+        site = cls.normalize_site(urlparse.urlsplit(link).netloc)
+        site_info = prefs.sites.get(site)
+        if not site_info:
+            raise Exception(f"item coming from unrecognized source {site!r}")
+
+        return cls.SIDE_MAPPING[site_info["side"]]

@@ -31,7 +31,10 @@ def _crawl_articles(rss_target_usafe):
 
 def crawl_articles():
     """Crawls and saves new articles in the DB."""
-    rss_targets = RssTargetModel.all(keys_only=True)
+    rss_targets = RssTargetModel.all(
+        RssTargetModel.query(("enabled", "=", True)),
+        keys_only=True
+    )
     count = len(rss_targets)
     logging.info("Starting crawling with %d targets.", count)
     for rss_target in rss_targets:

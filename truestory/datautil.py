@@ -1,6 +1,7 @@
 """Utilities playing with data files."""
 
 
+import io
 import pkg_resources
 
 from truestory import settings
@@ -12,6 +13,9 @@ def get_string(path):
     return content.decode(settings.ENCODING).strip()
 
 
-def get_stream(path):
+def get_stream(path, binary=True):
     """Returns a file-like object for the one pointed by `path`."""
-    return pkg_resources.resource_stream(settings.PROJECT_NAME, path)
+    stream = pkg_resources.resource_stream(settings.PROJECT_NAME, path)
+    if not binary:
+        stream = io.TextIOWrapper(stream)
+    return stream

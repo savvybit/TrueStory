@@ -1,7 +1,8 @@
 [
   {
     "source_name": "Al Jazeera",
-    "link": "http://america.aljazeera.com/content/ajam/articles.rss"
+    "link": "http://america.aljazeera.com/content/ajam/articles.rss",
+    "side": "Center"
   },
   {
     "source_name": "CNBC - Politics",
@@ -65,15 +66,18 @@
   },
   {
     "source_name": "Sky News - Politics",
-    "link": "http://feeds.skynews.com/feeds/rss/politics.xml"
+    "link": "http://feeds.skynews.com/feeds/rss/politics.xml",
+    "side": "Center"
   },
   {
     "source_name": "Sky News - U.S.",
-    "link": "http://feeds.skynews.com/feeds/rss/us.xml"
+    "link": "http://feeds.skynews.com/feeds/rss/us.xml",
+    "side": "Center"
   },
   {
     "source_name": "Sky News - World",
-    "link": "http://feeds.skynews.com/feeds/rss/world.xml"
+    "link": "http://feeds.skynews.com/feeds/rss/world.xml",
+    "side": "Center"
   },
   {
     "source_name": "Vox - Politics",

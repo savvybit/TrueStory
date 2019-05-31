@@ -2,11 +2,15 @@
 
 
 import argparse
+import csv
 import json
 import logging
+import operator
+import urllib.parse as urlparse
 from datetime import date, datetime
 
 import addict
+import requests
 
 import truestory
 from truestory import auth, datautil
@@ -14,11 +18,13 @@ from truestory.crawlers import RssCrawler
 from truestory.models import (
     ArticleModel,
     NAMESPACE as DATASTORE_NAMESPACE,
+    PreferencesModel,
     RssTargetModel,
 )
 
 
 RSS_TARGETS_PATH = "data/rss_targets.json"
+SOURCES_PATH = "data/media-bias.csv"
 
 
 def _json_serializer(obj):
@@ -50,6 +56,10 @@ def compute_token(args):
 
 def update_rss_targets(args):
     """Updates into the database the loaded list of RSS targets."""
+    missing = lambda item: item == {}
+    new_sites = {}
+    remove_sites = set()
+
     targets = json.load(args.targets_stream)
     for target in targets:
         target = addict.Dict(target)
@@ -72,13 +82,65 @@ def update_rss_targets(args):
             )
             old_rss_target.remove()
 
+        custom_side = target.side or None
         rss_target = RssTargetModel(
             source_name=target.source_name,
             link=target.link,
-            enabled=target.enabled if target.enabled is not None else True
+            enabled=True if missing(target.enabled) else target.enabled,
+            side=RssTargetModel.SIDE_MAPPING[custom_side] if custom_side else None,
         )
         logging.info("Adding new target into the DB: %s", rss_target.source_name)
         rss_target.put()
+
+        normalize_site = lambda url: RssTargetModel.normalize_site(
+            urlparse.urlsplit(url).netloc
+        )
+        site = normalize_site(rss_target.link)
+        publisher = requests.get("http://" + site).url
+        site = normalize_site(publisher)
+        if custom_side:
+            logging.warning(
+                "Adding/Replacing whitelisted site %r as being %s.", site, custom_side
+            )
+            new_sites[site] = {
+                "side": custom_side,
+                "publisher": publisher,
+                "source": rss_target.source_name,
+            }
+        if not rss_target.enabled:
+            logging.info("Removing potential existing whitelisted site %r.", site)
+            remove_sites.add(site)
+
+    prefs = PreferencesModel.instance()
+    sites = prefs.sites
+    sites.update(new_sites)
+    for site in remove_sites:
+        sites.pop(site, None)
+    prefs.sites = sites
+    prefs.put()
+
+
+def update_sources(args):
+    """Updates into the database a list of accepted input sources along their side."""
+    reader = csv.DictReader(args.sources_stream)
+    side_dict = {}
+    int_keys = ["agree", "disagree"]
+    for row in reader:
+        for key in int_keys:
+            row[key] = int(row[key])
+        side_dict.setdefault(row["site"], []).append(row)
+
+    prefs = PreferencesModel.instance()
+    sites = {}
+    for site, sides in side_dict.items():
+        best_side = max(sides, key=operator.itemgetter("agree"))
+        sites[RssTargetModel.normalize_site(site)] = {
+            "side": best_side["label"],
+            "publisher": best_side["publisher"],
+            "source": best_side["source"],
+        }
+    prefs.sites = sites
+    prefs.put()
 
 
 def main():
@@ -107,19 +169,36 @@ def main():
     rss_subparser = rss_parser.add_subparsers(
         dest="command", title="commands", required=True
     )
-    update_parser = rss_subparser.add_parser(
+    rss_update_parser = rss_subparser.add_parser(
         "update", help="load a list of RSS targets into the database"
     )
-    update_parser.add_argument(
+    rss_update_parser.add_argument(
         "-a", "--all", action="store_true",
         help="replace existing targets too (instead of just adding the new ones only)"
     )
-    update_parser.add_argument(
+    rss_update_parser.add_argument(
         "targets_stream", metavar="TARGETS_FILE", type=argparse.FileType("r"),
         default=datautil.get_stream(RSS_TARGETS_PATH), nargs="?",
         help=f"JSON file containing a list of RSS targets ({RSS_TARGETS_PATH})"
     )
-    update_parser.set_defaults(function=update_rss_targets)
+    rss_update_parser.set_defaults(function=update_rss_targets)
+
+    # Publishers whitelisting.
+    source_parser = subparser.add_parser("source", help="manage trusted sources")
+    source_subparser = source_parser.add_subparsers(
+        dest="command", title="commands", required=True
+    )
+    src_update_parser = source_subparser.add_parser(
+        "update",
+        help="create & save a white list of accepted input sources for articles"
+    )
+    src_update_parser.add_argument(
+        "sources_stream", metavar="SOURCES_FILE", type=argparse.FileType("r"),
+        default=datautil.get_stream(SOURCES_PATH, binary=False), nargs="?",
+        help=(f"CSV file containing a table of enabled and labeled sources "
+              f"({SOURCES_PATH})")
+    )
+    src_update_parser.set_defaults(function=update_sources)
 
     # Token generation (by e-mail) and check.
     token_parser = subparser.add_parser("token", help="compute token")
