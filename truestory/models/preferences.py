@@ -11,6 +11,8 @@ class PreferencesModel(BaseModel):
     """Singleton preferences and resources model."""
 
     sites = ndb.JsonProperty(default={})
+    contradiction_threshold = ndb.FloatProperty(default=0.5)
+    similarity_threshold = ndb.FloatProperty(default=0.5)
 
     @classmethod
     def instance(cls):

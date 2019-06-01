@@ -14,6 +14,8 @@ from truestory.tasks.util import create_task
 ARTICLES_PER_TARGET = 10
 ARTICLES_MAX_AGE = 2  # as days
 
+shorten_source = lambda src_name: src_name.split("-")[0].strip()
+
 
 @create_task("crawl-queue")
 def _crawl_articles(rss_target_usafe):
@@ -77,7 +79,6 @@ def clean_articles():
 @create_task("bias-queue")
 def pair_article(article_usafe):
     """Creates bias pairs for an article (if any found)."""
-    shorten_source = lambda src_name: src_name.split("-")[0].strip()
     main_article = ArticleModel.get(article_usafe)
     main_source_name = shorten_source(main_article.source_name)
     related_articles = {}

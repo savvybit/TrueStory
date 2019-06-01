@@ -21,6 +21,7 @@ from truestory.models import (
     PreferencesModel,
     RssTargetModel,
 )
+from truestory.tasks.article import shorten_source
 
 
 RSS_TARGETS_PATH = "data/rss_targets.json"
@@ -57,8 +58,14 @@ def compute_token(args):
 def update_rss_targets(args):
     """Updates into the database the loaded list of RSS targets."""
     missing = lambda item: item == {}
+    normalize_site = lambda url: RssTargetModel.normalize_site(
+        urlparse.urlsplit(url).netloc
+    )
+
+    normed_sites = {}
     new_sites = {}
-    remove_sites = set()
+    enabled_sites = set()
+    disabled_sites = set()
 
     targets = json.load(args.targets_stream)
     for target in targets:
@@ -92,12 +99,14 @@ def update_rss_targets(args):
         logging.info("Adding new target into the DB: %s", rss_target.source_name)
         rss_target.put()
 
-        normalize_site = lambda url: RssTargetModel.normalize_site(
-            urlparse.urlsplit(url).netloc
-        )
-        site = normalize_site(rss_target.link)
-        publisher = requests.get("http://" + site).url
-        site = normalize_site(publisher)
+        src_name = shorten_source(rss_target.source_name)
+        if src_name not in normed_sites:
+            logging.debug("Normalizing site for %s.", src_name)
+            site = normalize_site(rss_target.link)
+            publisher = requests.get("http://" + site).url
+            site = normalize_site(publisher)
+            normed_sites[src_name] = (site, publisher)
+        site, publisher = normed_sites[src_name]
         if custom_side:
             logging.warning(
                 "Adding/Replacing whitelisted site %r as being %s.", site, custom_side
@@ -105,16 +114,19 @@ def update_rss_targets(args):
             new_sites[site] = {
                 "side": custom_side,
                 "publisher": publisher,
-                "source": rss_target.source_name,
+                "source": src_name,
             }
-        if not rss_target.enabled:
-            logging.info("Removing potential existing whitelisted site %r.", site)
-            remove_sites.add(site)
+
+        if rss_target.enabled:
+            enabled_sites.add(site)
+        else:
+            disabled_sites.add(site)
 
     prefs = PreferencesModel.instance()
     sites = prefs.sites
     sites.update(new_sites)
-    for site in remove_sites:
+    for site in disabled_sites - enabled_sites:
+        logging.info("Removing potential existing whitelisted site %r.", site)
         sites.pop(site, None)
     prefs.sites = sites
     prefs.put()

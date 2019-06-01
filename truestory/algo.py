@@ -3,9 +3,10 @@ the articles.
 """
 
 
-# As float percentages.
-THRES_SIMILARITY = 0.5
-THRES_CONTRADICTION = 0.5
+from truestory.models import PreferencesModel
+
+
+prefs = PreferencesModel.instance()
 
 
 def _get_similarity_score(main, candidate):
@@ -30,12 +31,12 @@ def get_bias_score(main, candidate):
     """Returns a tuple of (status, score) telling if the articles are similar and
     opposed and with what score.
     """
-    similarity_score = _get_similarity_score(main, candidate)
-    if similarity_score < THRES_SIMILARITY:
-        return False, 0
-
     contradiction_score = _get_contradiction_score(main, candidate)
-    if contradiction_score < THRES_CONTRADICTION:
+    if contradiction_score < prefs.contradiction_threshold:
         return False, 0
 
-    return True, (similarity_score + contradiction_score) / 2
+    similarity_score = _get_similarity_score(main, candidate)
+    if similarity_score < prefs.similarity_threshold:
+        return False, 0
+
+    return True, (contradiction_score + similarity_score) / 2
