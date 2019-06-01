@@ -8,7 +8,9 @@ import time
 
 import pytest
 from truestory import settings
-from truestory.models import ArticleModel, BiasPairModel, SubscriberModel
+from truestory.models import (
+    ArticleModel, BiasPairModel, PreferencesModel, SubscriberModel
+)
 from truestory.models.base import BaseModel, SideMixin, ndb
 
 
@@ -18,6 +20,8 @@ skip_no_datastore = pytest.mark.skipif(
     not settings.DATASTORE_ENV and NO_CREDENTIALS,
     reason="can't connect to local or remote Datastore"
 )
+
+TEST_DB = not skip_no_datastore.args[0]
 
 
 class TrueStoryModel(BaseModel):
@@ -33,7 +37,13 @@ class TrueStoryModel(BaseModel):
 
 class SideStoryModel(SideMixin, TrueStoryModel):
 
-    pass
+    link = ndb.StringProperty(default="https://truestory.one/article")
+
+
+def wait_state(entity, exists=True):
+    state_func = lambda: not entity.exists if exists else entity.exists
+    while state_func():
+        time.sleep(0.1)
 
 
 @pytest.fixture
@@ -42,7 +52,7 @@ def truestory_ent():
     return TrueStoryModel()
 
 
-def _article_ent(label, keywords=None):
+def _article_ent(label, keywords=None, side=None):
     # Expired article.
     published = datetime.datetime.utcnow() - datetime.timedelta(days=3)
     article = ArticleModel(
@@ -52,18 +62,23 @@ def _article_ent(label, keywords=None):
         content=f"True Story {label}",
         published=published,
         keywords=keywords,
+        side=side,
     )
     return article
 
 
 @pytest.fixture
 def left_article_ent():
-    return _article_ent(random.randint(1, 100), keywords=["trump", "money"])
+    return _article_ent(
+        random.randint(1, 100), keywords=["trump", "money"], side=-2
+    )
 
 
 @pytest.fixture
 def right_article_ent():
-    return _article_ent(random.randint(101, 200), keywords=["trump", "money", "mad"])
+    return _article_ent(
+        random.randint(101, 200), keywords=["trump", "money", "mad"], side=2
+    )
 
 
 @pytest.fixture
@@ -85,22 +100,48 @@ def subscriber_ent():
 CLEANUP_MODELS = [
     ArticleModel,
     BiasPairModel,
+    # NOTE(cmiN): Do not clean global preferences here.
+    # PreferencesModel,
+    SideStoryModel,
     SubscriberModel,
     TrueStoryModel,
 ]
 
 
+@pytest.fixture(autouse=True, scope="session")
+def datastore_global_init():
+    if not TEST_DB:
+        return
+
+    # Creation.
+    prefs = PreferencesModel.instance()
+    prefs.sites = {
+        "truestory.one": {
+            "side": "Center",
+            "publisher": "https://truestory.one/news",
+            "source": "TrueStory",
+        }
+    }
+    prefs.put()
+    wait_state(prefs)
+
+    yield
+
+    # Clean-up.
+    prefs.remove()
+    wait_state(prefs, exists=False)
+
+
 @pytest.fixture(autouse=True)
 def datastore_cleanup():
+    if not TEST_DB:
+        return
+
     yield
-    if not skip_no_datastore.args[0]:
-        all_entities = []
-        for Model in CLEANUP_MODELS:
-            entities = Model.all(keys_only=True)
-            all_entities.extend(entities)
-        BaseModel.remove_multi([entity.key for entity in all_entities])
 
-
-def wait_exists(entity):
-    while not entity.exists:
-        time.sleep(0.1)
+    # Clean-up.
+    all_entities = []
+    for Model in CLEANUP_MODELS:
+        entities = Model.all(keys_only=True)
+        all_entities.extend(entities)
+    BaseModel.remove_multi([entity.key for entity in all_entities])
