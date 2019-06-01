@@ -15,7 +15,7 @@ RE_HOST = re.compile(r"localhost|truestory", re.IGNORECASE)
 
 
 def get_secret(name):
-    datautil.get_string(f"secrets/{name}")
+    return datautil.get_string(f"secrets/{name}")
 
 
 def compute_token(mail):
