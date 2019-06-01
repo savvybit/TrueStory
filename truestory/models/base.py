@@ -301,7 +301,6 @@ class SideMixin:
     @classmethod
     def get_side(cls, link):
         if not link:
-            logging.warning("Tried to get a side from missing `link`.")
             return None
 
         prefs = cls._get_prefs()

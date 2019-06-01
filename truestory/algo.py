@@ -22,8 +22,8 @@ def _get_similarity_score(main, candidate):
 
 
 def _get_contradiction_score(main, candidate):
-    # TODO(cmiN): Implementation.
-    return 1.0
+    delta = abs(main.side - candidate.side)
+    return delta * 0.25
 
 
 def get_bias_score(main, candidate):
