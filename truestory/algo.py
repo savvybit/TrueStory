@@ -6,7 +6,15 @@ the articles.
 from truestory.models import PreferencesModel
 
 
-prefs = PreferencesModel.instance()
+# NOTE(cmiN): Lazy preferences instance.
+prefs = None
+
+
+def _get_preferences():
+    global prefs
+    if not prefs:
+        prefs = PreferencesModel.instance()
+    return prefs
 
 
 def _get_similarity_score(main, candidate):
@@ -31,6 +39,8 @@ def get_bias_score(main, candidate):
     """Returns a tuple of (status, score) telling if the articles are similar and
     opposed and with what score.
     """
+    prefs = _get_preferences()
+
     contradiction_score = _get_contradiction_score(main, candidate)
     if contradiction_score < prefs.contradiction_threshold:
         return False, 0

@@ -10,7 +10,8 @@
   },
   {
     "source_name": "CNBC - Top News",
-    "link": "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+    "link": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "enabled": false
   },
   {
     "source_name": "CNBC - U.S. News",
@@ -18,7 +19,8 @@
   },
   {
     "source_name": "CNBC - World News",
-    "link": "https://www.cnbc.com/id/100727362/device/rss/rss.html"
+    "link": "https://www.cnbc.com/id/100727362/device/rss/rss.html",
+    "enabled": false
   },
   {
     "source_name": "CNN",
@@ -30,7 +32,8 @@
   },
   {
     "source_name": "Fox News - Most Popular",
-    "link": "http://feeds.foxnews.com/foxnews/most-popular"
+    "link": "http://feeds.foxnews.com/foxnews/most-popular",
+    "enabled": false
   },
   {
     "source_name": "Fox News - National",
@@ -42,7 +45,8 @@
   },
   {
     "source_name": "Fox News - World",
-    "link": "http://feeds.foxnews.com/foxnews/world"
+    "link": "http://feeds.foxnews.com/foxnews/world",
+    "enabled": false
   },
   {
     "source_name": "Media Matters",
@@ -54,7 +58,8 @@
   },
   {
     "source_name": "Reuters - Top News",
-    "link": "http://feeds.reuters.com/reuters/topNews"
+    "link": "http://feeds.reuters.com/reuters/topNews",
+    "enabled": false
   },
   {
     "source_name": "Reuters - U.S. News",
@@ -62,7 +67,8 @@
   },
   {
     "source_name": "Reuters - World News",
-    "link": "http://feeds.reuters.com/Reuters/worldNews"
+    "link": "http://feeds.reuters.com/Reuters/worldNews",
+    "enabled": false
   },
   {
     "source_name": "Sky News - Politics",
@@ -77,7 +83,8 @@
   {
     "source_name": "Sky News - World",
     "link": "http://feeds.skynews.com/feeds/rss/world.xml",
-    "side": "Center"
+    "side": "Center",
+    "enabled": false
   },
   {
     "source_name": "Vox - Politics",
@@ -85,6 +92,7 @@
   },
   {
     "source_name": "Vox - World",
-    "link": "https://www.vox.com/rss/world/index.xml"
+    "link": "https://www.vox.com/rss/world/index.xml",
+    "enabled": false
   }
 ]
