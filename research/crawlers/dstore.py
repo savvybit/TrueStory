@@ -97,9 +97,9 @@ def test_model():
 
 def add_bias():
     articles = ArticleModel.all(keys_only=True)
-    for _ in range(10):
+    for _ in range(1):
         left, right = random.sample(articles, 2)
-        score = random.uniform(1, 10)
+        score = random.uniform(0.375, 1)
         bias_pair = BiasPairModel(left=left.key, right=right.key, score=score)
         bias_pair.put()
 
