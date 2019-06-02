@@ -80,6 +80,8 @@ def clean_articles():
 def pair_article(article_usafe):
     """Creates bias pairs for an article (if any found)."""
     main_article = ArticleModel.get(article_usafe)
+    assert main_article.side is not None, "attempted to pair article with missing side"
+
     main_source_name = shorten_source(main_article.source_name)
     related_articles = {}
     for keyword in main_article.keywords:
@@ -90,7 +92,14 @@ def pair_article(article_usafe):
                 related_articles[article.link] = article
 
     related_articles.pop(main_article.link, None)
-    count = 0
+    for link, article in list(related_articles.items()):
+        if article.side is None:
+            logging.warning(
+                "Skipping related article %r because it's side is missing.", link
+            )
+            del related_articles[link]
+
+    added_pairs = 0
     for article in related_articles.values():
         must_save, score = algo.get_bias_score(main_article, article)
         if not must_save:
@@ -113,6 +122,6 @@ def pair_article(article_usafe):
 
         logging.info("Adding new bias pair with score %f.", score)
         BiasPairModel(left=main_article.key, right=article.key, score=score).put()
-        count += 1
+        added_pairs += 1
 
-    return {"bias_pairs": count}
+    return {"bias_pairs": added_pairs}

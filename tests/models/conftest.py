@@ -40,10 +40,14 @@ class SideStoryModel(SideMixin, TrueStoryModel):
     link = ndb.StringProperty(default="https://truestory.one/article")
 
 
-def wait_state(entity, exists=True):
+def wait_state(entities, exists=True):
     state_func = lambda: not entity.exists if exists else entity.exists
-    while state_func():
-        time.sleep(0.1)
+
+    if not isinstance(entities, (list, tuple)):
+        entities = [entities]
+    for entity in entities:
+        while state_func():
+            time.sleep(0.1)
 
 
 @pytest.fixture

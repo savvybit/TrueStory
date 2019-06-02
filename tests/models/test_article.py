@@ -1,7 +1,9 @@
 """Tests articles and bias pairs."""
 
 
+import pytest
 from truestory.models import ArticleModel, BiasPairModel
+from truestory.models.base import ndb
 from truestory.tasks.article import clean_articles, pair_article
 
 from .conftest import skip_no_datastore, wait_state
@@ -85,3 +87,15 @@ def test_pair_article(left_article_ent, right_article_ent):
     assert list(related_articles)[0]["article"].key == right_article_ent.key, (
         "wrong bias pair created"
     )
+
+
+def test_article_side(bias_pair_ents):
+    wait_state(bias_pair_ents)
+    assert bias_pair_ents[0].side == -2
+    assert bias_pair_ents[1].side == 2
+
+
+def test_article_missing_side(left_article_ent):
+    left_article_ent.side = None
+    with pytest.raises(ndb.datastore_errors.BadValueError):
+        left_article_ent.put()
