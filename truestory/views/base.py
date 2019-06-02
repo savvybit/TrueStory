@@ -38,7 +38,9 @@ def format_date_filter(date, time=False):
         time (bool): Add to date the time too if this is True.
     """
     if not date:
-        return date
+        # NOTE(cmiN): Prefer to return empty string for missing dates (instead of N/A).
+        return ""
+
     template = "%d-%b-%y"
     if time:
         template += " %H:%M"
