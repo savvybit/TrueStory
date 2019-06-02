@@ -9,18 +9,10 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 
 import feedparser
-from bs4 import BeautifulSoup
 
 from truestory import functions
+from truestory.crawlers.common import strip_article_link, strip_html
 from truestory.models.article import ArticleModel
-
-
-def _strip_html(html):
-    if not html:
-        return html
-
-    soup = BeautifulSoup(html, "html5lib")
-    return soup.text.strip()
 
 
 class RssCrawler:
@@ -46,7 +38,7 @@ class RssCrawler:
         return min(date, datetime.utcnow())
 
     @classmethod
-    def _extract_article(cls, feed_entry, source_name):
+    def _extract_article(cls, feed_entry, target):
         """Extracts all the information needed from a `feed_entry` and returns it as
         an `ArticleModel` object.
         """
@@ -65,17 +57,18 @@ class RssCrawler:
         )
 
         article_ent = ArticleModel(
-            source_name=source_name,
+            source_name=target.source_name,
             # NOTE(cmiN): Use the final URL (after redirects), because based on this
             # we uniquely identify articles (primary key is `link`).
-            link=requests.get(link).url,
+            link=strip_article_link(requests.get(link).url),
             title=title,
             content=news_article.text,
-            summary=_strip_html(summary),
+            summary=strip_html(summary),
             authors=news_article.authors,
             published=cls._normalize_date(news_article.publish_date),
             image=news_article.top_image,
             keywords=to_lower(news_article.keywords or []),
+            side=target.side,
         )
         return article_ent
 
@@ -189,7 +182,7 @@ class RssCrawler:
                     )
                     break
                 try:
-                    article = self._extract_article(feed_entry, target.source_name)
+                    article = self._extract_article(feed_entry, target)
                 except Exception as exc:
                     # NOTE(cmiN): On Stackdriver Error Reporting we don't want to catch
                     # (with `logging.exception`) "Not Found" errors, because they are
