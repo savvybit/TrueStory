@@ -4,6 +4,7 @@
 from flask_restful import abort, request
 
 from truestory import settings
+from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
 from truestory.resources import base
 
@@ -39,6 +40,7 @@ class CounterArticleResource(BaseArticleResource):
         if not link:
             abort(400, message="Article 'link' not supplied.")
 
+        link = strip_article_link(link)
         article_query = ArticleModel.query(("link", "=", link))
         main_articles = ArticleModel.all(query=article_query, keys_only=True, limit=1)
         if not main_articles:

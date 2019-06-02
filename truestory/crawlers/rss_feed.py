@@ -9,18 +9,10 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 
 import feedparser
-from bs4 import BeautifulSoup
 
 from truestory import functions
+from truestory.crawlers.common import strip_article_link, strip_html
 from truestory.models.article import ArticleModel
-
-
-def _strip_html(html):
-    if not html:
-        return html
-
-    soup = BeautifulSoup(html, "html5lib")
-    return soup.text.strip()
 
 
 class RssCrawler:
@@ -68,10 +60,10 @@ class RssCrawler:
             source_name=target.source_name,
             # NOTE(cmiN): Use the final URL (after redirects), because based on this
             # we uniquely identify articles (primary key is `link`).
-            link=requests.get(link).url,
+            link=strip_article_link(requests.get(link).url),
             title=title,
             content=news_article.text,
-            summary=_strip_html(summary),
+            summary=strip_html(summary),
             authors=news_article.authors,
             published=cls._normalize_date(news_article.publish_date),
             image=news_article.top_image,

@@ -11,7 +11,7 @@
           <div class="col-8">
             <div class="card-body">
               <h5 class="card-title font-article-title">{{ article.title }}</h5>
-              <p class="card-text article-summary">{{ article.summary or article.content|paragraph_split|join('\n') }}</p>
+              <p class="card-text article-summary">{{ (article.summary or article.content)|paragraph_split|join('\n') }}</p>
             </div>
           </div>
         </div>
