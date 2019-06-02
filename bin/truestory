@@ -168,7 +168,7 @@ def main():
     crawl_parser = subparser.add_parser("crawl", help="crawl articles")
     crawl_parser.add_argument(
         "-l", "--limit", metavar="NUMBER", type=int,
-        help="how many results to return for each source"
+        help="how many results to return for each target"
     )
     crawl_parser.add_argument(
         "-s", "--save", action="store_true",
