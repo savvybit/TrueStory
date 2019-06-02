@@ -16,9 +16,10 @@ LOCATION = "europe-west1"
 TIMEOUT = 10  # seconds
 ENCODING = "utf-8"
 DEFAULT_MAIL = "hello@truestory.one"
+PROJECT_NAME = PROJECT_ID
 
 # Persistent logging (used while running outside Google Cloud).
-LOGFILE = "truestory.log"
+LOGFILE = f"{PROJECT_NAME}.log"
 
 # Article content display/retrieval settings on home, individual pages and API.
 HOME_ARTICLE_MAX_SIZE = 256
