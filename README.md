@@ -92,10 +92,10 @@ Put a `-h` after each command in order to see detailed info about it and what it
 
 ## Deployment
 
-Run `gcloud init` first for configuring GAE project settings.
+Run `gcloud init` (outside virtualenv, by executing `pyenv shell system` first) for
+configuring GAE project settings.
 
-Then simply run `./deploy.sh` script (outside virtualenv, by executing
-`pyenv shell system` first) with any of the *develop* or *master* parameters
+Then simply run `./deploy.sh` script  with any of the *develop* or *master* parameters
 (representing app's preferred version).
 
 #### Notes
