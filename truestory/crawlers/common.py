@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 def strip_article_link(link):
     """Returns an article link without the query."""
     parsed = urlparse.urlsplit(link)
-    parts = [parsed.scheme, parsed.netloc, parsed.path]
+    parts = [parsed.scheme, parsed.netloc, parsed.path, None, None]
     return urlparse.urlunsplit(parts)
 
 

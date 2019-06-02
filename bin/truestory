@@ -21,6 +21,8 @@ from truestory.models import (
     PreferencesModel,
     RssTargetModel,
 )
+from truestory.models.base import key_to_urlsafe
+from truestory.tasks import pair_article
 from truestory.tasks.article import shorten_source
 
 
@@ -36,15 +38,18 @@ def _json_serializer(obj):
 
 def crawl_articles(args):
     """Crawls and possibly saves articles into DB."""
-    rss_targets = RssTargetModel.all()
-    rss_crawler = RssCrawler(rss_targets, limit=args.limit)
-    articles_dict = rss_crawler.crawl_targets()
-    articles = sum(articles_dict.values(), [])
-    for article in articles:
-        print(json.dumps(article.to_dict(), indent=4, default=_json_serializer))
-    if args.save:
-        logging.info("Saving these %d shown article(s).", len(articles))
-        ArticleModel.put_multi(articles)
+    rss_targets = RssTargetModel.all(RssTargetModel.query(("enabled", "=", True)))
+    for rss_target in rss_targets:
+        rss_crawler = RssCrawler([rss_target], limit=args.limit)
+        articles_dict = rss_crawler.crawl_targets()
+        articles = sum(articles_dict.values(), [])
+        for article in articles:
+            print(json.dumps(article.to_dict(), indent=4, default=_json_serializer))
+        if args.save:
+            logging.info("Saving these %d shown article(s).", len(articles))
+            article_keys = ArticleModel.put_multi(articles)
+            for article_key in article_keys:
+                pair_article(key_to_urlsafe(article_key))
 
 
 def compute_token(args):
