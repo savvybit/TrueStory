@@ -24,7 +24,8 @@
   },
   {
     "source_name": "CNN",
-    "link": "http://rss.cnn.com/rss/edition.rss"
+    "link": "http://rss.cnn.com/rss/edition.rss",
+    "side": "Lean Left"
   },
   {
     "source_name": "Daily Mail",

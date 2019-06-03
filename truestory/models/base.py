@@ -298,15 +298,16 @@ class SideMixin:
             cls._prefs = PreferencesModel.instance()
         return cls._prefs
 
-    @classmethod
-    def get_side(cls, link):
+    def get_side(self, link):
         if not link:
             return None
 
-        prefs = cls._get_prefs()
-        site = cls.normalize_site(urlparse.urlsplit(link).netloc)
+        prefs = self._get_prefs()
+        site = getattr(self, "site", None) or self.normalize_site(
+            urlparse.urlsplit(link).netloc
+        )
         site_info = prefs.sites.get(site)
         if not site_info:
             raise Exception(f"item coming from unrecognized source {site!r}")
 
-        return cls.SIDE_MAPPING[site_info["side"]]
+        return self.SIDE_MAPPING[site_info["side"]]

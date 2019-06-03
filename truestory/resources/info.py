@@ -33,22 +33,27 @@ class SitesInfoResource(BaseInfoResource):
 
     def get(self):
         """Returns a list of accepted trusted sources (news websites)."""
-        site_list = []
+        enabled_targets = RssTargetModel.all(
+            RssTargetModel.query(("enabled", "=", True))
+        )
+        crawled_sites = {target.site for target in enabled_targets}
         prefs = self._get_prefs()
+        head_list, tail_list = [], []
+
         for site, details in prefs.sites.items():
             site_item = details.copy()
             del site_item["side"]
-            rss_targets = RssTargetModel.all(
-                RssTargetModel.query(
-                    ("enabled", "=", True),
-                    ("site", "=", site),
-                )
-            )
-            site_item["enabled"] = bool(rss_targets)
-            site_list.append(site_item)
+            site_item["crawled"] = crawled = site in crawled_sites
+            if crawled:
+                head_list.append(site_item)
+            else:
+                tail_list.append(site_item)
 
-        site_list.sort(key=operator.itemgetter("agree"), reverse=True)
-        for site_item in site_list:
-            del site_item["agree"]
+        site_list = []
+        for current_list in (head_list, tail_list):
+            current_list.sort(key=operator.itemgetter("agree"), reverse=True)
+            for site_item in current_list:
+                del site_item["agree"]
+            site_list.extend(current_list)
 
         return {"sites": site_list}
