@@ -3,8 +3,8 @@
 
 import collections
 import logging
-import requests
 import time
+import urllib.request as urlopen
 from datetime import datetime, timezone
 from http import HTTPStatus
 
@@ -60,7 +60,7 @@ class RssCrawler:
             source_name=target.source_name,
             # NOTE(cmiN): Use the final URL (after redirects), because based on this
             # we uniquely identify articles (primary key is `link`).
-            link=strip_article_link(requests.get(link, allow_redirects=True).url),
+            link=strip_article_link(urlopen.urlopen(link).url, site=target.site),
             title=title,
             content=news_article.text,
             summary=strip_html(summary),
