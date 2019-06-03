@@ -9,7 +9,7 @@ from truestory.models import ArticleModel
 from truestory.resources import base
 
 
-class BaseArticleResource(base.BaseResource):
+class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
 
     """Base class for all article related resources."""
 

@@ -95,7 +95,7 @@ def pair_article(article_usafe):
     for link, article in list(related_articles.items()):
         if article.side is None:
             logging.warning(
-                "Skipping related article %r because it's side is missing.", link
+                "Skipping related article %r because its side is missing.", link
             )
             del related_articles[link]
 

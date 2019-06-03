@@ -89,29 +89,31 @@ def update_rss_targets(args):
                 )
                 continue
 
-            logging.warning(
+            logging.info(
                 "Removing old target %r from the DB.", old_rss_target.source_name
             )
             old_rss_target.remove()
+
+        src_name = shorten_source(target.source_name)
+        if src_name not in normed_sites:
+            logging.debug("Normalizing site for %s.", src_name)
+            site = normalize_site(target.link)
+            publisher = requests.get("http://" + site).url
+            site = normalize_site(publisher)
+            normed_sites[src_name] = (site, publisher)
+        site, publisher = normed_sites[src_name]
 
         custom_side = target.side or None
         rss_target = RssTargetModel(
             source_name=target.source_name,
             link=target.link,
+            site=site,
             enabled=True if missing(target.enabled) else target.enabled,
             side=RssTargetModel.SIDE_MAPPING[custom_side] if custom_side else None,
         )
         logging.info("Adding new target into the DB: %s", rss_target.source_name)
         rss_target.put()
 
-        src_name = shorten_source(rss_target.source_name)
-        if src_name not in normed_sites:
-            logging.debug("Normalizing site for %s.", src_name)
-            site = normalize_site(rss_target.link)
-            publisher = requests.get("http://" + site).url
-            site = normalize_site(publisher)
-            normed_sites[src_name] = (site, publisher)
-        site, publisher = normed_sites[src_name]
         if custom_side:
             logging.warning(
                 "Adding/Replacing whitelisted site %r as being %s.", site, custom_side
@@ -120,6 +122,7 @@ def update_rss_targets(args):
                 "side": custom_side,
                 "publisher": publisher,
                 "source": src_name,
+                "agree": -1,
             }
 
         if rss_target.enabled:
@@ -131,7 +134,7 @@ def update_rss_targets(args):
     sites = prefs.sites
     sites.update(new_sites)
     for site in disabled_sites - enabled_sites:
-        logging.info("Removing potential existing whitelisted site %r.", site)
+        logging.warning("Removing potential existing whitelisted site %r.", site)
         sites.pop(site, None)
     prefs.sites = sites
     prefs.put()
@@ -155,6 +158,7 @@ def update_sources(args):
             "side": best_side["label"],
             "publisher": best_side["publisher"],
             "source": best_side["source"],
+            "agree": best_side["agree"],
         }
     prefs.sites = sites
     prefs.put()
