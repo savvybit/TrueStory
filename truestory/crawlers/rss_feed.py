@@ -1,9 +1,9 @@
 """RSS feed crawler capable of extracting and parsing found articles."""
 
 
+import calendar
 import collections
 import logging
-import time
 import urllib.request as urlopen
 from datetime import datetime, timezone
 from http import HTTPStatus
@@ -17,6 +17,12 @@ from truestory.models.article import ArticleModel
 
 class RssCrawler:
 
+    """Crawler for any type of RSS feed targets."""
+
+    ALLOWED_EXCEPTIONS = (
+        feedparser.CharacterEncodingOverride,
+    )
+
     def __init__(self, rss_targets, limit=None):
         """Instantiates with a RSS target list to crawl.
 
@@ -26,6 +32,13 @@ class RssCrawler:
         """
         self._rss_targets = rss_targets
         self._limit = limit
+
+    @staticmethod
+    def _time_to_date(parsed_time):
+        """Converts `parsed_time` to a datetime object."""
+        if not parsed_time:
+            return parsed_time
+        return datetime.fromtimestamp(calendar.timegm(parsed_time), tz=timezone.utc)
 
     @staticmethod
     def _normalize_date(date):
@@ -55,6 +68,9 @@ class RssCrawler:
         to_lower = lambda strings: list(
             filter(None, [string.lower().strip() for string in strings])
         )
+        publish_date = news_article.publish_date or cls._time_to_date(
+            feed_entry.get("published_parsed")
+        )
 
         article_ent = ArticleModel(
             source_name=target.source_name,
@@ -65,7 +81,7 @@ class RssCrawler:
             content=news_article.text,
             summary=strip_html(summary),
             authors=news_article.authors,
-            published=cls._normalize_date(news_article.publish_date),
+            published=cls._normalize_date(publish_date),
             image=news_article.top_image,
             keywords=to_lower(news_article.keywords or []),
             side=target.side,
@@ -105,13 +121,6 @@ class RssCrawler:
             target.moved_to(response.href)
 
         return True
-
-    @staticmethod
-    def _time_to_date(parsed_time):
-        """Converts `parsed_time` to a datetime object."""
-        if not parsed_time:
-            return parsed_time
-        return datetime.fromtimestamp(time.mktime(parsed_time), tz=timezone.utc)
 
     @classmethod
     def _entries_after_date(cls, entries, date):
@@ -169,7 +178,9 @@ class RssCrawler:
 
         # Bozo is a tag which tells that the RSS hasn't been parsed correctly.
         if feed_response.bozo:
-            raise Exception(feed_response.bozo)
+            exc = feed_response.bozo_exception
+            if not isinstance(exc, self.ALLOWED_EXCEPTIONS):
+                raise feed_response.bozo_exception
 
         articles = []
         count = 0
