@@ -199,9 +199,7 @@ class RssCrawler:
                     # (with `logging.exception`) "Not Found" errors, because they are
                     # pretty frequent and usual, therefore ignore-able.
                     log_function = (
-                        logging.error if hasattr(exc, "response") and
-                                         exc.response.status_code == 404 else
-                        logging.exception
+                        logging.error if "404" in str(exc) else logging.exception
                     )
                     log_function("Got %s while parsing %r.", exc, feed_entry.id)
                 else:

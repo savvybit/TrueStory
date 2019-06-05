@@ -8,10 +8,10 @@ import logging
 import operator
 import re
 import urllib.parse as urlparse
+import urllib.request as urlopen
 from datetime import date, datetime
 
 import addict
-import requests
 
 import truestory
 from truestory import auth, datautil
@@ -100,7 +100,7 @@ def update_rss_targets(args):
         if src_name not in normed_sites:
             logging.debug("Normalizing site for %s.", src_name)
             site = normalize_site(target.link)
-            publisher = RE_PORT.sub("", requests.get("http://" + site).url)
+            publisher = RE_PORT.sub("", urlopen.urlopen("http://" + site).url)
             site = normalize_site(publisher)
             normed_sites[src_name] = (site, publisher)
         site, publisher = normed_sites[src_name]
