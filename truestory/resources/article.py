@@ -10,10 +10,19 @@ from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
 from truestory.models.base import key_to_urlsafe
 from truestory.resources import base
-from truestory.tasks import pair_article
 
 
-def extract_article(link, site, site_info):
+pair_article = None
+
+
+def _pair_article(article_usafe):
+    global pair_article
+    if not pair_article:
+        from truestory.tasks import pair_article
+    return pair_article(article_usafe)
+
+
+def _extract_article(link, site, site_info):
     feed_entry = addict.Dict({
         "link": link,
     })
@@ -86,9 +95,9 @@ class CounterArticleResource(BaseArticleResource):
         except Exception as exc:
             abort(403, message=str(exc))
 
-        article = extract_article(link, site, site_info)
+        article = _extract_article(link, site, site_info)
         article_key = article.put()
-        pair_article(key_to_urlsafe(article_key))
+        _pair_article(key_to_urlsafe(article_key))
         return self._make_response("article", article)
 
 

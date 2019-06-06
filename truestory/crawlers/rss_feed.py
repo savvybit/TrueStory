@@ -65,11 +65,11 @@ class RssCrawler:
         link = urlopen.urlopen(news_article.url).url
         title = feed_entry.get("title") or news_article.title
         # The 'description' value seems to be an alternative tag for summary.
-        summary = any([
-            feed_entry.get("summary"),
-            feed_entry.get("description"),
-            news_article.summary,
-        ])
+        summary = (
+            feed_entry.get("summary") or
+            feed_entry.get("description") or
+            news_article.summary
+        )
         publish_date = (
             cls._time_to_date(feed_entry.get("published_parsed")) or
             news_article.publish_date
