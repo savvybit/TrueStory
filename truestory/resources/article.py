@@ -10,8 +10,10 @@ from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
 from truestory.models.base import key_to_urlsafe
 from truestory.resources import base
+from truestory.views.base import exc_to_str
 
 
+# Lazily loaded.
 pair_article = None
 
 
@@ -93,7 +95,7 @@ class CounterArticleResource(BaseArticleResource):
         try:
             site, site_info = ArticleModel.get_site_info(link)
         except Exception as exc:
-            abort(403, message=str(exc))
+            abort(403, message=exc_to_str(exc))
 
         article = _extract_article(link, site, site_info)
         article_key = article.put()
@@ -116,6 +118,6 @@ class DataArticleResource(BaseArticleResource):
         try:
             article = ArticleModel.get(article_usafe)
         except Exception as exc:
-            abort(404, message=str(exc))
+            abort(404, message=exc_to_str(exc))
 
         return self._make_response("article", article)
