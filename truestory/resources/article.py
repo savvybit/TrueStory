@@ -1,12 +1,28 @@
 """API exposing article related data."""
 
 
+import addict
 from flask_restful import abort, request
 
 from truestory import settings
+from truestory.crawlers import RssCrawler
 from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
+from truestory.models.base import key_to_urlsafe
 from truestory.resources import base
+from truestory.tasks import pair_article
+
+
+def extract_article(link, site, site_info):
+    feed_entry = addict.Dict({
+        "link": link,
+    })
+    target = addict.Dict({
+        "source_name": site_info["source"],
+        "site": site,
+        "side": ArticleModel.SIDE_MAPPING[site_info["side"]],
+    })
+    return RssCrawler.extract_article(feed_entry, target)
 
 
 class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
@@ -48,6 +64,9 @@ class CounterArticleResource(BaseArticleResource):
 
         main_article = main_articles[0]
         related_articles = ArticleModel.get_related_articles(main_article.key)
+        if not related_articles:
+            abort(404, message="No related articles found.")
+
         articles = [
             article["article"] for article in related_articles
         ][:settings.API_MAX_RELATED_ARTICLES]
@@ -55,6 +74,22 @@ class CounterArticleResource(BaseArticleResource):
             "articles", [main_article]
         ).json["articles"][0]
         return self._make_response("articles", articles, main=main_article_url)
+
+    def post(self):
+        link = request.get_json().get("link", "").strip()
+        if not link:
+            abort(400, message="Article 'link' not supplied.")
+
+        link = strip_article_link(link)
+        try:
+            site, site_info = ArticleModel.get_site_info(link)
+        except Exception as exc:
+            abort(403, message=str(exc))
+
+        article = extract_article(link, site, site_info)
+        article_key = article.put()
+        pair_article(key_to_urlsafe(article_key))
+        return self._make_response("article", article)
 
 
 class DataArticleResource(BaseArticleResource):

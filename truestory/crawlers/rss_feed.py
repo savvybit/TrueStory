@@ -51,32 +51,38 @@ class RssCrawler:
         return min(date, datetime.utcnow())
 
     @classmethod
-    def _extract_article(cls, feed_entry, target):
+    def extract_article(cls, feed_entry, target):
         """Extracts all the information needed from a `feed_entry` and returns it as
         an `ArticleModel` object.
         """
-        # Link and title are mandatory fields in a RSS. If missing, we cannot
-        # parse the article.
+        # Link is a mandatory field in the RSS. If missing, we cannot parse the
+        # article.
         link = feed_entry.get("link")
-        title = feed_entry.get("title")
-        if not all([link, title]):
-            raise KeyError("link or title missing from the feed article")
+        if not link:
+            raise KeyError("link missing from the feed article")
 
-        # The 'description' value seems to be an alternative tag for summary.
-        summary = feed_entry.get("summary") or feed_entry.get("description")
         news_article = functions.get_article(link)
+        link = urlopen.urlopen(news_article.url).url
+        title = feed_entry.get("title") or news_article.title
+        # The 'description' value seems to be an alternative tag for summary.
+        summary = any([
+            feed_entry.get("summary"),
+            feed_entry.get("description"),
+            news_article.summary,
+        ])
+        publish_date = (
+            cls._time_to_date(feed_entry.get("published_parsed")) or
+            news_article.publish_date
+        )
         to_lower = lambda strings: list(
             filter(None, [string.lower().strip() for string in strings])
-        )
-        publish_date = news_article.publish_date or cls._time_to_date(
-            feed_entry.get("published_parsed")
         )
 
         article_ent = ArticleModel(
             source_name=target.source_name,
             # NOTE(cmiN): Use the final URL (after redirects), because based on this
             # we uniquely identify articles (primary key is `link`).
-            link=strip_article_link(urlopen.urlopen(link).url, site=target.site),
+            link=strip_article_link(link, site=target.site),
             title=title,
             content=news_article.text,
             summary=strip_html(summary),
@@ -193,7 +199,7 @@ class RssCrawler:
                     )
                     break
                 try:
-                    article = self._extract_article(feed_entry, target)
+                    article = self.extract_article(feed_entry, target)
                 except Exception as exc:
                     # NOTE(cmiN): On Stackdriver Error Reporting we don't want to catch
                     # (with `logging.exception`) "Not Found" errors, because they are
