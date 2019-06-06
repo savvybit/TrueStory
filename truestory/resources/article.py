@@ -1,6 +1,8 @@
 """API exposing article related data."""
 
 
+import logging
+
 import addict
 from flask_restful import abort, request
 
@@ -33,6 +35,9 @@ def _extract_article(link, site, site_info):
         "site": site,
         "side": ArticleModel.SIDE_MAPPING[site_info["side"]],
     })
+    logging.info(
+        "Crawling new article from %s: %s...", target.source_name, feed_entry.link
+    )
     return RssCrawler.extract_article(feed_entry, target)
 
 
