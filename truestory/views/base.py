@@ -7,7 +7,6 @@ import urllib.parse as urlparse
 from flask import abort, redirect, request, session, url_for
 
 from truestory import app, auth, settings
-from truestory.models import base as models_base
 
 
 @app.context_processor
@@ -16,12 +15,6 @@ def _inject_common():
     return {
         "site": request.url_root,
     }
-
-
-@app.template_filter("norm")
-def norm_filter(value):
-    """Normalizes the None value (check if property is empty/missing)."""
-    return models_base.BaseModel.normalize(value)
 
 
 @app.template_filter("usafe")
@@ -70,6 +63,16 @@ def website_filter(link):
 def ujoin_filter(base, relative):
     """Joins two URLs together."""
     return urlparse.urljoin(base, relative)
+
+
+@app.template_filter("join_authors")
+def join_authors_filter(authors):
+    """Limits and joins a list of authors."""
+    string = ", ".join(authors)
+    size = settings.AUTHORS_MAX_SIZE
+    if len(string) > size:
+        string = string[:size] + "..."
+    return string
 
 
 def require_auth(function):

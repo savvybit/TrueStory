@@ -21,7 +21,7 @@ def _get_serializable_article(key):
         "link": views_base.website_filter(details["link"]),
         "content": paragraph_split(details["content"]),
         "summary": paragraph_split(details["summary"]),
-        "authors": ", ".join(details["authors"]),
+        "authors": views_base.join_authors_filter(details["authors"]),
         "published": views_base.format_date_filter(details["published"], time=True),
     })
     return details
