@@ -30,7 +30,7 @@ $ pip3 --version  # pip 19... ...(python 3.7)
 #### Clone repository and run server:
 
 ```bash
-$ git clone https://github.com/savvybit/TrueStory.git
+$ git clone https://gitlab.com/truestory-one/TrueStory.git
 $ cd TrueStory
 ```
 
@@ -118,7 +118,7 @@ Then simply run `./deploy.sh` script  with any of the *develop* or *master* para
 
 ----
 
-* Source: https://github.com/savvybit/TrueStory.git
+* Source: https://gitlab.com/truestory-one/TrueStory.git
 * License: MIT
 * Authors:
     + Cosmin Poieana \<cmin764@gmail.com\>
