@@ -17,4 +17,4 @@ newspaper3k>=0.2.8
 requests>=2.21.0
 sendgrid>=6.0.2
 
--e git+git@gitlab.com:truestory-one/ndb-orm.git@develop#egg=ndb_orm
+-e git+https://gitlab.com/truestory-one/ndb-orm.git@develop#egg=ndb_orm

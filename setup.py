@@ -48,7 +48,7 @@ def get_requirements(path="requirements.txt"):
 
 setup(
     name="truestory",
-    version="0.7.1",
+    version="0.7.2",
     description="Be your own journalist.",
     long_description=read("README.md"),
     url="https://gitlab.com/truestory-one/TrueStory",
