@@ -48,10 +48,10 @@ def get_requirements(path="requirements.txt"):
 
 setup(
     name="truestory",
-    version="0.7.0",
+    version="0.7.1",
     description="Be your own journalist.",
     long_description=read("README.md"),
-    url="https://github.com/SavvyBit/TrueStory",
+    url="https://gitlab.com/truestory-one/TrueStory",
     license="MIT",
     author="SavvyBit",
     author_email="hello@truestory.one",
