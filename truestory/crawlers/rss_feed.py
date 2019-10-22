@@ -186,7 +186,7 @@ class RssCrawler:
         if feed_response.bozo:
             exc = feed_response.bozo_exception
             if not isinstance(exc, self.ALLOWED_EXCEPTIONS):
-                raise feed_response.bozo_exception
+                raise exc
 
         articles = []
         count = 0
