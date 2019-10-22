@@ -13,6 +13,7 @@ export WORK_PATH
 GOOGLE_APPLICATION_CREDENTIALS = $(WORK_PATH)/TrueStory-83153701f337.json
 export GOOGLE_APPLICATION_CREDENTIALS
 _DATASTORE_ENV_YAML = $(WORK_PATH)/env.yaml
+DEPLOY_VERSION = develop
 
 .PHONY: test
 
@@ -53,7 +54,7 @@ debug-gae:
 test: export DATASTORE_ENV_YAML = $(_DATASTORE_ENV_YAML)
 test:
 	# Test the just installed package(s).
-	# pip3 install -Ur requirements-test.txt
+	pip3 install -Ur requirements-test.txt
 	# Open local Datastore emulator.
 	./bin/datastore-emulator.sh
 	# Finally run the tests.
@@ -63,6 +64,10 @@ develop:
 	# Prepare the environment and package(s) for development mode.
 	pip3 install -Ur requirements-dev.txt
 	pip3 install -Ue .
+
+deploy:
+	# Deploy to Google Cloud the current set-up.
+	./bin/deploy.sh $(DEPLOY_VERSION)
 
 clean:
 	# Do a Git based local ignores clean-up.
