@@ -1,4 +1,5 @@
-recursive-include truestory/data *
-recursive-include truestory/secrets *
-recursive-include truestory/static *
-recursive-include truestory/templates *
+prune tests
+graft truestory/data
+graft truestory/secrets
+graft truestory/static
+graft truestory/templates
