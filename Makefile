@@ -7,6 +7,12 @@ else
 	clean_msg = "[i] Clean-up complete!"
 endif
 
+ifeq ($(NO_DEPS),)
+	pip_install = pip3 install -Ur
+else
+	pip_install = @echo "Skip pip installing:"
+endif
+
 PORT = 8080
 WORK_PATH = $(HOME)/Work/TrueStory
 export WORK_PATH
@@ -20,11 +26,11 @@ DEPLOY_VERSION = develop
 
 all:
 	# Install all required prerequisites before doing anything.
-	pip3 install -Ur requirements.txt
+	$(pip_install) requirements.txt
 
 install:
 	# Just normally install the package(s).
-	pip3 install -U .
+	pip3 install -U . --no-cache-dir
 
 run:
 	# Run main server in production mode with Gunicorn (remote database).
@@ -54,7 +60,7 @@ debug-gae:
 test: export DATASTORE_ENV_YAML = $(_DATASTORE_ENV_YAML)
 test:
 	# Test the just installed package(s).
-	pip3 install -Ur requirements-test.txt
+	$(pip_install) requirements-test.txt
 	# Open local Datastore emulator.
 	./bin/datastore-emulator.sh
 	# Finally run the tests.
@@ -62,7 +68,7 @@ test:
 
 develop:
 	# Prepare the environment and package(s) for development mode.
-	pip3 install -Ur requirements-dev.txt
+	$(pip_install) requirements-dev.txt
 	pip3 install -Ue .
 
 deploy:
