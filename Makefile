@@ -75,6 +75,14 @@ deploy:
 	# Deploy to Google Cloud the current set-up.
 	./bin/deploy.sh $(DEPLOY_VERSION)
 
+update-source:
+	# Update latest media bias sources in the database.
+	truestory -v source update
+
+update-rss: update-source
+	# Update all RSS targets taken from the JSON configuration. (given source for side)
+	truestory -v rss update -a
+
 clean:
 	# Do a Git based local ignores clean-up.
 	git clean -dx -e ".*" $(clean_arg)
