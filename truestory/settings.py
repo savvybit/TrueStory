@@ -12,6 +12,13 @@ APP_NAME = "TrueStory"
 PROJECT_ID = APP_NAME.lower()
 LOCATION = "europe-west1"
 
+
+class SERVER:
+    HOST = "127.0.0.1"
+    PORT = 8080
+    DEBUG = DEBUG
+
+
 # Miscellaneous.
 TIMEOUT = 10  # seconds
 ENCODING = "utf-8"
