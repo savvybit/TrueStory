@@ -50,7 +50,9 @@
   },
   {
     "source_name": "Media Matters",
-    "link": "https://www.mediamatters.org/rss/blog.rss"
+    "link": "https://www.mediamatters.org/rss/blog.rss",
+    "enabled": false,
+    "_comment": "Can't find any RSS feed URL under the website."
   },
   {
     "source_name": "Reuters - Politics",
