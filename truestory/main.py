@@ -65,6 +65,8 @@ def compute_token(args):
 
 def update_rss_targets(args):
     """Updates into the database the loaded list of RSS targets."""
+    logging.info("Saving rss targets into Datastore: %s", DATASTORE_NAMESPACE)
+
     missing = lambda item: item == {}
     normalize_site = lambda url: RssTargetModel.normalize_site(
         urlparse.urlsplit(url).netloc
@@ -145,6 +147,8 @@ def update_rss_targets(args):
 
 def update_sources(args):
     """Updates into the database a list of accepted input sources along their side."""
+    logging.info("Saving sources into Datastore: %s", DATASTORE_NAMESPACE)
+
     reader = csv.DictReader(args.sources_stream)
     side_dict = {}
     int_keys = ["agree", "disagree"]
