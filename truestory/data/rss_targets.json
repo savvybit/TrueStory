@@ -52,6 +52,7 @@
     "source_name": "Media Matters",
     "link": "https://www.mediamatters.org/rss/blog.rss",
     "enabled": false,
+    "accepted": true,
     "_comment": "Can't find any RSS feed URL under the website."
   },
   {

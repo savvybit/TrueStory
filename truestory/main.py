@@ -132,7 +132,7 @@ def update_rss_targets(args):
 
         if rss_target.enabled:
             enabled_sites.add(site)
-        else:
+        elif not target.accepted:
             disabled_sites.add(site)
 
     prefs = PreferencesModel.instance()
