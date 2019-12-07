@@ -4,8 +4,11 @@
 import datetime
 import logging
 
+import redis_lock
+
 from truestory import algo
 from truestory.crawlers import RssCrawler
+from truestory.misc import get_redis_client
 from truestory.models import ArticleModel, BiasPairModel, RssTargetModel
 from truestory.models.base import key_to_urlsafe
 from truestory.tasks.util import create_task
@@ -15,6 +18,7 @@ ARTICLES_PER_TARGET = 10
 ARTICLES_MAX_AGE = 2  # as days
 
 shorten_source = lambda src_name: src_name.split("-")[0].strip()
+redis_client = get_redis_client()
 
 
 @create_task("crawl-queue")
@@ -114,21 +118,26 @@ def pair_article(article_usafe):
             (("left", "=", article.key), ("right", "=", main_article.key)),
         ]
         bias_pair_keys = set()
-        for qfilters in qfilters_list:
-            bias_pair_query = BiasPairModel.query(*qfilters)
-            bias_pairs = ArticleModel.all(
-                query=bias_pair_query, keys_only=True, order=False
-            )
-            bias_pair_keys |= {bias_pair.key for bias_pair in bias_pairs}
-        if bias_pair_keys:
-            logging.info("Removing %d duplicate bias pairs first.", len(bias_pair_keys))
-            BiasPairModel.remove_multi(bias_pair_keys)
+        lock_name = "-".join(sorted(
+            map(key_to_urlsafe, [main_article.key, article.key])
+        ))
 
-        logging.info(
-            "Adding new bias pair with score %f between %r and %r.",
-            score, main_article.link, article.link
-        )
-        BiasPairModel(left=main_article.key, right=article.key, score=score).put()
-        added_pairs += 1
+        with redis_lock.Lock(redis_client, lock_name):
+            for qfilters in qfilters_list:
+                bias_pair_query = BiasPairModel.query(*qfilters)
+                bias_pairs = BiasPairModel.all(
+                    query=bias_pair_query, keys_only=True, order=False
+                )
+                bias_pair_keys |= {bias_pair.key for bias_pair in bias_pairs}
+            if bias_pair_keys:
+                logging.info("Removing %d duplicate bias pairs first.", len(bias_pair_keys))
+                BiasPairModel.remove_multi(bias_pair_keys)
+
+            logging.info(
+                "Adding new bias pair with score %f between %r and %r.",
+                score, main_article.link, article.link
+            )
+            BiasPairModel(left=main_article.key, right=article.key, score=score).put()
+            added_pairs += 1
 
     return {"bias_pairs": added_pairs}

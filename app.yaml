@@ -14,3 +14,8 @@ handlers:
   secure: always
   redirect_http_response_code: 301
   script: auto
+
+
+env_variables:
+  REDIS_HOST: "136.243.70.4"
+  REDIS_PASSWORD: "4IeglnTLHADHB309s4F8"

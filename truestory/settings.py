@@ -33,3 +33,11 @@ HOME_ARTICLE_MAX_SIZE = 256
 FULL_ARTICLE_MAX_SIZE = 1024
 AUTHORS_MAX_SIZE = 64
 API_MAX_RELATED_ARTICLES = 3
+
+
+# Misc.
+class REDIS:
+    """Redis client and wrappers settings."""
+    HOST = os.getenv("REDIS_HOST", "localhost")
+    PORT = os.getenv("REDIS_PORT", 6379)
+    PASSWORD = os.getenv("REDIS_PASSWORD", None)
