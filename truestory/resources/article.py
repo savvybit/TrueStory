@@ -2,6 +2,7 @@
 
 
 import logging
+import operator
 
 import addict
 from flask_restful import abort, request
@@ -83,9 +84,20 @@ class CounterArticleResource(BaseArticleResource):
         if not related_articles:
             abort(404, message="No related articles found.")
 
-        articles = [
-            article["article"] for article in related_articles
-        ][:settings.API_MAX_RELATED_ARTICLES]
+        articles = []
+        unique_sources = set()
+        for article in sorted(
+                related_articles, key=operator.itemgetter("score"), reverse=True
+        ):
+            article = article["article"]
+            if article.source_name in unique_sources:
+                continue
+            else:
+                unique_sources.add(article.source_name)
+            articles.append(article)
+            if len(articles) >= settings.API_MAX_RELATED_ARTICLES:
+                break
+
         main_article_url = self._make_response(
             "articles", [main_article]
         ).json["articles"][0]
