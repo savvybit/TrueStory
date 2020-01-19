@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+"""Main script execution logic."""
 
 
 import argparse
@@ -31,6 +31,10 @@ from truestory.tasks.article import shorten_source
 RSS_TARGETS_PATH = "data/rss_targets.json"
 SOURCES_PATH = "data/media-bias.csv"
 RE_PORT = re.compile(r":\d+")
+
+
+def run_server(args):
+    truestory.app.run(host=SERVER.HOST, port=SERVER.PORT, debug=SERVER.DEBUG)
 
 
 def _json_serializer(obj):
@@ -171,7 +175,7 @@ def update_sources(args):
     prefs.put()
 
 
-def script_main():
+def main():
     # Main parser with common flags.
     parser = argparse.ArgumentParser(description="Be your own journalist.")
     parser.add_argument(
@@ -179,6 +183,10 @@ def script_main():
         help="show debugging messages"
     )
     subparser = parser.add_subparsers(dest="command", title="commands", required=True)
+
+    # Basic Flask server run.
+    run_parser = subparser.add_parser("run", help="run server")
+    run_parser.set_defaults(function=run_server)
 
     # Articles crawling & saving.
     crawl_parser = subparser.add_parser("crawl", help="crawl articles")
@@ -251,11 +259,3 @@ def script_main():
         logging.exception(exc)
     else:
         logging.info("Operation completed successfully.")
-
-
-def main():
-    truestory.app.run(host=SERVER.HOST, port=SERVER.PORT, debug=SERVER.DEBUG)
-
-
-if __name__ == "__main__":
-    main()
