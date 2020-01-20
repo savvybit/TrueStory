@@ -116,7 +116,15 @@ class CounterArticleResource(BaseArticleResource):
 
         article = _extract_article(link, site, site_info)
         article_key = article.put()
-        _pair_article(key_to_urlsafe(article_key))
+        article_usafe = key_to_urlsafe(article_key)
+        try:
+            _pair_article(article_usafe)
+        except Exception as exc:
+            logging.exception(
+                "Couldn't pair article with urlsafe '%s' due to: %s",
+                article_usafe,
+                exc
+            )
         return self._make_response("article", article)
 
 
