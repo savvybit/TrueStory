@@ -83,8 +83,8 @@ update-rss: update-source
 	# Update all RSS targets taken from the JSON configuration. (given source for side)
 	truestory -v rss update -a
 
-crawl-test: export NLP_ENABLED = 1
-crawl-test:
+test-crawl: export NLP_ENABLED = 1
+test-crawl:
 	# Crawl one article from each target without saving. (testing purposes)
 	truestory -v crawl -l 1
 
