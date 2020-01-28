@@ -55,7 +55,7 @@ class BaseConfig(object):
     RATELIMIT_DEFAULT = _CONFIG.rate_limiter.default
     RATELIMIT_STORAGE_URL = misc.get_redis_url()
     RATELIMIT_HEADERS_ENABLED = True
-    RATELIMIT_IN_MEMORY_FALLBACK = "memory://"
+    RATELIMIT_IN_MEMORY_FALLBACK = RATELIMIT_DEFAULT
     RATELIMIT_KEY_PREFIX = "truestory"
 
 

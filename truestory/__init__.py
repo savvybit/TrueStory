@@ -6,6 +6,8 @@ import logging
 from flask import Blueprint, Flask
 from flask_cors import CORS
 from flask_json import FlaskJSON
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_marshmallow import Marshmallow
 from flask_restful import Api
 
@@ -32,6 +34,8 @@ api = Api(api_bp)
 app.register_blueprint(api_bp, url_prefix="/api")
 
 ma = Marshmallow(app)
+
+limiter = Limiter(app, key_func=get_remote_address)
 
 
 # Due to circular imports and for routing to take effect.

@@ -21,7 +21,11 @@ def get_redis_client():
 
 
 def get_redis_url():
-    return f"redis://:{REDIS.PASSWORD}@{REDIS.HOST}:{REDIS.PORT}"
+    if REDIS.PASSWORD:
+        auth = f":{REDIS.PASSWORD}@"
+    else:
+        auth = ""
+    return f"redis://{auth}{REDIS.HOST}:{REDIS.PORT}"
 
 
 def get_from_file(stream_or_path, is_json=True):
