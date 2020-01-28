@@ -9,7 +9,7 @@ import requests
 
 import yaml
 
-from truestory import settings
+from truestory import misc, settings
 
 
 def get_secret_key():
@@ -41,6 +41,8 @@ class BaseConfig(object):
 
     """Common configuration."""
 
+    _CONFIG = misc.get_toml_data("config.toml", __file__)
+
     DEBUG = False
     TESTING = False
     PROPAGATE_EXCEPTIONS = False
@@ -49,6 +51,12 @@ class BaseConfig(object):
     SSL_DISABLE = False
 
     DATASTORE_NAMESPACE = None  # Uses [default] implicitly.
+
+    RATELIMIT_DEFAULT = _CONFIG.rate_limiter.default
+    RATELIMIT_STORAGE_URL = misc.get_redis_url()
+    RATELIMIT_HEADERS_ENABLED = True
+    RATELIMIT_IN_MEMORY_FALLBACK = "memory://"
+    RATELIMIT_KEY_PREFIX = "truestory"
 
 
 class ProductionConfig(BaseConfig):

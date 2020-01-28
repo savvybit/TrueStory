@@ -1,0 +1,8 @@
+# Limit the number of incoming API requests.
+[rate_limiter]
+default = "3/second"
+	[rate_limiter.tokens]
+	# hello@truestory.one
+	d897703467a4fe7b958b68426f1721dd = "5/day;50/month"
+	# cmin764@gmail.com
+	accd197e9f5283919cb39d2223031122 = "100/day;1000/month"
