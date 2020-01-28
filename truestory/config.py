@@ -12,7 +12,7 @@ import yaml
 from truestory import misc, settings
 
 
-def get_secret_key():
+def _get_secret_key():
     """Gets a constant secret key for sessions and cookies."""
     return hashlib.md5(
         base64.b64encode(settings.APP_NAME.encode(settings.ENCODING))
@@ -47,7 +47,7 @@ class BaseConfig(object):
     TESTING = False
     PROPAGATE_EXCEPTIONS = False
 
-    SECRET_KEY = get_secret_key()
+    SECRET_KEY = _get_secret_key()
     SSL_DISABLE = False
 
     DATASTORE_NAMESPACE = None  # Uses [default] implicitly.
