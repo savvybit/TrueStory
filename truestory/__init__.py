@@ -29,13 +29,13 @@ app.config.from_object(config.config[settings.CONFIG])
 
 json = FlaskJSON(app)
 
+limiter = Limiter(app, key_func=get_remote_address)
+
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
 app.register_blueprint(api_bp, url_prefix="/api")
 
 ma = Marshmallow(app)
-
-limiter = Limiter(app, key_func=get_remote_address)
 
 
 # Due to circular imports and for routing to take effect.

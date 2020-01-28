@@ -1,13 +1,16 @@
 """API exposing article related data."""
 
 
+import functools
+import hashlib
 import logging
 import operator
 
 import addict
+from flask_limiter.util import get_remote_address
 from flask_restful import abort, request
 
-from truestory import settings
+from truestory import app, limiter, settings
 from truestory.crawlers import RssCrawler
 from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
@@ -128,11 +131,32 @@ class CounterArticleResource(BaseArticleResource):
         return self._make_response("article", article)
 
 
+def _token_key_func(token):
+    auth_token = base.get_auth_token()
+    if auth_token == token:
+        token_hash = hashlib.md5(auth_token.encode(settings.ENCODING)).hexdigest()
+        return f"{token_hash}:{get_remote_address()}"
+
+    return None
+
+
+def _get_data_article_limits():
+    limits = []
+    limiter_conf = app.config["CONFIG"].rate_limiter
+    for token, limit_str in limiter_conf.tokens.items():
+        limit_str = f"{limiter_conf.default};{limit_str}"
+        key_func = functools.partial(_token_key_func, token)
+        limit = limiter.limit(limit_str, key_func=key_func)
+        limits.append(limit)
+    return limits
+
+
 class DataArticleResource(BaseArticleResource):
 
     """Handles a full article."""
 
     ENDPOINT = "data"
+    decorators = _get_data_article_limits()
 
     @classmethod
     def get_route(cls):

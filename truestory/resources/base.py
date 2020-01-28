@@ -8,16 +8,24 @@ from flask_restful import Resource, abort, request
 from truestory import auth
 
 
+def get_auth_token():
+    auth_parts = request.headers.get("Authorization", "").strip().split()
+    if len(auth_parts) != 2:
+        return None
+
+    kind, token = auth_parts
+    if kind == "Bearer" and token:
+        return token
+
+    return None
+
+
 def _authenticate(func):
     """Checks for authentication token within headers."""
-    check_auth = (
-        lambda kind, token: kind == "Bearer" and auth.authorize_with_token(token)
-    )
-
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        auth_parts = request.headers.get("Authorization", "").strip().split()
-        if len(auth_parts) == 2 and check_auth(*auth_parts):
+        token = get_auth_token()
+        if token and auth.authorize_with_token(token):
             return func(*args, **kwargs)
         abort(401, message="Invalid or missing token.")
 

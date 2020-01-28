@@ -41,7 +41,7 @@ class BaseConfig(object):
 
     """Common configuration."""
 
-    _CONFIG = misc.get_toml_data("config.toml", __file__)
+    CONFIG = misc.get_toml_data("config.toml", __file__)
 
     DEBUG = False
     TESTING = False
@@ -52,7 +52,7 @@ class BaseConfig(object):
 
     DATASTORE_NAMESPACE = None  # Uses [default] implicitly.
 
-    RATELIMIT_DEFAULT = _CONFIG.rate_limiter.default
+    RATELIMIT_DEFAULT = CONFIG.rate_limiter.default
     RATELIMIT_STORAGE_URL = misc.get_redis_url()
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_IN_MEMORY_FALLBACK = RATELIMIT_DEFAULT
