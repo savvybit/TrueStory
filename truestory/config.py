@@ -57,6 +57,7 @@ class BaseConfig(object):
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_IN_MEMORY_FALLBACK = RATELIMIT_DEFAULT
     RATELIMIT_KEY_PREFIX = "truestory"
+    RATELIMIT_SWALLOW_ERRORS = True
 
 
 class ProductionConfig(BaseConfig):

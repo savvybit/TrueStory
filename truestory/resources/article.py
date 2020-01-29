@@ -9,6 +9,7 @@ import operator
 import addict
 from flask_limiter.util import get_remote_address
 from flask_restful import abort, request
+from werkzeug.exceptions import HTTPException
 
 from truestory import app, auth, limiter, settings
 from truestory.crawlers import RssCrawler
@@ -68,6 +69,19 @@ def _get_counter_article_limits(**kwargs):
     return limits
 
 
+def _exempt_when_abort():
+    try:
+        request.articles_pair = GetCounterArticleResource.get_related_articles()
+    except HTTPException as exc:
+        logging.debug("Couldn't get related articles due to: %s", exc)
+        request.exception = exc
+        return True
+    else:
+        request.exception = None
+
+    return False
+
+
 class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
 
     """Base class for all article related resources."""
@@ -103,11 +117,17 @@ class GetCounterArticleResource(BaseCounterArticleResource):
     """Handles GETs of opposite articles."""
 
     ENDPOINT = f"get_{BaseCounterArticleResource.ENDPOINT}"
-    decorators = _get_counter_article_limits(per_method=True, methods=["get"])
 
-    def get(self):
-        """Returns a list of opposite articles for the provided one."""
-        link = request.args.get("link", "").strip()
+    _LIM_KWARGS = {"per_method": True, "methods": ["GET"]}
+    _DEFAULT_LIMIT = app.config["RATELIMIT_DEFAULT"]
+    decorators = [
+        limiter.limit(_DEFAULT_LIMIT, key_func=get_remote_address, **_LIM_KWARGS)
+    ] + _get_counter_article_limits(exempt_when=_exempt_when_abort, **_LIM_KWARGS)
+
+    @staticmethod
+    def get_related_articles():
+        data = request.get_json() or request.args
+        link = data.get("link", "").strip()
         if not link:
             abort(400, message="Article 'link' not supplied.")
 
@@ -122,8 +142,17 @@ class GetCounterArticleResource(BaseCounterArticleResource):
         if not related_articles:
             abort(404, message="No related articles found.")
 
+        return main_article, related_articles
+
+    def get(self):
+        """Returns a list of opposite articles for the provided one."""
+        if request.exception:
+            raise request.exception
+
+        main_article, related_articles = request.articles_pair
         articles = []
         unique_sources = set()
+
         for article in sorted(
                 related_articles, key=operator.itemgetter("score"), reverse=True
         ):
