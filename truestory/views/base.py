@@ -112,8 +112,3 @@ class require_headers:
             return function(*args, **kwargs)
 
         return wrapper
-
-
-def exc_to_str(exc):
-    string = str(exc)
-    return f"{string[0].upper()}{string[1:]}."

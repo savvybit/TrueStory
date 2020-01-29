@@ -8,6 +8,11 @@ from flask_restful import Resource, abort, request
 from truestory import auth
 
 
+def exc_to_str(exc):
+    string = str(exc)
+    return f"{string[0].upper()}{string[1:]}."
+
+
 def get_auth_token():
     auth_parts = request.headers.get("Authorization", "").strip().split()
     if len(auth_parts) != 2:
@@ -37,7 +42,6 @@ class BaseResource(Resource):
     """Base resource API handler."""
 
     URL_PREFIX = ENDPOINT = ""
-    SEP = "_"
     method_decorators = [_authenticate]
 
     @classmethod
@@ -48,7 +52,7 @@ class BaseResource(Resource):
     @classmethod
     def get_endpoint(cls):
         """Returns the endpoint name for the current resource."""
-        return f"{cls.URL_PREFIX}{cls.SEP}{cls.ENDPOINT}".strip("/")
+        return f"{cls.URL_PREFIX}_{cls.ENDPOINT}".strip("/")
 
 
 class DatastoreMixin:

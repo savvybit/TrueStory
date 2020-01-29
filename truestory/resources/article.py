@@ -10,13 +10,12 @@ import addict
 from flask_limiter.util import get_remote_address
 from flask_restful import abort, request
 
-from truestory import app, limiter, settings
+from truestory import app, auth, limiter, settings
 from truestory.crawlers import RssCrawler
 from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
 from truestory.models.base import key_to_urlsafe
 from truestory.resources import base
-from truestory.views.base import exc_to_str
 
 
 # Lazily loaded.
@@ -58,10 +57,11 @@ def _token_key_func(token, *, share):
 def _get_counter_article_limits(**kwargs):
     limits = []
     limiter_conf = app.config["CONFIG"].rate_limiter
-    for token, token_body in limiter_conf.tokens.items():
-        limit_str = f"{limiter_conf.default};{token_body.limit}"
+    for email in limiter_conf.emails:
+        limit_str = f"{limiter_conf.default};{email.limit}"
+        token = auth.compute_token(email.email)
         key_func = functools.partial(
-            _token_key_func, token, share=token_body.share or False
+            _token_key_func, token, share=email.share or False
         )
         limit = limiter.limit(limit_str, key_func=key_func, **kwargs)
         limits.append(limit)
@@ -158,7 +158,7 @@ class PostCounterArticleResource(BaseCounterArticleResource):
         try:
             site, site_info = ArticleModel.get_site_info(link)
         except Exception as exc:
-            abort(403, message=exc_to_str(exc))
+            abort(403, message=base.exc_to_str(exc))
 
         article = _extract_article(link, site, site_info)
         article_key = article.put()
@@ -189,6 +189,6 @@ class DataArticleResource(BaseArticleResource):
         try:
             article = ArticleModel.get(article_usafe)
         except Exception as exc:
-            abort(404, message=exc_to_str(exc))
+            abort(404, message=base.exc_to_str(exc))
 
         return self._make_response("article", article)
