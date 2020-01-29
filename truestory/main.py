@@ -2,7 +2,6 @@
 
 
 import argparse
-import csv
 import json
 import logging
 import operator
@@ -10,8 +9,6 @@ import re
 import urllib.parse as urlparse
 import urllib.request as urlopen
 from datetime import date, datetime
-
-import addict
 
 import truestory
 from truestory import auth, datautil
@@ -81,9 +78,8 @@ def update_rss_targets(args):
     enabled_sites = set()
     disabled_sites = set()
 
-    targets = json.load(args.targets_stream)
+    targets = datautil.get_json_data(args.targets_path).targets
     for target in targets:
-        target = addict.Dict(target)
         old_rss_targets = RssTargetModel.all(
             RssTargetModel.query(("link", "=", target.link)), order=False
         )
@@ -153,7 +149,7 @@ def update_sources(args):
     """Updates into the database a list of accepted input sources along their side."""
     logging.info("Saving sources into Datastore: %s", DATASTORE_NAMESPACE)
 
-    reader = csv.DictReader(args.sources_stream)
+    reader = datautil.get_csv_data(args.sources_path).reader
     side_dict = {}
     int_keys = ["agree", "disagree"]
     for row in reader:
@@ -213,8 +209,8 @@ def main():
         help="replace existing targets too (instead of just adding the new ones only)"
     )
     rss_update_parser.add_argument(
-        "targets_stream", metavar="TARGETS_FILE", type=argparse.FileType("r"),
-        default=datautil.get_stream(RSS_TARGETS_PATH), nargs="?",
+        "targets_path", metavar="TARGETS_FILE",
+        default=RSS_TARGETS_PATH, nargs="?",
         help=f"JSON file containing a list of RSS targets ({RSS_TARGETS_PATH})"
     )
     rss_update_parser.set_defaults(function=update_rss_targets)
@@ -229,8 +225,8 @@ def main():
         help="create & save a white list of accepted input sources for articles"
     )
     src_update_parser.add_argument(
-        "sources_stream", metavar="SOURCES_FILE", type=argparse.FileType("r"),
-        default=datautil.get_stream(SOURCES_PATH, binary=False), nargs="?",
+        "sources_path", metavar="SOURCES_FILE",
+        default=SOURCES_PATH, nargs="?",
         help=(f"CSV file containing a table of enabled and labeled sources "
               f"({SOURCES_PATH})")
     )

@@ -9,7 +9,7 @@ import requests
 
 import yaml
 
-from truestory import misc, settings
+from truestory import datautil, misc, settings
 
 
 def _get_secret_key():
@@ -41,7 +41,7 @@ class BaseConfig(object):
 
     """Common configuration."""
 
-    CONFIG = misc.get_toml_data("config.toml", __file__)
+    CONFIG = datautil.get_toml_data("data/config.toml")
 
     DEBUG = False
     TESTING = False
