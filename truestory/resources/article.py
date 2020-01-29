@@ -45,6 +45,29 @@ def _extract_article(link, site, site_info):
     return RssCrawler.extract_article(feed_entry, target)
 
 
+def _token_key_func(token, *, share):
+    auth_token = base.get_auth_token()
+    if auth_token == token:
+        token_hash = hashlib.md5(auth_token.encode(settings.ENCODING)).hexdigest()
+        ip_addr = f":{get_remote_address()}" if share else ""
+        return f"{token_hash}{ip_addr}"
+
+    return None
+
+
+def _get_counter_article_limits(**kwargs):
+    limits = []
+    limiter_conf = app.config["CONFIG"].rate_limiter
+    for token, token_body in limiter_conf.tokens.items():
+        limit_str = f"{limiter_conf.default};{token_body.limit}"
+        key_func = functools.partial(
+            _token_key_func, token, share=token_body.share or False
+        )
+        limit = limiter.limit(limit_str, key_func=key_func, **kwargs)
+        limits.append(limit)
+    return limits
+
+
 class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
 
     """Base class for all article related resources."""
@@ -64,11 +87,23 @@ class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
         return schemas
 
 
-class CounterArticleResource(BaseArticleResource):
-
-    """Handles opposite articles."""
+class BaseCounterArticleResource(BaseArticleResource):
 
     ENDPOINT = "counter"
+
+    @classmethod
+    def get_route(cls):
+        return super().get_route().replace(
+            cls.ENDPOINT, BaseCounterArticleResource.ENDPOINT
+        )
+
+
+class GetCounterArticleResource(BaseCounterArticleResource):
+
+    """Handles GETs of opposite articles."""
+
+    ENDPOINT = f"get_{BaseCounterArticleResource.ENDPOINT}"
+    decorators = _get_counter_article_limits(per_method=True, methods=["get"])
 
     def get(self):
         """Returns a list of opposite articles for the provided one."""
@@ -106,8 +141,16 @@ class CounterArticleResource(BaseArticleResource):
         ).json["articles"][0]
         return self._make_response("articles", articles, main=main_article_url)
 
+
+class PostCounterArticleResource(BaseCounterArticleResource):
+
+    """Handles POSTs in opposite articles."""
+
+    ENDPOINT = f"post_{BaseCounterArticleResource.ENDPOINT}"
+
     def post(self):
-        link = request.get_json().get("link", "").strip()
+        data = request.get_json()
+        link = data.get("link", "").strip() if data else None
         if not link:
             abort(400, message="Article 'link' not supplied.")
 
@@ -131,32 +174,11 @@ class CounterArticleResource(BaseArticleResource):
         return self._make_response("article", article)
 
 
-def _token_key_func(token):
-    auth_token = base.get_auth_token()
-    if auth_token == token:
-        token_hash = hashlib.md5(auth_token.encode(settings.ENCODING)).hexdigest()
-        return f"{token_hash}:{get_remote_address()}"
-
-    return None
-
-
-def _get_data_article_limits():
-    limits = []
-    limiter_conf = app.config["CONFIG"].rate_limiter
-    for token, limit_str in limiter_conf.tokens.items():
-        limit_str = f"{limiter_conf.default};{limit_str}"
-        key_func = functools.partial(_token_key_func, token)
-        limit = limiter.limit(limit_str, key_func=key_func)
-        limits.append(limit)
-    return limits
-
-
 class DataArticleResource(BaseArticleResource):
 
     """Handles a full article."""
 
     ENDPOINT = "data"
-    decorators = _get_data_article_limits()
 
     @classmethod
     def get_route(cls):

@@ -37,6 +37,7 @@ class BaseResource(Resource):
     """Base resource API handler."""
 
     URL_PREFIX = ENDPOINT = ""
+    SEP = "_"
     method_decorators = [_authenticate]
 
     @classmethod
@@ -47,7 +48,7 @@ class BaseResource(Resource):
     @classmethod
     def get_endpoint(cls):
         """Returns the endpoint name for the current resource."""
-        return f"{cls.URL_PREFIX}_{cls.ENDPOINT}".strip("/")
+        return f"{cls.URL_PREFIX}{cls.SEP}{cls.ENDPOINT}".strip("/")
 
 
 class DatastoreMixin:
