@@ -1,0 +1,11 @@
+# Limit the number of incoming API requests.
+[rate_limiter]
+default = "3/second"
+	[[rate_limiter.emails]]
+	email = "hello@truestory.one"
+	limit = "5/day;50/month"
+	share = true
+
+	[[rate_limiter.emails]]
+	email = "cmin764@gmail.com"
+	limit = "100/day;1000/month"

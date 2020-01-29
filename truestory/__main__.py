@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+"""Main production entry point for module based execution."""
 
 
 from truestory.main import main

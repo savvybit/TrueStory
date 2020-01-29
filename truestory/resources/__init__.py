@@ -13,7 +13,8 @@ ERRORS = {
 }
 
 resources = [
-    article.CounterArticleResource,
+    article.GetCounterArticleResource,
+    article.PostCounterArticleResource,
     article.DataArticleResource,
     info.SitesInfoResource,
 ]

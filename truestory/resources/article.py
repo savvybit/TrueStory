@@ -1,18 +1,21 @@
 """API exposing article related data."""
 
 
+import functools
+import hashlib
 import logging
+import operator
 
 import addict
 from flask_restful import abort, request
+from werkzeug.exceptions import HTTPException
 
-from truestory import settings
+from truestory import app, auth, get_remote_address, limiter, settings
 from truestory.crawlers import RssCrawler
 from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel
 from truestory.models.base import key_to_urlsafe
 from truestory.resources import base
-from truestory.views.base import exc_to_str
 
 
 # Lazily loaded.
@@ -41,6 +44,43 @@ def _extract_article(link, site, site_info):
     return RssCrawler.extract_article(feed_entry, target)
 
 
+def _token_key_func(token, *, share):
+    auth_token = base.get_auth_token()
+    if auth_token == token:
+        token_hash = hashlib.md5(auth_token.encode(settings.ENCODING)).hexdigest()
+        ip_addr = f":{get_remote_address()}" if share else ""
+        return f"{token_hash}{ip_addr}"
+
+    return None
+
+
+def _get_counter_article_limits(**kwargs):
+    limits = []
+    limiter_conf = app.config["CONFIG"].rate_limiter
+    for email in limiter_conf.emails:
+        limit_str = f"{limiter_conf.default};{email.limit}"
+        token = auth.compute_token(email.email)
+        key_func = functools.partial(
+            _token_key_func, token, share=email.share or False
+        )
+        limit = limiter.limit(limit_str, key_func=key_func, **kwargs)
+        limits.append(limit)
+    return limits
+
+
+def _exempt_when_abort():
+    try:
+        request.articles_pair = GetCounterArticleResource.get_related_articles()
+    except HTTPException as exc:
+        logging.debug("Couldn't get related articles due to: %s", exc)
+        request.exception = exc
+        return True
+    else:
+        request.exception = None
+
+    return False
+
+
 class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
 
     """Base class for all article related resources."""
@@ -60,15 +100,34 @@ class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
         return schemas
 
 
-class CounterArticleResource(BaseArticleResource):
-
-    """Handles opposite articles."""
+class BaseCounterArticleResource(BaseArticleResource):
 
     ENDPOINT = "counter"
 
-    def get(self):
-        """Returns a list of opposite articles for the provided one."""
-        link = request.args.get("link", "").strip()
+    @classmethod
+    def get_route(cls):
+        return super().get_route().replace(
+            cls.ENDPOINT, BaseCounterArticleResource.ENDPOINT
+        )
+
+
+class GetCounterArticleResource(BaseCounterArticleResource):
+
+    """Handles GETs of opposite articles."""
+
+    ENDPOINT = f"get_{BaseCounterArticleResource.ENDPOINT}"
+
+    if not app.debug:
+        _LIM_KWARGS = {"per_method": True, "methods": ["GET"]}
+        _DEFAULT_LIMIT = app.config["RATELIMIT_DEFAULT"]
+        decorators = [
+            limiter.limit(_DEFAULT_LIMIT, key_func=get_remote_address, **_LIM_KWARGS)
+        ] + _get_counter_article_limits(exempt_when=_exempt_when_abort, **_LIM_KWARGS)
+
+    @staticmethod
+    def get_related_articles():
+        data = request.get_json(silent=True) or request.args
+        link = data.get("link", "").strip()
         if not link:
             abort(400, message="Article 'link' not supplied.")
 
@@ -83,16 +142,46 @@ class CounterArticleResource(BaseArticleResource):
         if not related_articles:
             abort(404, message="No related articles found.")
 
-        articles = [
-            article["article"] for article in related_articles
-        ][:settings.API_MAX_RELATED_ARTICLES]
+        return main_article, related_articles
+
+    def get(self):
+        """Returns a list of opposite articles for the provided one."""
+        if app.debug:
+            main_article, related_articles = self.get_related_articles()
+        else:
+            if request.exception:
+                raise request.exception
+            main_article, related_articles = request.articles_pair
+
+        articles = []
+        unique_sources = set()
+        for article in sorted(
+                related_articles, key=operator.itemgetter("score"), reverse=True
+        ):
+            article = article["article"]
+            if article.source_name in unique_sources:
+                continue
+            else:
+                unique_sources.add(article.source_name)
+            articles.append(article)
+            if len(articles) >= settings.API_MAX_RELATED_ARTICLES:
+                break
+
         main_article_url = self._make_response(
             "articles", [main_article]
         ).json["articles"][0]
         return self._make_response("articles", articles, main=main_article_url)
 
+
+class PostCounterArticleResource(BaseCounterArticleResource):
+
+    """Handles POSTs in opposite articles."""
+
+    ENDPOINT = f"post_{BaseCounterArticleResource.ENDPOINT}"
+
     def post(self):
-        link = request.get_json().get("link", "").strip()
+        data = request.get_json()
+        link = data.get("link", "").strip() if data else None
         if not link:
             abort(400, message="Article 'link' not supplied.")
 
@@ -100,11 +189,19 @@ class CounterArticleResource(BaseArticleResource):
         try:
             site, site_info = ArticleModel.get_site_info(link)
         except Exception as exc:
-            abort(403, message=exc_to_str(exc))
+            abort(403, message=base.exc_to_str(exc))
 
         article = _extract_article(link, site, site_info)
         article_key = article.put()
-        _pair_article(key_to_urlsafe(article_key))
+        article_usafe = key_to_urlsafe(article_key)
+        try:
+            _pair_article(article_usafe)
+        except Exception as exc:
+            logging.exception(
+                "Couldn't pair article with urlsafe '%s' due to: %s",
+                article_usafe,
+                exc
+            )
         return self._make_response("article", article)
 
 
@@ -123,6 +220,6 @@ class DataArticleResource(BaseArticleResource):
         try:
             article = ArticleModel.get(article_usafe)
         except Exception as exc:
-            abort(404, message=exc_to_str(exc))
+            abort(404, message=base.exc_to_str(exc))
 
         return self._make_response("article", article)

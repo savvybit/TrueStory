@@ -56,7 +56,7 @@ setup(
     author="SavvyBit",
     author_email="hello@truestory.one",
     scripts=["bin/truestory"],
-    packages=find_packages(exclude=["tests"]),
+    packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     zip_safe=False,
     install_requires=get_requirements(),

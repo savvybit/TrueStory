@@ -53,18 +53,15 @@ class ArticleModel(SideMixin, DuplicateMixin, BaseModel):
                     continue
 
                 meta = meta_func(pair) if meta_func else None
-                if seen_date:
-                    related_articles[usafe].update({
-                        "created_at": pair.created_at,
-                        "meta": meta,
-                    })
-                else:
+                related_article = {
+                    "created_at": pair.created_at,
+                    "score": pair.score,
+                    "meta": meta,
+                }
+                if not seen_date:
                     article = article_key.get()
-                    related_articles[usafe] = {
-                        "article": article,
-                        "created_at": pair.created_at,
-                        "meta": meta,
-                    }
+                    related_articles[usafe] = {"article": article}
+                related_articles[usafe].update(related_article)
 
         return related_articles.values()
 

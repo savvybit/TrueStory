@@ -20,7 +20,7 @@ def send_mail(to_mails, subject, text_content, html_content=None,
         html_content=html_content,
     )
 
-    if settings.DEBUG:
+    if settings.GAE_DEBUG:
         code = 200
     else:
         client = SendGridAPIClient(auth.get_secret("sendgrid_key"))
@@ -32,5 +32,5 @@ def send_mail(to_mails, subject, text_content, html_content=None,
 
     logging.info(
         "E-mail sent %s -> %s: %r (%d - %s)", from_mail, to_mails, subject, code,
-        "dry run" if settings.DEBUG else "for real"
+        "dry run" if settings.GAE_DEBUG else "for real"
     )

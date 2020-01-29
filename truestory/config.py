@@ -9,10 +9,10 @@ import requests
 
 import yaml
 
-from truestory import settings
+from truestory import datautil, misc, settings
 
 
-def get_secret_key():
+def _get_secret_key():
     """Gets a constant secret key for sessions and cookies."""
     return hashlib.md5(
         base64.b64encode(settings.APP_NAME.encode(settings.ENCODING))
@@ -41,14 +41,23 @@ class BaseConfig(object):
 
     """Common configuration."""
 
+    CONFIG = datautil.get_toml_data("data/config.toml")
+
     DEBUG = False
     TESTING = False
     PROPAGATE_EXCEPTIONS = False
 
-    SECRET_KEY = get_secret_key()
+    SECRET_KEY = _get_secret_key()
     SSL_DISABLE = False
 
     DATASTORE_NAMESPACE = None  # Uses [default] implicitly.
+
+    RATELIMIT_DEFAULT = CONFIG.rate_limiter.default
+    RATELIMIT_STORAGE_URL = misc.get_redis_url()
+    RATELIMIT_HEADERS_ENABLED = True
+    RATELIMIT_IN_MEMORY_FALLBACK = RATELIMIT_DEFAULT
+    RATELIMIT_KEY_PREFIX = "truestory"
+    RATELIMIT_SWALLOW_ERRORS = True
 
 
 class ProductionConfig(BaseConfig):
@@ -78,7 +87,7 @@ class TestingConfig(BaseConfig):
     DATASTORE_NAMESPACE = "testing"
 
 
-DefaultConfig = DevelopmentConfig if settings.DEBUG else ProductionConfig
+DefaultConfig = DevelopmentConfig if settings.GAE_DEBUG else ProductionConfig
 config = {
     "production": ProductionConfig,
     "development": DevelopmentConfig,
