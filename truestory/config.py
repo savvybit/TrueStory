@@ -87,7 +87,7 @@ class TestingConfig(BaseConfig):
     DATASTORE_NAMESPACE = "testing"
 
 
-DefaultConfig = DevelopmentConfig if settings.DEBUG else ProductionConfig
+DefaultConfig = DevelopmentConfig if settings.GAE_DEBUG else ProductionConfig
 config = {
     "production": ProductionConfig,
     "development": DevelopmentConfig,

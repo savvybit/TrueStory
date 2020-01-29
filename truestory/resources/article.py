@@ -118,15 +118,16 @@ class GetCounterArticleResource(BaseCounterArticleResource):
 
     ENDPOINT = f"get_{BaseCounterArticleResource.ENDPOINT}"
 
-    _LIM_KWARGS = {"per_method": True, "methods": ["GET"]}
-    _DEFAULT_LIMIT = app.config["RATELIMIT_DEFAULT"]
-    decorators = [
-        limiter.limit(_DEFAULT_LIMIT, key_func=get_remote_address, **_LIM_KWARGS)
-    ] + _get_counter_article_limits(exempt_when=_exempt_when_abort, **_LIM_KWARGS)
+    if not app.debug:
+        _LIM_KWARGS = {"per_method": True, "methods": ["GET"]}
+        _DEFAULT_LIMIT = app.config["RATELIMIT_DEFAULT"]
+        decorators = [
+            limiter.limit(_DEFAULT_LIMIT, key_func=get_remote_address, **_LIM_KWARGS)
+        ] + _get_counter_article_limits(exempt_when=_exempt_when_abort, **_LIM_KWARGS)
 
     @staticmethod
     def get_related_articles():
-        data = request.get_json() or request.args
+        data = request.get_json(silent=True) or request.args
         link = data.get("link", "").strip()
         if not link:
             abort(400, message="Article 'link' not supplied.")
@@ -146,13 +147,15 @@ class GetCounterArticleResource(BaseCounterArticleResource):
 
     def get(self):
         """Returns a list of opposite articles for the provided one."""
-        if request.exception:
-            raise request.exception
+        if app.debug:
+            main_article, related_articles = self.get_related_articles()
+        else:
+            if request.exception:
+                raise request.exception
+            main_article, related_articles = request.articles_pair
 
-        main_article, related_articles = request.articles_pair
         articles = []
         unique_sources = set()
-
         for article in sorted(
                 related_articles, key=operator.itemgetter("score"), reverse=True
         ):

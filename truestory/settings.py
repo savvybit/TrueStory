@@ -5,7 +5,7 @@ import os
 
 
 # Server environment and application settings.
-DEBUG = not os.getenv("GAE_ENV", "").startswith("standard")
+GAE_DEBUG = not os.getenv("GAE_ENV", "").startswith("standard")
 CONFIG = os.getenv("FLASK_CONFIG", "default")
 DATASTORE_ENV = os.getenv("DATASTORE_ENV_YAML")
 APP_NAME = "TrueStory"
@@ -16,7 +16,7 @@ LOCATION = "europe-west1"
 class SERVER:
     HOST = "127.0.0.1"
     PORT = 8080
-    DEBUG = DEBUG
+    GAE_DEBUG = GAE_DEBUG
 
 
 # Miscellaneous.

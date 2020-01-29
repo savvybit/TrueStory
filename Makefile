@@ -32,6 +32,7 @@ install:
 	# Just normally install the package(s).
 	pip3 install -U . --no-cache-dir
 
+run: export FLASK_CONFIG = production
 run:
 	# Run main server in production mode with Gunicorn (remote database).
 	@echo "[i] Starting server with Gunicorn."

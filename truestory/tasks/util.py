@@ -99,7 +99,7 @@ class create_task:
         self._create_handler(function)
 
         def wrapper(*args, **kwargs):
-            if settings.DEBUG:
+            if settings.GAE_DEBUG:
                 self._debug_task(function, args, kwargs)
             else:
                 self._create_task(args, kwargs)

@@ -15,7 +15,7 @@ from . import config, settings
 from .settings import LOGFILE
 
 
-level = logging.DEBUG if settings.DEBUG else logging.INFO
+level = logging.DEBUG if settings.GAE_DEBUG else logging.INFO
 logging.basicConfig(
     format="%(levelname)s - %(name)s - %(asctime)s - %(message)s",
     level=level
