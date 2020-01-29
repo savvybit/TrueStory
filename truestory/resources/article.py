@@ -7,11 +7,10 @@ import logging
 import operator
 
 import addict
-from flask_limiter.util import get_remote_address
 from flask_restful import abort, request
 from werkzeug.exceptions import HTTPException
 
-from truestory import app, auth, limiter, settings
+from truestory import app, auth, get_remote_address, limiter, settings
 from truestory.crawlers import RssCrawler
 from truestory.crawlers.common import strip_article_link
 from truestory.models import ArticleModel

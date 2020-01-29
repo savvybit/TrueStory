@@ -7,7 +7,7 @@ from flask import Blueprint, Flask
 from flask_cors import CORS
 from flask_json import FlaskJSON
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from flask_limiter.util import get_ipaddr as get_remote_address
 from flask_marshmallow import Marshmallow
 from flask_restful import Api
 
@@ -29,6 +29,8 @@ app.config.from_object(config.config[settings.CONFIG])
 
 json = FlaskJSON(app)
 
+# NOTE(cmiN): Remember that the original `get_remote_address` always returns
+#  "127.0.0.1" under GAE deployment.
 limiter = Limiter(app, key_func=get_remote_address)
 
 api_bp = Blueprint("api", __name__)
