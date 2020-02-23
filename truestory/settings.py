@@ -16,7 +16,7 @@ LOCATION = "europe-west1"
 class SERVER:
     HOST = "127.0.0.1"
     PORT = 8080
-    GAE_DEBUG = GAE_DEBUG
+    DEBUG = GAE_DEBUG
 
 
 # Miscellaneous.
