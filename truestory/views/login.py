@@ -9,11 +9,14 @@ from truestory import app, auth
 @app.route("/login", methods=["GET", "POST"])
 def login_view():
     """Asks user for a token key."""
+    next_url = request.args.get("next", "").strip()
+
     if request.method == "POST":
         session["token"] = request.form.get("token")
-        return redirect(url_for("home_view"))
+        url = next_url or url_for("home_view")
+        return redirect(url)
 
-    return render_template("login.html")
+    return render_template("login.html", next=next_url)
 
 
 @app.route("/token")
