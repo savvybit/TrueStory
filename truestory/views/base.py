@@ -14,6 +14,7 @@ def _inject_common():
     """Objects available for each template."""
     return {
         "site": request.url_root,
+        "mail": settings.DEFAULT_MAIL,
     }
 
 

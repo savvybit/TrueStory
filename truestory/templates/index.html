@@ -37,6 +37,9 @@
             <a href="#extension" class="nav-link js-scroll-trigger">Extension</a>
           </li>
           <li class="nav-item">
+            <a href="#web" class="nav-link js-scroll-trigger">Web</a>
+          </li>
+          <li class="nav-item">
             <a href="#signup" class="nav-link js-scroll-trigger">Contact</a>
           </li>
         </ul>
@@ -83,7 +86,6 @@
   <section id="extension" class="extension-section bg-light">
     <div class="container">
 
-      <!-- Featured Project Row -->
       <div class="row align-items-center no-gutters mb-4 mb-lg-5">
         <div class="col-xl-8 col-lg-7">
           <img src="{{ url_for('static', filename='img/extension.png') }}" class="img-fluid mb-3 mb-lg-0" alt="Chrome Extension">
@@ -96,9 +98,38 @@
               your favorite publishers.
             </p>
             <p>
-              <a href="#signup" class="js-scroll-trigger">Want it? Reserve a spot now.</a>
+              <a href="#signup" class="js-scroll-trigger">Want it? Download it now.</a>
+            </p>
+            <p>
+              <a href="#web" class="js-scroll-trigger">Or try our web app.</a>
             </p>
           </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Web Section -->
+  <section id="web" class="extension-section bg-light">
+    <div class="container">
+
+      <div class="row align-items-center no-gutters mb-4 mb-lg-5">
+        <div class="col-xl-4 col-lg-5">
+          <div class="featured-text-right text-center text-lg-left">
+            <h4>Web App</h4>
+            <p class="text-black-50 mb-0">
+              Have a look through our feed of side by side opposed related articles given
+              the publishers we actively crawl.
+            </p>
+            <p>
+              <a href="{{ url_for('home_view') }}" >Head to our home page.</a>
+            </p>
+          </div>
+        </div>
+        <div class="col-xl-8 col-lg-7">
+          <img src="{{ url_for('static', filename='img/web-app.png') }}"
+           class="img-fluid mb-3 mb-lg-0" alt="Web App">
         </div>
       </div>
 
@@ -180,7 +211,7 @@
     <div class="container">
       <p>
         Crafted with <i class="fas fa-heart text-danger"></i> by SavvyBit |
-        Copyright &copy; 2019 <strong>TrueStory</strong>
+        Copyright &copy; 2019-2020 <strong>TrueStory</strong>
       </p>
     </div>
 

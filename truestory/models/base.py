@@ -314,3 +314,19 @@ class SideMixin:
 
         _, site_info = cls.get_site_info(link, site=site)
         return cls.SIDE_MAPPING[site_info["side"]]
+
+
+class SingletonMixin:
+
+    """Singleton support for models."""
+
+    @classmethod
+    def instance(cls):
+        entities = cls.all()
+        if not entities:
+            logging.info("Creating %s model for the first time.", cls)
+            instance = cls()
+            instance.put()
+            entities = cls.all()
+        assert len(entities) == 1, f"duplicate {cls} objects"
+        return entities[0]

@@ -47,3 +47,8 @@
 img#logo {
     height: 2rem;
 }
+
+.text-no-decoration {
+  text-decoration: none;
+  color: #000000;
+}

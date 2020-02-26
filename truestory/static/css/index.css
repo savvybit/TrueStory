@@ -185,6 +185,13 @@
   }
 }
 
+@media (min-width: 992px) {
+  .extension-section .featured-text-right {
+    padding: 0 0 0 2rem;
+    border-right: 0.5rem solid #64a19d;
+  }
+}
+
 .extension-section .project-text {
   padding: 3rem;
   font-size: 90%;
