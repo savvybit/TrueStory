@@ -70,7 +70,7 @@ def _get_counter_article_limits(**kwargs):
 
 def _exempt_when_abort():
     try:
-        request.articles_pair = GetCounterArticleResource.get_related_articles()
+        request.articles_pair = CounterArticleResource.get_related_articles()
     except HTTPException as exc:
         logging.debug("Couldn't get related articles due to: %s", exc)
         request.exception = exc
@@ -100,29 +100,17 @@ class BaseArticleResource(base.DatastoreMixin, base.BaseResource):
         return schemas
 
 
-class BaseCounterArticleResource(BaseArticleResource):
-
-    ENDPOINT = "counter"
-
-    @classmethod
-    def get_route(cls):
-        return super().get_route().replace(
-            cls.ENDPOINT, BaseCounterArticleResource.ENDPOINT
-        )
-
-
-class GetCounterArticleResource(BaseCounterArticleResource):
+class CounterArticleResource(BaseArticleResource):
 
     """Handles GETs of opposite articles."""
 
-    ENDPOINT = f"get_{BaseCounterArticleResource.ENDPOINT}"
+    ENDPOINT = "counter"
 
     if not app.debug:
-        _LIM_KWARGS = {"per_method": True, "methods": ["GET"]}
-        _DEFAULT_LIMIT = app.config["RATELIMIT_DEFAULT"]
-        decorators = [
-            limiter.limit(_DEFAULT_LIMIT, key_func=get_remote_address, **_LIM_KWARGS)
-        ] + _get_counter_article_limits(exempt_when=_exempt_when_abort, **_LIM_KWARGS)
+        decorators = _get_counter_article_limits(
+            exempt_when=_exempt_when_abort, per_method=True, methods=["GET"],
+            override_defaults=False
+        )
 
     @staticmethod
     def get_related_articles():
@@ -171,13 +159,6 @@ class GetCounterArticleResource(BaseCounterArticleResource):
             "articles", [main_article]
         ).json["articles"][0]
         return self._make_response("articles", articles, main=main_article_url)
-
-
-class PostCounterArticleResource(BaseCounterArticleResource):
-
-    """Handles POSTs in opposite articles."""
-
-    ENDPOINT = f"post_{BaseCounterArticleResource.ENDPOINT}"
 
     def post(self):
         data = request.get_json()
