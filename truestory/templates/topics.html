@@ -13,27 +13,26 @@ Popular subjects
 {{ super() }}
 
 <section class="py-5">
-  <div class="card-columns">
-    <div class="card">
-      <img class="card-img-top" src="https://www.idea.int/sites/default/files/Initiatives/2018-Theme-Money-in-Politics.png" class="card-img-top" alt="Politics picture">
-      <div class="card-body">
-        <h5 class="card-title">Politics</h5>
-      </div>
-    </div>
+  <div class="card-columns d-flex justify-content-center">
+    {% for topic_name, topic_body in topics.items() %}
+    <div class="card mx-2">
+      <div class="ribbon ribbon-top-left"><span>Coming soon</span></div>
+      <div class="img-overlay"></div>
+      <img class="card-img-top" src="{{ topic_body.img }}" class="card-img-top" alt="{{ topic_name }} picture">
 
-    <div class="card">
-      <img class="card-img-top" src="https://www.thehindu.com/opinion/op-ed/article23590028.ece/ALTERNATES/FREE_960/19thinvestments" class="card-img-top" alt="Economy picture">
-      <div class="card-body">
-        <h5 class="card-title">Economy</h5>
+      <div class="card-body row pb-2">
+        <h5 class="card-title col-6">{{ topic_name }}</h5>
+        <div class="col-6 text-right">
+          <a href="{{ url_for('topics_view', topic=topic_name, thumbs='up') }}" class="text-no-decoration">
+            <i class="far fa-thumbs-up fa-1x mx-2 {% if thumbs[topic_name] == True %}text-success{% endif %}"></i>
+          </a>
+          <a href="{{ url_for('topics_view', topic=topic_name, thumbs='down') }}" class="text-no-decoration">
+            <i class="far fa-thumbs-down fa-1x mx-2 {% if thumbs[topic_name] == False %}text-danger{% endif %}"></i>
+          </a>
+        </div>
       </div>
     </div>
-
-    <div class="card">
-      <img class="card-img-top" src="https://akm-img-a-in.tosshub.com/indiatoday/images/story/201804/ladakh.jpeg?fvw3FNgnYjsSyOhhOOaMfZCdinwMGWLP" class="card-img-top" alt="War picture">
-      <div class="card-body">
-        <h5 class="card-title">War</h5>
-      </div>
-    </div>
+    {% endfor %}
   </div>
 </section>
 {% endblock container %}

@@ -26,12 +26,9 @@ def _get_thumbs():
 def premium_view():
     """Premium page displaying the ability to buy pro access."""
     thumbs = request.args.get("thumbs", "").lower()
-    if thumbs == "up":
-        _save_thumbs(True)
-    elif thumbs == "down":
-        _save_thumbs(False)
-    if not thumbs:
-        thumbs = _get_thumbs()
-        if thumbs is not None:
-            thumbs = "up" if thumbs else "down"
+    if thumbs:
+        thumbs = thumbs == "up"
+        views_base.save_thumbs("premium", thumbs=thumbs)
+
+    thumbs = views_base.get_thumbs("premium")
     return render_template("premium.html", thumbs=thumbs)

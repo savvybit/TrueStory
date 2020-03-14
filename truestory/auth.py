@@ -1,6 +1,7 @@
 """Tackles secrets, authentication and authorization."""
 
 
+import hashlib
 import hmac
 import re
 
@@ -19,7 +20,9 @@ def get_secret(name):
 
 
 def compute_token(mail):
-    return hmac.new(app.secret_key, mail.encode(settings.ENCODING)).hexdigest()
+    return hmac.new(
+        app.secret_key, msg=mail.encode(settings.ENCODING), digestmod=hashlib.md5
+    ).hexdigest()
 
 
 def authorize_with_token(token):

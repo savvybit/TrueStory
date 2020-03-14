@@ -9,4 +9,5 @@ class StatsModel(SingletonMixin, BaseModel):
     """Singleton stats model."""
 
     # up - True, down - False; per IP address.
-    thumbs = ndb.JsonProperty(default={})
+    premium = ndb.JsonProperty(default={})
+    topics = ndb.JsonProperty(default={})

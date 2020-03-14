@@ -24,10 +24,10 @@ Premium access
       </p>
       <p>
         <a href="{{ url_for('premium_view', thumbs='up') }}" class="text-no-decoration">
-          <i class="far fa-thumbs-up fa-3x mx-4 {% if thumbs == 'up' %}text-success{% endif %}"></i>
+          <i class="far fa-thumbs-up fa-3x mx-4 {% if thumbs == True %}text-success{% endif %}"></i>
         </a>
         <a href="{{ url_for('premium_view', thumbs='down') }}" class="text-no-decoration">
-          <i class="far fa-thumbs-down fa-3x mx-4 {% if thumbs == 'down' %}text-danger{% endif %}"></i>
+          <i class="far fa-thumbs-down fa-3x mx-4 {% if thumbs == False %}text-danger{% endif %}"></i>
         </a>
       </p>
       <p>

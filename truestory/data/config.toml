@@ -9,3 +9,13 @@ default = "3/second"
 	[[rate_limiter.emails]]
 	email = "cmin764@gmail.com"
 	limit = "100/day;1000/month"
+
+[topics]
+	[topics.Health]
+	img = "https://i.pinimg.com/originals/ee/e9/66/eee9661c7313ebee5aea4ac3fe66a5a3.jpg"
+	[topics.Politics]
+	img = "https://www.idea.int/sites/default/files/Initiatives/2018-Theme-Money-in-Politics.png"
+	[topics.Economy]
+	img = "https://www.thehindu.com/opinion/op-ed/article23590028.ece/ALTERNATES/FREE_960/19thinvestments"
+	[topics.War]
+	img = "https://cdn.clipart.email/57704a5a9f5ed03fb55d033a7045534f_pin-by-polly-de-on-war-soldier-silhouette-silhouette-clip-art-_1024-434.jpeg"
