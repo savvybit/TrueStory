@@ -312,6 +312,8 @@ footer {
     color: rgba(255, 255, 255, 0.8);
 }
 
-img#prism {
-    height: 15rem;
+img#extensionDemo {
+    height: 20rem;
+    margin-top: 5rem;
+    opacity: 0.8;
 }
