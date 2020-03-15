@@ -30,11 +30,12 @@ Premium access
           <i class="far fa-thumbs-down fa-3x mx-4 {% if thumbs == False %}text-danger{% endif %}"></i>
         </a>
       </p>
-      <p>
+      {% with hide_class = "d-none" if thumbs in (False, None) else "" %}
+      <p class="{{ hide_class }}">
         <em>
           Due to legal reasons we can't accept yet payments, but if you insist, please
           drop us a line.
-          <a href="mailto:{{ mail }}?subject=Premium" target="_blank"
+          <a href="mailto:{{ mail }}?subject=Premium" target="_blank" class="{{ hide_class }}"
            rel="noopener noreferrer" class="mx-2">
             <p>
               <i class="fas fa-envelope"></i> {{ mail }}
@@ -42,6 +43,7 @@ Premium access
           </a>
         </em>
       </p>
+      {% endwith %}
     </div>
   </div>
 </section>
