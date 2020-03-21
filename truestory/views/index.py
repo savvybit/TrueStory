@@ -9,4 +9,8 @@ from truestory import app
 @app.route("/")
 def index_view():
     """Main page standing for the presentation of the product."""
-    return render_template("index.html")
+    extension_url = (
+        "https://chrome.google.com/webstore/detail/truestory/"
+        "elknkoobodlilnddeeiehnaepdahhnpm"
+    )
+    return render_template("index.html", extension_url=extension_url)

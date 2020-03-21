@@ -51,11 +51,16 @@
   <header class="masthead">
     <div class="container d-flex h-100 align-items-center">
       <div class="mx-auto text-center">
+        <h1 class="mx-auto col-8 text-white pt-5">
+          Similar but opposite news with one click
+        </h1>
         <img id="extensionDemo" class="img-fluid rounded" src="{{ url_for('static', filename='img/extension-demo.gif') }}" alt="Extension Demo">
-        <h2 class="text-white-80 mx-auto py-4 text-uppercase font-weight-bolder">
-          Be your own journalist
-        </h2>
-        <a href="#about" class="btn ts-button js-scroll-trigger mt-4">Discover more</a>
+        <div class="mt-4">
+          <a href="{{ extension_url }}" target="_blank" class="btn ts-button">
+            Add in Chr<i class="fab fa-chrome"></i>me
+          </a>
+          <a href="#about" class="btn ts-button js-scroll-trigger">Discover more</a>
+        </div>
       </div>
     </div>
   </header>
@@ -65,15 +70,14 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto">
-          <h2 class="text-white mb-4">Average out the bias, seek the truth</h2>
+          <h2 class="text-white mb-4">Fake news travel faster than truth</h2>
           <p class="text-white-80">
-            We feel compelled to avoid the <em>bias</em> and seek idealistic objective news,
-            even though we all know this is rare nowadays. But what if these conflicting passions
-            bring stories to life? Or represent the foundation for investigative journalism and
-            the first step to right a wrong?
+            We crafted a strong immune system to keep you away from misleading/biased news.
+            Use of multiple sources is the sacred law of journalism and since mass media cannot
+            stay away from political agendas, it's our time to act now.
             <br><br>
-            We believe that being open-minded is the key. If you are genuinely willing to be informed,
-            don't miss our <a href="#extension" class="js-scroll-trigger">browser extension</a>.
+            Be your own journalist with this
+            <a href="#extension" class="js-scroll-trigger">browser extension</a>.
           </p>
         </div>
       </div>
@@ -97,7 +101,9 @@
               your favorite publishers.
             </p>
             <p>
-              <a href="#signup" class="js-scroll-trigger">Want it? Download it now</a>
+              <a href="{{ extension_url }}" target="_blank" class="js-scroll-trigger">
+                Want it? Download it now
+              </a>
             </p>
             <p>
               <a href="#web" class="js-scroll-trigger">Or try our web app</a>
