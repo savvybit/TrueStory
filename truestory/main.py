@@ -70,9 +70,7 @@ def update_rss_targets(args):
     logging.info("Saving rss targets into Datastore: %s", DATASTORE_NAMESPACE)
 
     missing = lambda item: item == {}
-    normalize_site = lambda url: RssTargetModel.normalize_site(
-        urlparse.urlsplit(url).netloc
-    )
+    url2site = RssTargetModel.url_to_site
 
     normed_sites = {}
     new_sites = {}
@@ -118,19 +116,24 @@ def update_rss_targets(args):
                     )
             else:
                 publisher = target.link
-            site = normalize_site(publisher)
-            try:
-                publisher = RE_PORT.sub("", urlopen.urlopen(f"{http}://" + site).url)
-            except urlerror.HTTPError as exc:
-                logging.warning(
-                    "Couldn't get redirect publisher from %r (using %r): %s",
-                    site, publisher, exc
-                )
-            else:
-                pub_parts = publisher.split(f"{http}")
-                if len(pub_parts) > 2:
-                    publisher = f"{http}" + pub_parts[-1]
-                site = normalize_site(publisher)
+            site = url2site(publisher)
+
+            if not target.no_redirect_normalization:
+                try:
+                    publisher = RE_PORT.sub(
+                        "", urlopen.urlopen(f"{http}://" + site).url
+                    )
+                except urlerror.HTTPError as exc:
+                    logging.warning(
+                        "Couldn't get redirect publisher from %r (using %r): %s",
+                        site, publisher, exc
+                    )
+                else:
+                    pub_parts = publisher.split(f"{http}")
+                    if len(pub_parts) > 2:
+                        publisher = f"{http}" + pub_parts[-1]
+                    site = url2site(publisher)
+
             normed_sites[src_name] = (site, publisher)
             logging.debug(
                 "Collected site %r from final publisher: %s", site, publisher

@@ -141,15 +141,24 @@
     },
     {
       "source_name": "BBC - Politics",
-      "link": "http://feeds.bbci.co.uk/news/politics/rss.xml"
+      "link": "http://feeds.bbci.co.uk/news/politics/rss.xml",
+      "publisher_from_source": true
     },
     {
       "source_name": "Wall Street Journal",
-      "link": "https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+      "link": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+      "publisher_from_source": true
     },
     {
       "source_name": "USA TODAY",
-      "link": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories"
+      "link": "http://rssfeeds.usatoday.com/UsatodaycomNation-TopStories",
+      "publisher_from_source": true,
+      "no_redirect_normalization": true
+    },
+    {
+      "source_name": "USA TODAY EU",
+      "link": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories",
+      "side": "Center"
     }
   ]
 }
