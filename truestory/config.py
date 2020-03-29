@@ -20,6 +20,11 @@ def _get_secret_key():
     ).digest()
 
 
+def init_url_opening():
+    opener = misc.get_url_opener()
+    urlopen.install_opener(opener)
+
+
 def init_datastore_emulator():
     path = settings.DATASTORE_ENV
     if not path:
@@ -37,11 +42,6 @@ def init_datastore_emulator():
         session.get(os.getenv("DATASTORE_HOST")).raise_for_status()
     except requests.exceptions.ConnectionError:
         raise Exception("Datastore emulator is not started")
-
-
-def init_url_opening():
-    opener = misc.get_url_opener()
-    urlopen.install_opener(opener)
 
 
 class BaseConfig(object):
