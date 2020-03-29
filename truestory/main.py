@@ -7,7 +7,6 @@ import logging
 import operator
 import re
 import urllib.error as urlerror
-import urllib.parse as urlparse
 import urllib.request as urlopen
 from datetime import date, datetime
 

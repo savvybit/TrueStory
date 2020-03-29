@@ -5,10 +5,9 @@ import hashlib
 import hmac
 import re
 
-import requests
 from flask import request
 
-from truestory import app, datautil, settings
+from truestory import app, datautil, misc, settings
 
 
 CAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify"
@@ -37,7 +36,8 @@ def validate_captcha(response):
         "response": response,
         "remoteip": request.remote_addr,
     }
-    resp = requests.post(CAPTCHA_URL, data=data)
+    session = misc.RequestsSession()
+    resp = session.post(CAPTCHA_URL, data=data)
     resp.raise_for_status()
     result = resp.json()
     errors = result.get("error-codes")
