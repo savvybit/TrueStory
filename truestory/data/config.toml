@@ -16,11 +16,11 @@ default = "3/second"
 
 	[[rate_limiter.emails]]
 	email = "rosca.valentin2012@gmail.com"
-	limit = "50/day;500/month"
+	limit = "100/day;1000/month"
 
 	[[rate_limiter.emails]]
 	email = "tabarcea.augustus@gmail.com"
-	limit = "50/day;500/month"
+	limit = "100/day;1000/month"
 
 [topics]
 	[topics.Health]
