@@ -108,7 +108,11 @@
     },
     {
       "source_name": "Washington Post - Politics",
-      "link": "http://feeds.washingtonpost.com/rss/politics"
+      "link": "http://feeds.washingtonpost.com/rss/politics",
+      "enabled": false,
+      "publisher_from_source": true,
+      "no_redirect_normalization": true,
+      "_comment": "Asks for GDPR consent when crawling articles."
     },
     {
       "source_name": "HuffPost - Politics",
