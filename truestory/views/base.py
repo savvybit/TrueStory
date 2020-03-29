@@ -4,9 +4,11 @@
 import functools
 import urllib.parse as urlparse
 
+import addict
 from flask import abort, redirect, request, session, url_for
 
-from truestory import app, auth, settings
+from truestory import app, auth, get_remote_address, settings
+from truestory.models import StatsModel
 
 
 @app.context_processor
@@ -14,6 +16,7 @@ def _inject_common():
     """Objects available for each template."""
     return {
         "site": request.url_root,
+        "mail": settings.DEFAULT_MAIL,
     }
 
 
@@ -86,7 +89,7 @@ def require_auth(function):
                 del session["token"]
                 abort(401, "Invalid token.")
         else:
-            return redirect(url_for("login_view"))
+            return redirect(url_for("login_view", next=request.url))
 
         return function(*args, **kwargs)
 
@@ -112,3 +115,25 @@ class require_headers:
             return function(*args, **kwargs)
 
         return wrapper
+
+
+def save_thumbs(subject, *key_path, thumbs):
+    stats = StatsModel.instance()
+    root_dict = sub_dict = addict.Dict(getattr(stats, subject))
+    key_path = (get_remote_address(),) + key_path
+    for key in key_path[:-1]:
+        sub_dict = sub_dict[key]
+    sub_dict[key_path[-1]] = thumbs
+    setattr(stats, subject, root_dict)
+    stats.put()
+
+
+def get_thumbs(subject, *key_path):
+    stats = StatsModel.instance()
+    sub_dict = addict.Dict(getattr(stats, subject))
+    key_path = (get_remote_address(),) + key_path
+    for key in key_path:
+        sub_dict = sub_dict[key]
+    if sub_dict == {}:
+        return None
+    return sub_dict

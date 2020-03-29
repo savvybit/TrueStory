@@ -1,9 +1,17 @@
 """Miscellaneous."""
 
 
-import redis
+import urllib.request as urlopen
 
-from truestory.settings import REDIS
+import redis
+import requests
+
+from truestory.settings import REDIS, USER_AGENT
+
+
+HEADERS = {
+    "User-Agent": USER_AGENT,
+}
 
 
 def get_redis_client():
@@ -20,3 +28,16 @@ def get_redis_url():
     else:
         auth = ""
     return f"redis://{auth}{REDIS.HOST}:{REDIS.PORT}"
+
+
+def get_url_opener():
+    opener = urlopen.build_opener()
+    opener.addheaders = list(HEADERS.items())
+    return opener
+
+
+class RequestsSession(requests.Session):
+
+    def __init__(self):
+        super().__init__()
+        self.headers.update(HEADERS)

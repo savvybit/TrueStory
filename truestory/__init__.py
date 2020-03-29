@@ -20,6 +20,7 @@ logging.basicConfig(
     format="%(levelname)s - %(name)s - %(asctime)s - %(message)s",
     level=level
 )
+config.init_url_opening()
 config.init_datastore_emulator()
 
 app = Flask(__name__)

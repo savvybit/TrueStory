@@ -5,8 +5,9 @@ import base64
 import hashlib
 import logging
 import os
-import requests
+import urllib.request as urlopen
 
+import requests
 import yaml
 
 from truestory import datautil, misc, settings
@@ -17,6 +18,11 @@ def _get_secret_key():
     return hashlib.md5(
         base64.b64encode(settings.APP_NAME.encode(settings.ENCODING))
     ).digest()
+
+
+def init_url_opening():
+    opener = misc.get_url_opener()
+    urlopen.install_opener(opener)
 
 
 def init_datastore_emulator():
@@ -32,7 +38,8 @@ def init_datastore_emulator():
     os.environ.update(env_dict)
 
     try:
-        requests.get(os.getenv("DATASTORE_HOST")).raise_for_status()
+        session = misc.RequestsSession()
+        session.get(os.getenv("DATASTORE_HOST")).raise_for_status()
     except requests.exceptions.ConnectionError:
         raise Exception("Datastore emulator is not started")
 

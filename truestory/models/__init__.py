@@ -6,3 +6,4 @@ from .base import NAMESPACE
 from .mail import SubscriberModel
 from .preferences import PreferencesModel
 from .rss import RssTargetModel
+from .stats import StatsModel

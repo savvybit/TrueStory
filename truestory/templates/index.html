@@ -37,6 +37,9 @@
             <a href="#extension" class="nav-link js-scroll-trigger">Extension</a>
           </li>
           <li class="nav-item">
+            <a href="#web" class="nav-link js-scroll-trigger">Web</a>
+          </li>
+          <li class="nav-item">
             <a href="#signup" class="nav-link js-scroll-trigger">Contact</a>
           </li>
         </ul>
@@ -48,12 +51,16 @@
   <header class="masthead">
     <div class="container d-flex h-100 align-items-center">
       <div class="mx-auto text-center">
-        <img id="prism" src="{{ url_for('static', filename='img/prism.png') }}" class="img-fluid" alt="Bias Prism">
-        <h1 class="mx-auto py-2">TrueStory</h1>
-        <h2 class="text-white-80 mx-auto mt-2 mb-5 text-uppercase font-weight-bolder">
-          Be your own journalist
-        </h2>
-        <a href="#about" class="btn ts-button js-scroll-trigger mt-5">Discover more</a>
+        <h1 class="mx-auto col-8 text-white pt-5">
+          Similar but opposite news with one click
+        </h1>
+        <img id="extensionDemo" class="img-fluid rounded" src="{{ url_for('static', filename='img/extension-demo.gif') }}" alt="Extension Demo">
+        <div class="mt-4">
+          <a href="{{ extension_url }}" target="_blank" class="btn ts-button my-1">
+            Add in Chr<i class="fab fa-chrome"></i>me
+          </a>
+          <a href="#about" class="btn ts-button js-scroll-trigger my-1">Discover more</a>
+        </div>
       </div>
     </div>
   </header>
@@ -63,15 +70,14 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto">
-          <h2 class="text-white mb-4">Average out the bias, seek the truth</h2>
+          <h2 class="text-white mb-4">Fake news travel faster than truth</h2>
           <p class="text-white-80">
-            We feel compelled to avoid the <em>bias</em> and seek idealistic objective news,
-            even though we all know this is rare nowadays. But what if these conflicting passions
-            bring stories to life? Or represent the foundation for investigative journalism and
-            the first step to right a wrong?
+            We crafted a strong immune system to keep you away from misleading/biased news.
+            Use of multiple sources is the sacred law of journalism and since mass media cannot
+            stay away from political agendas, it's our time to act now.
             <br><br>
-            We believe that being open-minded is the key. If you are genuinely willing to be informed,
-            don't miss our <a href="#extension" class="js-scroll-trigger">browser extension</a>.
+            Be your own journalist with this
+            <a href="#extension" class="js-scroll-trigger">browser extension</a>.
           </p>
         </div>
       </div>
@@ -83,7 +89,6 @@
   <section id="extension" class="extension-section bg-light">
     <div class="container">
 
-      <!-- Featured Project Row -->
       <div class="row align-items-center no-gutters mb-4 mb-lg-5">
         <div class="col-xl-8 col-lg-7">
           <img src="{{ url_for('static', filename='img/extension.png') }}" class="img-fluid mb-3 mb-lg-0" alt="Chrome Extension">
@@ -96,9 +101,40 @@
               your favorite publishers.
             </p>
             <p>
-              <a href="#signup" class="js-scroll-trigger">Want it? Reserve a spot now.</a>
+              <a href="{{ extension_url }}" target="_blank" class="js-scroll-trigger">
+                Want it? Download it now
+              </a>
+            </p>
+            <p>
+              <a href="#web" class="js-scroll-trigger">Or try our web app</a>
             </p>
           </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Web Section -->
+  <section id="web" class="extension-section bg-light">
+    <div class="container">
+
+      <div class="row align-items-center no-gutters mb-4 mb-lg-5">
+        <div class="col-xl-4 col-lg-5">
+          <div class="featured-text-right text-center text-lg-left">
+            <h4>Web App</h4>
+            <p class="text-black-50 mb-0">
+              Have a look through our feed of side by side opposed related articles given
+              the publishers we actively crawl.
+            </p>
+            <p>
+              <a href="{{ url_for('home_view') }}" >Head to our home page</a>
+            </p>
+          </div>
+        </div>
+        <div class="col-xl-8 col-lg-7">
+          <img src="{{ url_for('static', filename='img/web-app.png') }}"
+           class="img-fluid mb-3 mb-lg-0" alt="Web App">
         </div>
       </div>
 
@@ -138,7 +174,9 @@
           <p class="text-white-80">
             <em>
               <small class="font-weight-lighter">
-                No spam or marketing messages, just letting you know when our product is ready for you.
+                No spam or marketing messages, just letting you know when our
+                <strong class="font-weight-bold">next big thing</strong>
+                is ready for you.
               </small>
             </em>
           </p>
@@ -179,8 +217,8 @@
   <footer class="bg-black small text-center text-white-50">
     <div class="container">
       <p>
-        Crafted with <i class="fas fa-heart text-danger"></i> by SavvyBit |
-        Copyright &copy; 2019 <strong>TrueStory</strong>
+        Crafted with <i class="fas fa-heart text-info"></i> by SavvyBit |
+        Copyright &copy; 2019-2020 <strong class="font-weight-bold">TrueStory</strong>
       </p>
     </div>
 

@@ -33,6 +33,7 @@ install:
 	pip3 install -U . --no-cache-dir
 
 run: export FLASK_CONFIG = production
+run: export NLP_ENABLED = 1
 run:
 	# Run main server in production mode with Gunicorn (remote database).
 	@echo "[i] Starting server with Gunicorn."

@@ -9,7 +9,7 @@ Can I trust you?
 
 <div class="row py-5">
   <div class="col-4 mx-auto">
-    <form method="POST">
+    <form method="POST" action="{{ url_for('login_view', next=next) }}">
       <div class="form-group">
         <label for="token">Token</label>
         <input type="password" class="form-control" id="token" name="token" placeholder="Insert your token..." required>
@@ -18,7 +18,8 @@ Can I trust you?
 
     <p class="text-muted">
       <small>
-        Don't have a token yet? Download our extension and get the public one from the <em>Settings</em> tab.
+        Don't have a token yet? Download our <a href="{{ url_for('index_view') }}#extension">extension</a> and get
+        the public one from the <em>Settings</em> tab.
       </small>
     </p>
   </div>

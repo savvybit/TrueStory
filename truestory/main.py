@@ -6,7 +6,7 @@ import json
 import logging
 import operator
 import re
-import urllib.parse as urlparse
+import urllib.error as urlerror
 import urllib.request as urlopen
 from datetime import date, datetime
 
@@ -69,14 +69,16 @@ def update_rss_targets(args):
     logging.info("Saving rss targets into Datastore: %s", DATASTORE_NAMESPACE)
 
     missing = lambda item: item == {}
-    normalize_site = lambda url: RssTargetModel.normalize_site(
-        urlparse.urlsplit(url).netloc
-    )
+    url2site = RssTargetModel.url_to_site
 
     normed_sites = {}
     new_sites = {}
     enabled_sites = set()
     disabled_sites = set()
+    http = "http"
+
+    prefs = PreferencesModel.instance()
+    sites = prefs.sites
 
     targets = datautil.get_json_data(args.targets_path).targets
     for target in targets:
@@ -102,10 +104,39 @@ def update_rss_targets(args):
         src_name = shorten_source(target.source_name)
         if src_name not in normed_sites:
             logging.debug("Normalizing site for %s.", src_name)
-            site = normalize_site(target.link)
-            publisher = RE_PORT.sub("", urlopen.urlopen("http://" + site).url)
-            site = normalize_site(publisher)
+            if target.publisher_from_source:
+                for site in sites.values():
+                    if src_name in site["source"]:
+                        publisher = site["publisher"]
+                        break
+                else:
+                    raise Exception(
+                        "couldn't find source publisher for {!r}".format(src_name)
+                    )
+            else:
+                publisher = target.link
+            site = url2site(publisher)
+
+            if not target.no_redirect_normalization:
+                try:
+                    publisher = RE_PORT.sub(
+                        "", urlopen.urlopen(f"{http}://" + site).url
+                    )
+                except urlerror.HTTPError as exc:
+                    logging.warning(
+                        "Couldn't get redirect publisher from %r (using %r): %s",
+                        site, publisher, exc
+                    )
+                else:
+                    pub_parts = publisher.split(f"{http}")
+                    if len(pub_parts) > 2:
+                        publisher = f"{http}" + pub_parts[-1]
+                    site = url2site(publisher)
+
             normed_sites[src_name] = (site, publisher)
+            logging.debug(
+                "Collected site %r from final publisher: %s", site, publisher
+            )
         site, publisher = normed_sites[src_name]
 
         custom_side = target.side or None
@@ -135,8 +166,6 @@ def update_rss_targets(args):
         elif not target.accepted:
             disabled_sites.add(site)
 
-    prefs = PreferencesModel.instance()
-    sites = prefs.sites
     sites.update(new_sites)
     for site in disabled_sites - enabled_sites:
         logging.warning("Removing potential existing whitelisted site %r.", site)

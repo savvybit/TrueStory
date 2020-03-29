@@ -11,12 +11,16 @@ DATASTORE_ENV = os.getenv("DATASTORE_ENV_YAML")
 APP_NAME = "TrueStory"
 PROJECT_ID = APP_NAME.lower()
 LOCATION = "europe-west1"
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
+)
 
 
 class SERVER:
     HOST = "127.0.0.1"
     PORT = 8080
-    GAE_DEBUG = GAE_DEBUG
+    DEBUG = GAE_DEBUG
 
 
 # Miscellaneous.

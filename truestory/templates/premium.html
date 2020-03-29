@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+Premium access
+{% endblock title %}
+
+{% block container %}
+{{ super() }}
+
+<section class="py-5">
+  <div class="row my-1 pb-4">
+    <div class="col-8 mx-auto text-center">
+      <h2>
+        For just <em>$4.99/month</em> increase your limit from 5 to
+        <strong>100</strong> queries every day.
+      </h2>
+    </div>
+  </div>
+  <div class="row my-4 py-4">
+    <div class="col-8 mx-auto text-center">
+      <p>
+        Give us a thumbs up if you find this offer attractive or a thumbs down
+        otherwise:
+      </p>
+      <p>
+        <a href="{{ url_for('premium_view', thumbs='up') }}" class="text-no-decoration">
+          <i class="far fa-thumbs-up fa-3x mx-4 {% if thumbs == True %}text-success{% endif %}"></i>
+        </a>
+        <a href="{{ url_for('premium_view', thumbs='down') }}" class="text-no-decoration">
+          <i class="far fa-thumbs-down fa-3x mx-4 {% if thumbs == False %}text-danger{% endif %}"></i>
+        </a>
+      </p>
+      {% with hide_class = "d-none" if thumbs in (False, None) else "" %}
+      <p class="{{ hide_class }}">
+        <em>
+          Due to legal reasons we can't accept yet payments, but if you insist, please
+          drop us a line.
+          <a href="mailto:{{ mail }}?subject=Premium" target="_blank" class="{{ hide_class }}"
+           rel="noopener noreferrer" class="mx-2">
+            <p>
+              <i class="fas fa-envelope"></i> {{ mail }}
+            </p>
+          </a>
+        </em>
+      </p>
+      {% endwith %}
+    </div>
+  </div>
+</section>
+{% endblock container %}

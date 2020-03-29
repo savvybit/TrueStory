@@ -7,7 +7,8 @@ from typing import Sequence
 
 import attr
 import cattr
-import requests
+
+from truestory import misc
 
 
 RE_CLASS_NAME = re.compile(r"[A-Z][a-z\d]*")
@@ -43,7 +44,8 @@ class BaseAttr:
         if not cls.FUNCTION_ENDPOINT:
             raise NotImplementedError("missing remote function endpoint")
 
-        response = requests.get(cls.FUNCTION_ENDPOINT, params=params)
+        session = misc.RequestsSession()
+        response = session.get(cls.FUNCTION_ENDPOINT, params=params)
         response.raise_for_status()
         data = response.json()[cls.name()]
         return cls.unpack(data)

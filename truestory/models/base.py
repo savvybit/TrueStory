@@ -273,7 +273,7 @@ class SideMixin:
         "Lean Right": LEAN_RIGHT,
         "Right": RIGHT
     }
-    SITE_REPLACE = ["www.", "rss.", "feeds."]
+    SITE_REPLACE = ["www", "rss", "feeds"]
     _prefs = None
 
     side = ndb.IntegerProperty(required=True, choices=list(SIDE_MAPPING.values()))
@@ -287,7 +287,11 @@ class SideMixin:
     def normalize_site(cls, site):
         for repl in cls.SITE_REPLACE:
             site = site.replace(repl, "", 1)
-        return site
+        return site.strip(".-")
+
+    @classmethod
+    def url_to_site(cls, url):
+        return cls.normalize_site(urlparse.urlsplit(url).netloc)
 
     @classmethod
     def _get_prefs(cls):
@@ -300,7 +304,7 @@ class SideMixin:
 
     @classmethod
     def get_site_info(cls, link, site=None):
-        site = site or cls.normalize_site(urlparse.urlsplit(link).netloc)
+        site = site or cls.url_to_site(link)
         site_info = cls._get_prefs().sites.get(site)
         if not site_info:
             raise Exception(f"item coming from unrecognized source {site!r}")
@@ -314,3 +318,19 @@ class SideMixin:
 
         _, site_info = cls.get_site_info(link, site=site)
         return cls.SIDE_MAPPING[site_info["side"]]
+
+
+class SingletonMixin:
+
+    """Singleton support for models."""
+
+    @classmethod
+    def instance(cls):
+        entities = cls.all()
+        if not entities:
+            logging.info("Creating %s model for the first time.", cls)
+            instance = cls()
+            instance.put()
+            entities = cls.all()
+        assert len(entities) == 1, f"duplicate {cls} objects"
+        return entities[0]

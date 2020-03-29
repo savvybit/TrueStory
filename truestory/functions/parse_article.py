@@ -10,6 +10,10 @@ from newspaper import Article as NewsArticle, ArticleException
 
 
 NLP_ENABLED = bool(int(os.getenv("NLP_ENABLED", "0")))
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
+)
 
 if current_app:
     app_json = FlaskJSON(current_app)
@@ -25,7 +29,7 @@ def get_article(link):
         from truestory.functions.remote import get_remote_article
         return get_remote_article(link)
 
-    article = NewsArticle(link)
+    article = NewsArticle(link, browser_user_agent=USER_AGENT)
     article.download()
     article.parse()
     if NLP_ENABLED:

@@ -25,8 +25,7 @@
     },
     {
       "source_name": "CNN",
-      "link": "http://rss.cnn.com/rss/edition.rss",
-      "side": "Lean Left"
+      "link": "http://rss.cnn.com/rss/edition.rss"
     },
     {
       "source_name": "Daily Mail",
@@ -102,6 +101,69 @@
       "source_name": "Vox - World",
       "link": "https://www.vox.com/rss/world/index.xml",
       "enabled": false
+    },
+    {
+      "source_name": "The Blaze",
+      "link": "https://www.theblaze.com/feeds/feed.rss"
+    },
+    {
+      "source_name": "Washington Post - Politics",
+      "link": "http://feeds.washingtonpost.com/rss/politics",
+      "enabled": false,
+      "publisher_from_source": true,
+      "no_redirect_normalization": true,
+      "_comment": "Asks for GDPR consent when crawling articles."
+    },
+    {
+      "source_name": "HuffPost - Politics",
+      "link": "https://www.huffpost.com/section/politics/feed",
+      "no_redirect_normalization": true
+    },
+    {
+      "source_name": "Washington Times - Politics",
+      "link": "https://www.washingtontimes.com/rss/headlines/news/politics/"
+    },
+    {
+      "source_name": "NPR - Politics",
+      "link": "https://feeds.npr.org/1014/rss.xml"
+    },
+    {
+      "source_name": "Breitbart",
+      "link": "https://feeds.feedburner.com/breitbart",
+      "publisher_from_source": true
+    },
+    {
+      "source_name": "New York Times - Politics",
+      "link": "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml"
+    },
+    {
+      "source_name": "ABC News",
+      "link": "https://abcnews.go.com/abcnews/topstories"
+    },
+    {
+      "source_name": "Politico",
+      "link": "https://www.politico.com/rss/politicopicks.xml"
+    },
+    {
+      "source_name": "BBC - Politics",
+      "link": "http://feeds.bbci.co.uk/news/politics/rss.xml",
+      "publisher_from_source": true
+    },
+    {
+      "source_name": "Wall Street Journal",
+      "link": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+      "publisher_from_source": true
+    },
+    {
+      "source_name": "USA TODAY",
+      "link": "http://rssfeeds.usatoday.com/UsatodaycomNation-TopStories",
+      "publisher_from_source": true,
+      "no_redirect_normalization": true
+    },
+    {
+      "source_name": "USA TODAY EU",
+      "link": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories",
+      "side": "Center"
     }
   ]
 }
