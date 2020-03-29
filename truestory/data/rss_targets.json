@@ -112,7 +112,8 @@
     },
     {
       "source_name": "HuffPost - Politics",
-      "link": "https://www.huffpost.com/section/politics/feed"
+      "link": "https://www.huffpost.com/section/politics/feed",
+      "no_redirect_normalization": true
     },
     {
       "source_name": "Washington Times - Politics",

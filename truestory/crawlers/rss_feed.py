@@ -4,6 +4,7 @@
 import calendar
 import collections
 import logging
+import urllib.parse as urlparse
 import urllib.request as urlopen
 from datetime import datetime, timezone
 from http import HTTPStatus
@@ -62,7 +63,12 @@ class RssCrawler:
             raise KeyError("link missing from the feed article")
 
         news_article = functions.get_article(link)
-        link = urlopen.urlopen(news_article.url).url
+        link = news_article.url
+        _link = urlopen.urlopen(link).url
+        netloc_of = lambda url: urlparse.urlsplit(url).netloc
+        if netloc_of(link) == netloc_of(_link):
+            link = _link
+
         title = feed_entry.get("title") or news_article.title
         # The 'description' value seems to be an alternative tag for summary.
         summary = (
