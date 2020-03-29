@@ -66,7 +66,7 @@ class RssCrawler:
         link = news_article.url
         _link = urlopen.urlopen(link).url
         netloc_of = lambda url: urlparse.urlsplit(url).netloc
-        if netloc_of(link) == netloc_of(_link):
+        if netloc_of(link) in netloc_of(_link):
             link = _link
 
         title = feed_entry.get("title") or news_article.title
