@@ -19,8 +19,9 @@ export WORK_PATH
 GOOGLE_APPLICATION_CREDENTIALS = $(WORK_PATH)/TrueStory-83153701f337.json
 export GOOGLE_APPLICATION_CREDENTIALS
 _DATASTORE_ENV_YAML = $(WORK_PATH)/env.yaml
-DEPLOY_VERSION = develop
+DEPLOY_VERSION ?= $(shell git symbolic-ref HEAD | cut -d "/" -f 3)
 
+print-%  : ; @echo $* = $($*)
 .PHONY: test
 
 
