@@ -116,8 +116,8 @@ Then simply run `$ make deploy` script  with any of the *develop* or *master* pa
 (representing app's preferred version), as following:
 
 ```console
-$ make deploy  # default develop deployment without traffic redirect (no promotion)
-$ make deploy DEPLOY_VERSION=master  # deploy into production (with promotion)
+$ make deploy  # default master/develop deployment depending on the current branch
+$ make deploy DEPLOY_VERSION=master  # deploy into production (with traffic promotion)
 ```
 
 #### Notes
