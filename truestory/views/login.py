@@ -4,6 +4,7 @@
 from flask import abort, redirect, render_template, request, session, url_for
 
 from truestory import app, auth
+from truestory.views import base as views_base
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -17,6 +18,14 @@ def login_view():
         return redirect(url)
 
     return render_template("login.html", next=next_url)
+
+
+@app.route("/logout")
+@views_base.require_auth
+def logout_view():
+    """Logs out logged in user by forgetting the stored token."""
+    session.pop("token", None)
+    return redirect(url_for("login_view"))
 
 
 @app.route("/token")
