@@ -3,6 +3,7 @@
 
 import datetime
 import logging
+import operator
 
 import redis_lock
 
@@ -137,14 +138,19 @@ def pair_article(article_usafe):
                 )
                 bias_pair_keys |= {bias_pair.key for bias_pair in bias_pairs}
             if bias_pair_keys:
-                logging.info("Removing %d duplicate bias pairs first.", len(bias_pair_keys))
+                logging.info(
+                    "Removing %d duplicate bias pairs first.", len(bias_pair_keys)
+                )
                 BiasPairModel.remove_multi(bias_pair_keys)
 
+            articles = sorted([main_article, article], key=operator.attrgetter("side"))
             logging.info(
                 "Adding new bias pair with score %f between %r and %r.",
-                score, main_article.link, article.link
+                score, articles[0].link, articles[1].link
             )
-            BiasPairModel(left=main_article.key, right=article.key, score=score).put()
+            BiasPairModel(
+                left=articles[0].key, right=articles[1].key, score=score
+            ).put()
             added_pairs += 1
 
     return {"bias_pairs": added_pairs}

@@ -30,7 +30,7 @@ SOURCES_PATH = "data/media-bias.csv"
 RE_PORT = re.compile(r":\d+")
 
 
-def run_server(args):
+def run_server(_):
     truestory.app.run(host=SERVER.HOST, port=SERVER.PORT, debug=SERVER.DEBUG)
 
 
