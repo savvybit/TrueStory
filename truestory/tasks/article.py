@@ -83,7 +83,14 @@ def clean_articles():
 @create_task("bias-queue")
 def pair_article(article_usafe):
     """Creates bias pairs for an article (if any found)."""
-    main_article = ArticleModel.get(article_usafe)
+    try:
+        main_article = ArticleModel.get(article_usafe)
+    except Exception as exc:
+        # NOTE(cmiN): Very often the article might get removed during pairing, for
+        #  clean-up reasons.
+        logging.exception(exc)
+        return {"bias_pairs": 0}
+
     assert main_article.side is not None, "attempted to pair article with missing side"
 
     main_source_name = shorten_source(main_article.source_name)
