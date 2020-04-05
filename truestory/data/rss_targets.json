@@ -125,7 +125,9 @@
     },
     {
       "source_name": "NPR - Politics",
-      "link": "https://feeds.npr.org/1014/rss.xml"
+      "link": "https://feeds.npr.org/1014/rss.xml",
+      "enabled": false,
+      "_comment": "Asks for data protection consent when crawling articles."
     },
     {
       "source_name": "Breitbart News",
