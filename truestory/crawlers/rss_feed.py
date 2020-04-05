@@ -4,7 +4,6 @@
 import calendar
 import collections
 import logging
-import urllib.parse as urlparse
 import urllib.request as urlopen
 from datetime import datetime, timezone
 from http import HTTPStatus
