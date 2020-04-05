@@ -4,7 +4,6 @@
 import calendar
 import collections
 import logging
-import urllib.parse as urlparse
 import urllib.request as urlopen
 from datetime import datetime, timezone
 from http import HTTPStatus
@@ -66,7 +65,8 @@ class RssCrawler:
         link = news_article.url
         _link = urlopen.urlopen(link).url
         to_site = ArticleModel.url_to_site
-        if to_site(link) in to_site(_link):
+        link_site = to_site(_link)
+        if to_site(link) in link_site or target.site in link_site:
             link = _link
 
         title = feed_entry.get("title") or news_article.title
