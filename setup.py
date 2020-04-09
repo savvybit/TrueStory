@@ -53,7 +53,7 @@ setup(
     long_description=read("README.md"),
     url="https://gitlab.com/truestory-one/TrueStory",
     license="MIT",
-    author="SavvyBit",
+    author="TrueStory",
     author_email="hello@truestory.one",
     scripts=["bin/truestory"],
     packages=find_packages(exclude=["tests*"]),
