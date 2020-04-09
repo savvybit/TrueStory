@@ -20,4 +20,6 @@ def topics_view():
         views_base.save_thumbs("topics", topic, thumbs=thumbs)
 
     thumbs = views_base.get_thumbs("topics")
-    return render_template("topics.html", topics=topics, thumbs=thumbs)
+    return render_template(
+        "topics.html", topics=topics, thumbs=thumbs, typeform_text="think"
+    )

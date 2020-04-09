@@ -30,20 +30,23 @@ Premium access
           <i class="far fa-thumbs-down fa-3x mx-4 {% if thumbs == False %}text-danger{% endif %}"></i>
         </a>
       </p>
-      {% with hide_class = "d-none" if thumbs in (False, None) else "" %}
-      <p class="{{ hide_class }}">
+      <p>
         <em>
+          {% if thumbs == True %}
           Due to legal reasons we can't accept yet payments, but if you insist, please
-          drop us a line.
-          <a href="mailto:{{ mail }}?subject=Premium" target="_blank" class="{{ hide_class }}"
-           rel="noopener noreferrer" class="mx-2">
+          drop us a line:
+          <a href="mailto:{{ mail }}?subject=Premium" target="_blank"
+           rel="noopener noreferrer" class="mx-auto">
             <p>
               <i class="fas fa-envelope"></i> {{ mail }}
             </p>
           </a>
+          {% else %}
+          Would be awesome to tell us
+          {% include "_typeform.html" %}
+          {% endif %}
         </em>
       </p>
-      {% endwith %}
     </div>
   </div>
 </section>

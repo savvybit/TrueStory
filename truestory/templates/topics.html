@@ -6,7 +6,7 @@
 {% endblock css %}
 
 {% block title %}
-Popular subjects
+Favorite subjects
 {% endblock title %}
 
 {% block container %}
@@ -33,6 +33,15 @@ Popular subjects
       </div>
     </div>
     {% endfor %}
+  </div>
+
+  <div class="row mt-4 pt-4">
+    <div class="col-8 mx-auto text-center">
+      <p>
+        We listen to you! Let us know what do you
+        {% include "_typeform.html" %}
+      </p>
+    </div>
   </div>
 </section>
 {% endblock container %}

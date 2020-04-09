@@ -31,4 +31,4 @@ def premium_view():
         views_base.save_thumbs("premium", thumbs=thumbs)
 
     thumbs = views_base.get_thumbs("premium")
-    return render_template("premium.html", thumbs=thumbs)
+    return render_template("premium.html", thumbs=thumbs, typeform_text="why")

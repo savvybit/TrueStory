@@ -72,4 +72,9 @@ function captcha_submit(captcha_response) {
 }
 
 
-to_load.push(smooth_navigation);
+function improveAppearance() {
+    $("a#typeformSurvey").addClass("typeform-share-big");
+}
+
+
+to_load.push(smooth_navigation, improveAppearance);

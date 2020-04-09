@@ -17,6 +17,7 @@ def _inject_common():
     return {
         "site": request.url_root,
         "mail": settings.DEFAULT_MAIL,
+        "typeform_text": "What do you think?",
     }
 
 
