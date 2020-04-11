@@ -1,7 +1,7 @@
 cron:
 - description: "crawl new articles"
   url: /cron/crawl
-  schedule: every 2 hours
+  schedule: every 4 hours
 
 - description: "clean outdated articles"
   url: /cron/clean
