@@ -8,13 +8,17 @@ from truestory.models.article import BiasPairModel
 from truestory.views import base as views_base
 
 
-def _get_serializable_article(key):
+def _get_serializable_article(article_key):
     """JSON serializable article format used by the front-end ajax calls."""
+    article = article_key.get()
+    # NOTE(cmiN): Sometimes even if the article was long removed, the pagination
+    #  iterates through existing keys pointing to missing articles.
+    if not article:
+        return None
+
     paragraph_split = lambda text: (
         "\n".join(views_base.paragraph_split_filter(text)) if text else ""
     )
-
-    article = key.get()
     details = article.to_dict()
     details.update({
         "usafe": url_for("article_view", article_usafe=article.urlsafe),
@@ -51,7 +55,9 @@ def home_view():
             left_dict, right_dict = map(
                 _get_serializable_article, (pair.left, pair.right)
             )
-            pairs.append((left_dict, right_dict))
+            pair = (left_dict, right_dict)
+            if all(pair):
+                pairs.append(pair)
         return jsonify({"bias_pairs": pairs, "new_cursor": next_cursor})
 
     return render_template(
