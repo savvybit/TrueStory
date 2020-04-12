@@ -11,7 +11,7 @@ from truestory import algo
 from truestory.crawlers import RssCrawler
 from truestory.misc import get_redis_client
 from truestory.models import ArticleModel, BiasPairModel, RssTargetModel
-from truestory.models.base import key_to_urlsafe
+from truestory.models.base import key_to_urlsafe, urlsafe_to_key
 from truestory.tasks.util import create_task
 
 
@@ -49,36 +49,54 @@ def crawl_articles():
     return {"targets": count}
 
 
+def _get_matching_keys(*query_filters_list, model):
+    """Returns all the keys matching any of the `query_filters` given `model`."""
+    entity_keys = set()
+    for query_filters in query_filters_list:
+        query = model.query(*query_filters)
+        entities = model.all(query=query, keys_only=True, order=False)
+        entity_keys |= {entity.key for entity in entities}
+    return entity_keys
+
+
 @create_task("clean-queue")
+def _clean_article_biases(article_usafe):
+    article_key = urlsafe_to_key(article_usafe, model=ArticleModel)
+    logging.debug(
+        "Collecting bias pairs for removal of expired article key: %s", article_key
+    )
+
+    query_filters_list = [
+        (("left", "=", article_key),),
+        (("right", "=", article_key),),
+    ]
+    bias_pair_keys = _get_matching_keys(*query_filters_list, model=BiasPairModel)
+
+    bias_pairs_count = len(bias_pair_keys)
+    logging.debug("Removing %d bias pairs.", bias_pairs_count)
+    BiasPairModel.remove_multi(bias_pair_keys)
+    return {"bias_pairs": bias_pairs_count}
+
+
 def clean_articles():
     """Cleans all outdated articles."""
     delta = datetime.timedelta(days=ARTICLES_MAX_AGE)
     min_date = datetime.datetime.utcnow() - delta
-    qfilters_list = [
+    logging.info("Collecting articles older than %s for removal...", min_date)
+
+    query_filters_list = [
         (("published", "<", min_date),),
         (("published", "=", None), ("created_at", "<", min_date)),
     ]
-    article_keys = set()
-    for qfilters in qfilters_list:
-        article_query = ArticleModel.query(*qfilters)
-        articles = ArticleModel.all(query=article_query, keys_only=True, order=False)
-        article_keys |= {article.key for article in articles}
+    article_keys = _get_matching_keys(*query_filters_list, model=ArticleModel)
+
+    for article_key in article_keys:
+        _clean_article_biases(key_to_urlsafe(article_key))
+
     articles_count = len(article_keys)
-
-    logging.debug("Collecting bias pairs for removal of %d articles.", articles_count)
-    bias_pairs = BiasPairModel.query().fetch()
-    bias_pairs = filter(
-        lambda pair: pair.left in article_keys or pair.right in article_keys,
-        bias_pairs
-    )
-    bias_pair_keys = [bias_pair.key for bias_pair in bias_pairs]
-    bias_pairs_count = len(bias_pair_keys)
-
-    logging.info("Removing %d bias pairs.", bias_pairs_count)
-    BiasPairModel.remove_multi(bias_pair_keys)
     logging.info("Removing %d articles.", articles_count)
     ArticleModel.remove_multi(article_keys)
-    return {"bias_pairs": bias_pairs_count, "articles": articles_count}
+    return {"articles": articles_count}
 
 
 @create_task("bias-queue")
@@ -121,22 +139,18 @@ def pair_article(article_usafe):
             )
             continue
 
-        qfilters_list = [
+        query_filters_list = [
             (("left", "=", main_article.key), ("right", "=", article.key)),
             (("left", "=", article.key), ("right", "=", main_article.key)),
         ]
-        bias_pair_keys = set()
         lock_name = "-".join(sorted(
             map(key_to_urlsafe, [main_article.key, article.key])
         ))
 
         with redis_lock.Lock(redis_client, lock_name):
-            for qfilters in qfilters_list:
-                bias_pair_query = BiasPairModel.query(*qfilters)
-                bias_pairs = BiasPairModel.all(
-                    query=bias_pair_query, keys_only=True, order=False
-                )
-                bias_pair_keys |= {bias_pair.key for bias_pair in bias_pairs}
+            bias_pair_keys = _get_matching_keys(
+                *query_filters_list, model=BiasPairModel
+            )
             if bias_pair_keys:
                 logging.info(
                     "Removing %d duplicate bias pairs first.", len(bias_pair_keys)

@@ -35,6 +35,12 @@ def key_to_urlsafe(key):
     return key.to_legacy_urlsafe().decode(settings.ENCODING)
 
 
+def urlsafe_to_key(urlsafe, *, model):
+    """Returns entity `key` as a string."""
+    key = ndb.Key(model, **NDB_KWARGS)
+    return key.from_legacy_urlsafe(urlsafe)
+
+
 def batch_process(function, iterable, size=MAX_BATCH_SIZE):
     batch_returns = []
     iterable = list(iterable)
@@ -181,8 +187,7 @@ class BaseModel(ndb.Model):
         """Retrieves an entity object based on an URL safe Key string or Key object."""
         cls._get_client()
         if isinstance(urlsafe_or_key, (str, bytes)):
-            key = ndb.Key(cls, **NDB_KWARGS)
-            complete_key = key.from_legacy_urlsafe(urlsafe_or_key)
+            complete_key = urlsafe_to_key(urlsafe_or_key, model=cls)
         else:
             complete_key = urlsafe_or_key
 
