@@ -37,6 +37,7 @@ def key_to_urlsafe(key):
 
 def urlsafe_to_key(urlsafe, *, model):
     """Returns entity `key` as a string."""
+    model.get_client()
     key = ndb.Key(model, **NDB_KWARGS)
     return key.from_legacy_urlsafe(urlsafe)
 
@@ -83,7 +84,7 @@ class BaseModel(ndb.Model):
     created_at = ndb.DateTimeProperty(auto_now_add=True)
 
     def __init__(self, *args, **kwargs):
-        self._get_client()  # Activates all NDB ORM required features.
+        self.get_client()  # Activates all NDB ORM required features.
         kwargs.update(NDB_KWARGS)
         super().__init__(*args, **kwargs)
 
@@ -100,7 +101,7 @@ class BaseModel(ndb.Model):
         return value
 
     @staticmethod
-    def _get_client():
+    def get_client():
         """Singleton for the Datastore client."""
         global client
         if not client:
@@ -121,7 +122,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def query(cls, *args, **kwargs):
         """Creates a Datastore query out of this model."""
-        query = cls._get_client().query(kind=cls._get_kind(), **kwargs)
+        query = cls.get_client().query(kind=cls._get_kind(), **kwargs)
         for arg in args:
             query.add_filter(*arg)
         return query
@@ -159,13 +160,13 @@ class BaseModel(ndb.Model):
 
     def put(self):
         """Saves the entity into the Datastore."""
-        self._get_client().put(self)
+        self.get_client().put(self)
         return self.key
 
     @classmethod
     def put_multi(cls, entities):
         """Multiple save in the DB without interfering with the `cls.put` function."""
-        batch_process(cls._get_client().put_multi, entities)
+        batch_process(cls.get_client().put_multi, entities)
         return [entity.key for entity in entities]
 
     def remove(self):
@@ -175,7 +176,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def remove_multi(cls, keys):
         """Multiple removal of entities based on the given `keys`."""
-        batch_process(cls._get_client().delete_multi, keys)
+        batch_process(cls.get_client().delete_multi, keys)
 
     @property
     def urlsafe(self):
@@ -185,7 +186,7 @@ class BaseModel(ndb.Model):
     @classmethod
     def get(cls, urlsafe_or_key):
         """Retrieves an entity object based on an URL safe Key string or Key object."""
-        cls._get_client()
+        cls.get_client()
         if isinstance(urlsafe_or_key, (str, bytes)):
             complete_key = urlsafe_to_key(urlsafe_or_key, model=cls)
         else:

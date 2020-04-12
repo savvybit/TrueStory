@@ -9,7 +9,7 @@ from flask import current_app, request, url_for
 from flask_json import as_json
 from google.cloud import tasks_v2
 
-from truestory import app, settings
+from truestory import app, limiter, settings
 from truestory.views import base as views_base
 
 
@@ -55,6 +55,7 @@ class create_task:
         @app.route(self.route, methods=["POST"])
         @require_headers
         @as_json
+        @limiter.exempt
         @functools.wraps(function)
         def task_handler():
             """Generic task handler called by a successfully submitted task."""
