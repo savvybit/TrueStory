@@ -154,7 +154,7 @@ def bump_article_dates():
 
 
 def cleanup():
-    base.NDB_KWARGS["namespace"] = "production"
+    base.NDB_KWARGS["namespace"] = "development"
     base.client = None
 
     ret = clean_articles()
