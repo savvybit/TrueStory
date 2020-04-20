@@ -166,6 +166,10 @@
       "source_name": "USA TODAY EU",
       "link": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories",
       "side": "Center"
+    },
+    {
+      "source_name": "National Review",
+      "link": "https://www.nationalreview.com/feed/"
     }
   ]
 }

@@ -42,7 +42,16 @@ def _json_serializer(obj):
 
 def crawl_articles(args):
     """Crawls and possibly saves articles into DB."""
-    rss_targets = RssTargetModel.all(RssTargetModel.query(("enabled", "=", True)))
+    if args.target:
+        query = ("source_name", "=", args.target)
+    else:
+        query = ("enabled", "=", True)
+    rss_query = RssTargetModel.query(query)
+    rss_targets = RssTargetModel.all(rss_query, order=False)
+    logging.info(
+        "Crawling %d targets into Datastore: %s", len(rss_targets), DATASTORE_NAMESPACE
+    )
+
     for rss_target in rss_targets:
         rss_crawler = RssCrawler([rss_target], limit=args.limit)
         articles_dict = rss_crawler.crawl_targets()
@@ -222,6 +231,10 @@ def main():
     crawl_parser.add_argument(
         "-s", "--save", action="store_true",
         help=f"save results into Datastore ({DATASTORE_NAMESPACE})"
+    )
+    crawl_parser.add_argument(
+        "-t", "--target", metavar="SOURCE",
+        help="choose a specific source name instead of crawling with all of them"
     )
     crawl_parser.set_defaults(function=crawl_articles)
 
