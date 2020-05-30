@@ -22,6 +22,10 @@ default = "3/second"
 	email = "tabarcea.augustus@gmail.com"
 	limit = "100/day;1000/month"
 
+	[[rate_limiter.emails]]
+	email = "walentin.stefanov@gmail.com"
+	limit = "100/day;1000/month"
+
 [topics]
 	[topics.Health]
 	img = "https://i.pinimg.com/originals/ee/e9/66/eee9661c7313ebee5aea4ac3fe66a5a3.jpg"

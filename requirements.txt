@@ -1,7 +1,6 @@
 Flask>=1.0.2
 Flask-Cors>=3.0.7
 Flask-JSON>=0.3.3
-Flask-Limiter>=1.2.1
 Flask-RESTful>=0.3.7
 PyYAML>=5.1
 addict>=2.2.1
@@ -21,4 +20,5 @@ requests>=2.21.0
 sendgrid>=6.0.2
 toml>=0.10.0
 
+-e git+https://gitlab.com/truestory-one/flask-limiter.git@develop#egg=flask_limiter
 -e git+https://gitlab.com/truestory-one/ndb-orm.git@develop#egg=ndb_orm
