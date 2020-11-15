@@ -51,7 +51,7 @@ def test_model_query(truestory_ent):
     assert any(flags)
 
     # Same as above, but this time using a custom query.
-    query = TrueStoryModel.query(("auto_prop", "=", total))
+    query = TrueStoryModel.query(TrueStoryModel.auto_prop == total)
     assert list(query.fetch())  # At least one item in the list.
 
 

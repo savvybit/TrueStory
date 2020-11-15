@@ -34,7 +34,7 @@ class SitesInfoResource(BaseInfoResource):
     def get(self):
         """Returns a list of accepted trusted sources (news websites)."""
         enabled_targets = RssTargetModel.all(
-            RssTargetModel.query(("enabled", "=", True))
+            RssTargetModel.query(RssTargetModel.enabled == True)
         )
         crawled_sites = {target.site for target in enabled_targets}
         prefs = self._get_prefs()

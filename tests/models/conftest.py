@@ -117,23 +117,24 @@ def datastore_global_init():
     if not TEST_DB:
         return
 
-    # Creation.
-    prefs = PreferencesModel.instance()
-    prefs.sites = {
-        "truestory.one": {
-            "side": "Center",
-            "publisher": "https://truestory.one/news",
-            "source": "TrueStory",
+    with BaseModel.get_client().context():
+        # Creation.
+        prefs = PreferencesModel.instance()
+        prefs.sites = {
+            "truestory.one": {
+                "side": "Center",
+                "publisher": "https://truestory.one/news",
+                "source": "TrueStory",
+            }
         }
-    }
-    prefs.put()
-    wait_state(prefs)
+        prefs.put()
+        wait_state(prefs)
 
-    yield
+        yield
 
-    # Clean-up.
-    prefs.remove()
-    wait_state(prefs, exists=False)
+        # Clean-up.
+        prefs.remove()
+        wait_state(prefs, exists=False)
 
 
 @pytest.fixture(autouse=True)
@@ -144,8 +145,8 @@ def datastore_cleanup():
     yield
 
     # Clean-up.
-    all_entities = []
+    all_keys = []
     for Model in CLEANUP_MODELS:
-        entities = Model.all(keys_only=True)
-        all_entities.extend(entities)
-    BaseModel.remove_multi([entity.key for entity in all_entities])
+        keys = Model.all(keys_only=True)
+        all_keys.extend(keys)
+    BaseModel.remove_multi(all_keys)

@@ -17,7 +17,7 @@ class ArticleModel(SideMixin, DuplicateMixin, BaseModel):
     title = ndb.StringProperty(required=True)
     content = ndb.TextProperty(required=True, indexed=False)
 
-    summary = ndb.StringProperty(indexed=False)
+    summary = ndb.TextProperty(indexed=False)
     authors = ndb.StringProperty(repeated=True)
     published = ndb.DateTimeProperty()
     image = ndb.StringProperty()
@@ -40,7 +40,8 @@ class ArticleModel(SideMixin, DuplicateMixin, BaseModel):
 
         complementary = {"left": "right", "right": "left"}
         for side in complementary:
-            query = BiasPairModel.query((side, "=", main_article_key))
+            side_field = getattr(BiasPairModel, side)
+            query = BiasPairModel.query(side_field == main_article_key)
             pairs = list(query.fetch())
 
             for pair in pairs:
