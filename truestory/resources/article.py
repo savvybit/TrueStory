@@ -1,7 +1,6 @@
 """API exposing article related data."""
 
 
-import functools
 import hashlib
 import logging
 import operator
@@ -44,28 +43,28 @@ def _extract_article(link, site, site_info):
     return RssCrawler.extract_article(feed_entry, target)
 
 
-def _token_key_func(token, *, share):
-    auth_token = base.get_auth_token()
-    if auth_token == token:
-        token_hash = hashlib.md5(auth_token.encode(settings.ENCODING)).hexdigest()
-        ip_addr = f":{get_remote_address()}" if share else ""
-        return f"{token_hash}{ip_addr}"
-
-    return None
-
-
-def _get_counter_article_limits(**kwargs):
-    limits = []
+def _get_limit_conf():
+    token = base.get_auth_token()
     limiter_conf = app.config["CONFIG"].rate_limiter
-    for email in limiter_conf.emails:
-        limit_str = f"{limiter_conf.default};{email.limit}"
-        token = auth.compute_token(email.email)
-        key_func = functools.partial(
-            _token_key_func, token, share=email.share or False
-        )
-        limit = limiter.limit(limit_str, key_func=key_func, **kwargs)
-        limits.append(limit)
-    return limits
+    for limit_conf in limiter_conf.emails:
+        conf_token = auth.compute_token(limit_conf.email)
+        if conf_token == token:
+            limit_conf.token = token
+            return limit_conf
+
+    raise Exception("authorized token without rate limit set")
+
+
+def _get_article_limit_func():
+    limit_conf = _get_limit_conf()
+    return limit_conf.limit
+
+
+def _token_key_func():
+    limit_conf = _get_limit_conf()
+    token_hash = hashlib.md5(limit_conf.token.encode(settings.ENCODING)).hexdigest()
+    ip_addr = f":{get_remote_address()}" if limit_conf.share else ""
+    return f"{token_hash}{ip_addr}"
 
 
 def _exempt_when_abort():
@@ -107,10 +106,16 @@ class CounterArticleResource(BaseArticleResource):
     ENDPOINT = "counter"
 
     if not app.debug:
-        decorators = _get_counter_article_limits(
-            exempt_when=_exempt_when_abort, per_method=True, methods=["GET"],
-            override_defaults=False
-        )
+        decorators = [
+            limiter.limit(
+                _get_article_limit_func,
+                key_func=_token_key_func,
+                exempt_when=_exempt_when_abort,
+                per_method=True,
+                methods=["GET"],
+                override_defaults=False
+            ),
+        ]
 
     @staticmethod
     def get_related_articles():
