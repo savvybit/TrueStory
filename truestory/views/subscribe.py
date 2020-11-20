@@ -16,7 +16,7 @@ def _subscribe_mail(mail):
         SubscriberModel: The newly added subscriber, currently updated one or None if
         the provided `mail` is already subscribed.
     """
-    query = SubscriberModel.query(("mail", "=", mail))
+    query = SubscriberModel.query(SubscriberModel.mail == mail)
     subscribers = SubscriberModel.all(query=query)
 
     if subscribers:
@@ -64,7 +64,7 @@ def subscribe_view():
 @app.route("/unsubscribe/<hashsum>")
 def unsubscribe_view(hashsum):
     """Un-subscribes a fan through the URL provided by mail."""
-    query = SubscriberModel.query(("hashsum", "=", hashsum))
+    query = SubscriberModel.query(SubscriberModel.hashsum == hashsum)
     subscribers = list(query.fetch())
     assert len(subscribers) in (0, 1), "duplicate subscriber mail"
 

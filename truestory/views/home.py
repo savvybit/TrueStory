@@ -43,7 +43,7 @@ def home_view():
         tokens = search.split()
         for token in tokens:
             query.add_filter("keywords", "=", token)
-    query.order = ["-score", "-created_at"]
+    query = query.order(-BiasPairModel.score, -BiasPairModel.created_at)
     query_iter = query.fetch(start_cursor=cursor, limit=3)
     page = next(query_iter.pages)
     bias_pairs = list(page)

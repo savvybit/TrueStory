@@ -2,8 +2,8 @@
 
 
 import pytest
+from google.cloud.ndb import exceptions as ndb_exceptions
 from truestory.models import ArticleModel, BiasPairModel
-from truestory.models.base import ndb
 from truestory.tasks.article import clean_articles, pair_article
 
 from .conftest import skip_no_datastore, wait_state
@@ -97,5 +97,5 @@ def test_article_side(bias_pair_ents):
 
 def test_article_missing_side(left_article_ent):
     left_article_ent.side = None
-    with pytest.raises(ndb.datastore_errors.BadValueError):
+    with pytest.raises(ndb_exceptions.BadValueError):
         left_article_ent.put()

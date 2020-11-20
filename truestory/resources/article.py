@@ -125,12 +125,14 @@ class CounterArticleResource(BaseArticleResource):
             abort(400, message="Article 'link' not supplied.")
 
         link = strip_article_link(link)
-        article_query = ArticleModel.query(("link", "=", link))
-        main_articles = ArticleModel.all(query=article_query, keys_only=True, limit=1)
-        if not main_articles:
+        article_query = ArticleModel.query(ArticleModel.link == link)
+        main_article_keys = ArticleModel.all(
+            query=article_query, keys_only=True, limit=1
+        )
+        if not main_article_keys:
             abort(404, message="Article not found in the database.")
 
-        main_article = main_articles[0]
+        main_article = main_article_keys[0].get()
         related_articles = ArticleModel.get_related_articles(main_article.key)
         if not related_articles:
             abort(404, message="No related articles found.")

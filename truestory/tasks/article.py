@@ -38,14 +38,14 @@ def _crawl_articles(rss_target_usafe):
 
 def crawl_articles():
     """Crawls and saves new articles in the DB."""
-    rss_targets = RssTargetModel.all(
-        RssTargetModel.query(("enabled", "=", True)),
+    rss_target_keys = RssTargetModel.all(
+        RssTargetModel.query(RssTargetModel.enabled == True),
         keys_only=True
     )
-    count = len(rss_targets)
+    count = len(rss_target_keys)
     logging.info("Starting crawling with %d targets.", count)
-    for rss_target in rss_targets:
-        _crawl_articles(rss_target.urlsafe)
+    for rss_target_key in rss_target_keys:
+        _crawl_articles(key_to_urlsafe(rss_target_key))
     return {"targets": count}
 
 
@@ -54,21 +54,21 @@ def _get_matching_keys(*query_filters_list, model):
     entity_keys = set()
     for query_filters in query_filters_list:
         query = model.query(*query_filters)
-        entities = model.all(query=query, keys_only=True, order=False)
-        entity_keys |= {entity.key for entity in entities}
+        ekeys = model.all(query=query, keys_only=True, order=False)
+        entity_keys |= set(ekeys)
     return entity_keys
 
 
 @create_task("clean-queue")
 def _clean_article_biases(article_usafe):
-    article_key = urlsafe_to_key(article_usafe, model=ArticleModel)
+    article_key = urlsafe_to_key(article_usafe)
     logging.debug(
         "Collecting bias pairs for removal of expired article key: %s", article_key
     )
 
     query_filters_list = [
-        (("left", "=", article_key),),
-        (("right", "=", article_key),),
+        (BiasPairModel.left == article_key,),
+        (BiasPairModel.right == article_key,),
     ]
     bias_pair_keys = _get_matching_keys(*query_filters_list, model=BiasPairModel)
 
@@ -85,8 +85,8 @@ def clean_articles():
     logging.info("Collecting articles older than %s for removal...", min_date)
 
     query_filters_list = [
-        (("published", "<", min_date),),
-        (("published", "=", None), ("created_at", "<", min_date)),
+        (ArticleModel.published < min_date,),
+        (ArticleModel.published == None, ArticleModel.created_at < min_date),
     ]
     article_keys = _get_matching_keys(*query_filters_list, model=ArticleModel)
 
@@ -114,12 +114,13 @@ def pair_article(article_usafe):
 
     main_source_name = shorten_source(main_article.source_name)
     related_articles = {}
-    for keyword in main_article.keywords:
-        article_query = ArticleModel.query(("keywords", "=", keyword))
-        articles = ArticleModel.all(article_query, order=False)
-        for article in articles:
-            if shorten_source(article.source_name) != main_source_name:
-                related_articles[article.link] = article
+    article_query = ArticleModel.query(
+        ArticleModel.keywords.IN(main_article.keywords)
+    )
+    articles = ArticleModel.all(article_query, order=False)
+    for article in articles:
+        if shorten_source(article.source_name) != main_source_name:
+            related_articles[article.link] = article
 
     related_articles.pop(main_article.link, None)
     for link, article in list(related_articles.items()):
@@ -140,8 +141,10 @@ def pair_article(article_usafe):
             continue
 
         query_filters_list = [
-            (("left", "=", main_article.key), ("right", "=", article.key)),
-            (("left", "=", article.key), ("right", "=", main_article.key)),
+            (BiasPairModel.left == main_article.key,
+             BiasPairModel.right == article.key),
+            (BiasPairModel.left == article.key,
+             BiasPairModel.right == main_article.key),
         ]
         lock_name = "-".join(sorted(
             map(key_to_urlsafe, [main_article.key, article.key])

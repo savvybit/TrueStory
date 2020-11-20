@@ -105,3 +105,8 @@ venv.bak/
 
 # Data dumps
 research/**/*.csv
+
+# Secrets
+.gitsecret/keys/random_seed
+!*.secret
+/truestory/secrets

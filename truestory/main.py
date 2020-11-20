@@ -43,9 +43,9 @@ def _json_serializer(obj):
 def crawl_articles(args):
     """Crawls and possibly saves articles into DB."""
     if args.target:
-        query = ("source_name", "=", args.target)
+        query = RssTargetModel.source_name == args.target
     else:
-        query = ("enabled", "=", True)
+        query = RssTargetModel.enabled == True
     rss_query = RssTargetModel.query(query)
     rss_targets = RssTargetModel.all(rss_query, order=False)
     logging.info(
@@ -92,7 +92,7 @@ def update_rss_targets(args):
     targets = datautil.get_json_data(args.targets_path).targets
     for target in targets:
         old_rss_targets = RssTargetModel.all(
-            RssTargetModel.query(("link", "=", target.link)), order=False
+            RssTargetModel.query(RssTargetModel.link == target.link), order=False
         )
         if old_rss_targets:
             assert len(old_rss_targets) == 1, (
