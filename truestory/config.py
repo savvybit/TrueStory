@@ -10,13 +10,14 @@ import urllib.request as urlopen
 import requests
 import yaml
 
-from truestory import datautil, misc, settings
+from truestory import auth, datautil, misc, settings
 
 
 def _get_secret_key():
     """Gets a constant secret key for sessions and cookies."""
+    secret = auth.get_secret("flask")
     return hashlib.md5(
-        base64.b64encode(settings.APP_NAME.encode(settings.ENCODING))
+        base64.b64encode(secret.encode(settings.ENCODING))
     ).digest()
 
 
