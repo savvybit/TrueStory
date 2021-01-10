@@ -7,7 +7,7 @@ import re
 
 from flask import request
 
-from truestory import app, datautil, misc, settings
+from truestory import datautil, misc, settings
 
 
 CAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify"
@@ -19,6 +19,7 @@ def get_secret(name):
 
 
 def compute_token(mail):
+    from truestory import app  # circular dependency
     return hmac.new(
         app.secret_key, msg=mail.encode(settings.ENCODING), digestmod=hashlib.md5
     ).hexdigest()
