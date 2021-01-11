@@ -12,6 +12,7 @@ from flask_marshmallow import Marshmallow
 from flask_restful import Api
 
 from . import config, settings
+from .middleware import ndb_wsgi_middleware
 from .settings import LOGFILE
 
 
@@ -24,9 +25,10 @@ config.init_url_opening()
 config.init_datastore_emulator()
 
 app = Flask(__name__)
-CORS(app)
-app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.config.from_object(config.config[settings.CONFIG])
+app.jinja_env.add_extension("jinja2.ext.loopcontrols")
+CORS(app)
+ndb_wsgi_middleware(app)
 
 json = FlaskJSON(app)
 

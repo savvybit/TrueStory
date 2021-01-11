@@ -15,15 +15,17 @@ from truestory import auth, datautil
 from truestory.crawlers import RssCrawler
 from truestory.models import (
     ArticleModel,
-    NAMESPACE as DATASTORE_NAMESPACE,
     PreferencesModel,
     RssTargetModel,
+    ndb_kwargs,
 )
 from truestory.models.base import key_to_urlsafe
 from truestory.settings import SERVER
 from truestory.tasks import pair_article
 from truestory.tasks.article import shorten_source
 
+
+DATASTORE_NAMESPACE = ndb_kwargs()["namespace"]
 
 RSS_TARGETS_PATH = "data/rss_targets.json"
 SOURCES_PATH = "data/media-bias.csv"

@@ -8,13 +8,11 @@ from collections import OrderedDict
 
 from google.cloud import ndb
 
-from truestory import app, settings
+from truestory import settings
 
 
 # Datastore default client settings.
 PROJECT = settings.PROJECT_ID
-NAMESPACE = app.config["DATASTORE_NAMESPACE"]
-NDB_KWARGS = {"project": PROJECT, "namespace": NAMESPACE}
 # Number of entities to be put/removed at once.
 MAX_BATCH_SIZE = 500
 
@@ -26,6 +24,14 @@ client = None
 PreferencesModel = None
 
 
+def ndb_kwargs(app=None):
+    if not app:
+        from truestory import app
+
+    NAMESPACE = app.config["DATASTORE_NAMESPACE"]
+    return {"project": PROJECT, "namespace": NAMESPACE}
+
+
 def key_to_urlsafe(key):
     """Returns entity `key` as a string."""
     return key.urlsafe().decode(settings.ENCODING)
@@ -33,7 +39,7 @@ def key_to_urlsafe(key):
 
 def urlsafe_to_key(urlsafe):
     """Returns entity from `urlsafe` string key."""
-    key = ndb.Key(urlsafe=urlsafe, namespace=NDB_KWARGS["namespace"])
+    key = ndb.Key(urlsafe=urlsafe, namespace=ndb_kwargs()["namespace"])
     return key
 
 
@@ -46,6 +52,15 @@ def batch_process(function, iterable, size=MAX_BATCH_SIZE):
     return batch_returns
 
 
+def get_client(app=None):
+    """Singleton for the Datastore client."""
+    global client
+    if not client:
+        client = ndb.Client(**ndb_kwargs(app=app))
+
+    return client
+
+
 class BaseModel(ndb.Model):
 
     """Common model properties and functionality."""
@@ -56,7 +71,7 @@ class BaseModel(ndb.Model):
     created_at = ndb.DateTimeProperty(auto_now_add=True)
 
     def __init__(self, *args, **kwargs):
-        kwargs.update(NDB_KWARGS)
+        kwargs.update(ndb_kwargs())
         super().__init__(*args, **kwargs)
 
     @classmethod
@@ -70,15 +85,6 @@ class BaseModel(ndb.Model):
         if value is None:
             return cls.NOT_SET
         return value
-
-    @staticmethod
-    def get_client():
-        """Singleton for the Datastore client."""
-        global client
-        if not client:
-            client = ndb.Client(**NDB_KWARGS)
-
-        return client
 
     @classmethod
     def all(cls, query=None, order=True, **kwargs):
