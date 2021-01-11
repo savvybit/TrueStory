@@ -17,6 +17,7 @@ from truestory.models import (
     ArticleModel,
     PreferencesModel,
     RssTargetModel,
+    get_client,
     ndb_kwargs,
 )
 from truestory.models.base import key_to_urlsafe
@@ -294,7 +295,8 @@ def main():
     )
 
     try:
-        args.function(args)
+        with get_client().context():
+            args.function(args)
     except Exception as exc:
         logging.exception(exc)
     else:
