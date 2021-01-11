@@ -42,8 +42,10 @@ def home_view():
     query = BiasPairModel.query()
     if search:
         tokens = search.split()
+        # All the provided tokens should be among the keywords.
         for token in tokens:
-            query.add_filter("keywords", "=", token)
+            query = query.filter(BiasPairModel.keywords.IN([token]))
+
     query = query.order(-BiasPairModel.score, -BiasPairModel.created_at)
     start_cursor = Cursor(urlsafe=cursor_usafe)
     bias_pairs, next_cursor, more = query.fetch_page(3, start_cursor=start_cursor)
