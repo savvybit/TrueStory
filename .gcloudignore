@@ -20,3 +20,6 @@ __pycache__/
 
 # We don't require research resources
 research/
+
+# Secrets
+.gitsecret

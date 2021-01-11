@@ -114,10 +114,15 @@ def pair_article(article_usafe):
 
     main_source_name = shorten_source(main_article.source_name)
     related_articles = {}
-    article_query = ArticleModel.query(
-        ArticleModel.keywords.IN(main_article.keywords)
-    )
-    articles = ArticleModel.all(article_query, order=False)
+
+    if main_article.keywords:
+        article_query = ArticleModel.query(
+            ArticleModel.keywords.IN(main_article.keywords)
+        )
+        articles = ArticleModel.all(article_query, order=False)
+    else:
+        articles = []
+
     for article in articles:
         if shorten_source(article.source_name) != main_source_name:
             related_articles[article.link] = article

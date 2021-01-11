@@ -2,7 +2,7 @@
 
 
 from .article import ArticleModel, BiasPairModel
-from .base import NAMESPACE
+from .base import ndb_kwargs, get_client
 from .mail import SubscriberModel
 from .preferences import PreferencesModel
 from .rss import RssTargetModel

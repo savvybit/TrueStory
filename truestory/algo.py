@@ -25,6 +25,10 @@ def _get_similarity_score(main, candidate):
         lambda func: func(len(main_kw), len(candidate_kw)),
         (min, max)
     )
+    # Avoid zero divisions for paranoia reasons.
+    if not min_count:
+        return 0.0
+
     miss_weight = 1 / max_count / 2
     match_weight = (1 - miss_weight * (max_count - min_count)) / min_count
     common_count = len(main_kw & candidate_kw)

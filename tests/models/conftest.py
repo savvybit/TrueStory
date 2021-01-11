@@ -11,6 +11,7 @@ from truestory import settings
 from truestory.models import (
     ArticleModel, BiasPairModel, PreferencesModel, SubscriberModel
 )
+from truestory.models import get_client
 from truestory.models.base import BaseModel, SideMixin, ndb
 
 
@@ -117,7 +118,7 @@ def datastore_global_init():
     if not TEST_DB:
         return
 
-    with BaseModel.get_client().context():
+    with get_client().context():
         # Creation.
         prefs = PreferencesModel.instance()
         prefs.sites = {

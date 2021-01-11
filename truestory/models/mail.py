@@ -5,11 +5,12 @@ import datetime
 import functools
 import hashlib
 
-from truestory import app, mail as mail_util, settings
+from truestory import mail as mail_util, settings
 from truestory.models.base import BaseModel, ndb
 
 
 def render_template(path, **kwargs):
+    from truestory import app
     template = app.jinja_env.get_template(path)
     return template.render(**kwargs)
 

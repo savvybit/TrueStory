@@ -4,7 +4,7 @@
 import functools
 
 from truestory.models.base import (
-    BaseModel, DuplicateMixin, SideMixin, key_to_urlsafe, ndb
+    BaseModel, DateTimeProperty, DuplicateMixin, SideMixin, key_to_urlsafe, ndb
 )
 
 
@@ -19,7 +19,7 @@ class ArticleModel(SideMixin, DuplicateMixin, BaseModel):
 
     summary = ndb.TextProperty(indexed=False)
     authors = ndb.StringProperty(repeated=True)
-    published = ndb.DateTimeProperty()
+    published = DateTimeProperty()
     image = ndb.StringProperty()
     keywords = ndb.StringProperty(repeated=True)
 
@@ -78,7 +78,7 @@ class BiasPairModel(BaseModel):
     left = ndb.KeyProperty(kind=ArticleModel, required=True)
     right = ndb.KeyProperty(kind=ArticleModel, required=True)
     score = ndb.FloatProperty()
-    published = ndb.DateTimeProperty()
+    published = DateTimeProperty()
 
     @functools.partial(ndb.ComputedProperty, repeated=True)
     def keywords(self):
