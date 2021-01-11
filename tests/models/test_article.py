@@ -30,7 +30,7 @@ def test_related_articles(bias_pair_ents):
     articles = ArticleModel.get_related_articles(left.key)
     assert len(articles) == 1, "duplicate articles"
 
-    article_date = list(articles)[0]["created_at"].replace(tzinfo=None)
+    article_date = list(articles)[0]["created_at"]
     assert article_date == max(
         bias.created_at for bias in (bias_pair, rev_bias_pair)
     ), "outdated bias pair"
