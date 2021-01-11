@@ -2,6 +2,7 @@
 
 
 from flask import jsonify, render_template, request, url_for
+from google.cloud.ndb._datastore_query import Cursor
 
 from truestory import app, settings
 from truestory.models.article import BiasPairModel
@@ -36,7 +37,7 @@ def _get_serializable_article(article_key):
 def home_view():
     """Home page displaying news and available app components."""
     search = request.args.get("querySearch", "").strip().lower()
-    cursor = request.args.get("queryCursor")
+    cursor_usafe = request.args.get("queryCursor")
 
     query = BiasPairModel.query()
     if search:
@@ -44,12 +45,16 @@ def home_view():
         for token in tokens:
             query.add_filter("keywords", "=", token)
     query = query.order(-BiasPairModel.score, -BiasPairModel.created_at)
-    query_iter = query.fetch(start_cursor=cursor, limit=3)
-    page = next(query_iter.pages)
-    bias_pairs = list(page)
-    next_cursor = (query_iter.next_page_token or b"").decode(settings.ENCODING)
+    start_cursor = Cursor(urlsafe=cursor_usafe)
+    bias_pairs, next_cursor, more = query.fetch_page(3, start_cursor=start_cursor)
+    if more:
+        next_cursor_usafe = (next_cursor.urlsafe() if next_cursor else b"").decode(
+            settings.ENCODING
+        )
+    else:
+        next_cursor_usafe = ""
 
-    if cursor:
+    if cursor_usafe:
         pairs = []
         for pair in bias_pairs:
             left_dict, right_dict = map(
@@ -58,12 +63,12 @@ def home_view():
             pair = (left_dict, right_dict)
             if all(pair):
                 pairs.append(pair)
-        return jsonify({"bias_pairs": pairs, "new_cursor": next_cursor})
+        return jsonify({"bias_pairs": pairs, "new_cursor": next_cursor_usafe})
 
     return render_template(
         "home.html",
         title="Search results" if search else None,
         bias_pairs=bias_pairs,
         query_search=search,
-        query_cursor=next_cursor,
+        query_cursor=next_cursor_usafe,
     )
