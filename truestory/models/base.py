@@ -2,10 +2,12 @@
 
 
 import datetime
+import functools
 import logging
 import urllib.parse as urlparse
 from collections import OrderedDict
 
+from dateutil import tz
 from google.cloud import ndb
 
 from truestory import settings
@@ -22,6 +24,8 @@ MAX_BATCH_SIZE = 500
 client = None
 # Lazily loaded due to circular import (under SideMixin).
 PreferencesModel = None
+
+DateTimeProperty = functools.partial(ndb.DateTimeProperty, tzinfo=tz.tzutc())
 
 
 def ndb_kwargs(app=None):
@@ -68,7 +72,7 @@ class BaseModel(ndb.Model):
     # String used for properties with no available data (None).
     NOT_SET = "N/A"
 
-    created_at = ndb.DateTimeProperty(auto_now_add=True)
+    created_at = DateTimeProperty(auto_now_add=True)
 
     def __init__(self, *args, **kwargs):
         kwargs.update(ndb_kwargs())

@@ -1,7 +1,7 @@
 """RSS related models."""
 
 
-from truestory.models.base import BaseModel, SideMixin, ndb
+from truestory.models.base import BaseModel, DateTimeProperty, SideMixin, ndb
 
 
 class RssTargetModel(SideMixin, BaseModel):
@@ -12,7 +12,7 @@ class RssTargetModel(SideMixin, BaseModel):
     link = ndb.StringProperty(required=True)
     site = ndb.StringProperty(required=True)
 
-    last_modified = ndb.DateTimeProperty()
+    last_modified = DateTimeProperty()
     etag = ndb.StringProperty()
     gone = ndb.BooleanProperty(default=False)
     auth_required = ndb.BooleanProperty(default=False)
