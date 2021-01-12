@@ -52,7 +52,7 @@ def batch_process(function, iterable, size=MAX_BATCH_SIZE):
     iterable = list(iterable)
     for idx in range(0, len(iterable), size):
         subiter = iterable[idx:idx + size]
-        batch_returns.append(function(subiter))
+        batch_returns.extend(function(subiter))
     return batch_returns
 
 
