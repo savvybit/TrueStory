@@ -93,7 +93,7 @@ class create_task:
                 "body": self._serialize_args(args, kwargs),
             }
         }
-        response = self.tasks_client.create_task(parent, task)
+        response = self.tasks_client.create_task(parent=parent, task=task)
         logging.debug("Created task %s.", response.name)
 
     def __call__(self, function):
