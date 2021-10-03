@@ -35,6 +35,8 @@ json = FlaskJSON(app)
 # NOTE(cmiN): Remember that the original `get_remote_address` always returns
 #  "127.0.0.1" under GAE deployment.
 limiter = Limiter(app, key_func=get_remote_address)
+static = app.view_functions.get("static")
+limiter.exempt(static)
 
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
