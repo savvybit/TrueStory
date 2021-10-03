@@ -59,7 +59,10 @@
     },
     {
       "source_name": "Reuters - Politics",
-      "link": "http://feeds.reuters.com/Reuters/PoliticsNews"
+      "link": "http://feeds.reuters.com/Reuters/PoliticsNews",
+      "enabled": false,
+      "accepted": true,
+      "_comment": "They stopped the RSS feeds."
     },
     {
       "source_name": "Reuters - Top News",
