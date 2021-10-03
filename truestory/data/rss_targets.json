@@ -67,16 +67,19 @@
     {
       "source_name": "Reuters - Top News",
       "link": "http://feeds.reuters.com/reuters/topNews",
+      "accepted": true,
       "enabled": false
     },
     {
       "source_name": "Reuters - U.S. News",
       "link": "http://feeds.reuters.com/Reuters/domesticNews",
+      "accepted": true,
       "enabled": false
     },
     {
       "source_name": "Reuters - World News",
       "link": "http://feeds.reuters.com/Reuters/worldNews",
+      "accepted": true,
       "enabled": false
     },
     {
